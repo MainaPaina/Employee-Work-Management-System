@@ -246,12 +246,16 @@ router.get('/', checkAdmin, async (req, res) => {
     }
 });
 
-    /**
-     * Create new user API endpoint
-     */
-    router.post('/api/users', checkAdmin, async (req, res) => {
-        try {
-            const { username, fullName, email, role, password } = req.body;
+/**
+ * Create new user API endpoint
+ */
+router.post('/api/users', checkAdmin, async (req, res) => {
+    console.log('POST /admin/api/users route hit');
+    console.log('Request body:', req.body);
+    
+    try {
+        const { username, fullName, email, role, password } = req.body;
+        console.log('Extracted fields:', { username, fullName, email, role, password: password ? '[REDACTED]' : undefined });
         
         // Validate required fields
         if (!username || !fullName || !email || !role || !password) {
@@ -282,13 +286,32 @@ router.get('/', checkAdmin, async (req, res) => {
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // Create the user
-        await db.run(
-            'INSERT INTO users (username, name, email, role, password, active) VALUES (?, ?, ?, ?, ?, ?)',
-            [username, fullName, email, role, hashedPassword, 1]
-        );
-        
-        res.status(201).json({ success: true, message: 'User created successfully' });
+        // Before running the database insert operation
+        console.log('Attempting to create user with data:', { 
+            username, 
+            name: fullName, 
+            email, 
+            role, 
+            password: '[HASHED]', 
+            active: 1 
+        });
+
+        try {
+            const result = await db.run(
+                'INSERT INTO users (username, name, email, role, password, active) VALUES (?, ?, ?, ?, ?, ?)',
+                [username, fullName, email, role, hashedPassword, 1]
+            );
+            console.log('Database insert result:', result);
+            
+            res.status(201).json({ success: true, message: 'User created successfully' });
+        } catch (dbError) {
+            console.error('Database error creating user:', dbError);
+            res.status(500).json({ 
+                error: true, 
+                message: 'Database error creating user', 
+                details: dbError.message 
+            });
+        }
     } catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ error: true, message: 'Failed to create user' });

@@ -23,9 +23,8 @@ const leaveRoutes = require('./routes/leave');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Parse JSON body
+// These should be before any route handlers
 app.use(express.json());
-// Parse URL-encoded form bodies
 app.use(express.urlencoded({ extended: true }));
 
 // ============================================================================

@@ -1,0 +1,9 @@
+* admin page scroll and bytte SQL - fredrik 
+
+* profile picture in nav bar - add image saving in SQL  
+
+* more FAQ, contact page,  update to allow all questions at once, ask harish if she is happy with split, - maina 
+
+* sub index for logged inn users - Stian K 
+
+* color pallet - update to SCSS, fancy up the page - everyone
