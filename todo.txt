@@ -2,7 +2,11 @@
 
 * profile picture in nav bar - add image saving in SQL  
 
-* more FAQ, contact page,  update to allow all questions at once, ask harish if she is happy with split, - maina 
+DONE - 02.04.2025
+	* more FAQ, contact page,  update to allow all questions at once, ask harish if she is happy with split, - maina 
+	- contact us page now complies with product requirement
+	- faq questions will now stay visible until user clicks on them again. All questions can show answers at the same time.
+	
 
 * sub index for logged inn users - Stian K 
 
