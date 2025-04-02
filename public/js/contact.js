@@ -32,6 +32,7 @@ function toggleFaqQuestions(faqAnswerID) {
     const isVisible = faqAnswer.classList.contains('faq-answer-visible');
     
     // Update all other FAQs to ensure only one is open at a time
+    /*
     document.querySelectorAll('.faq-answer.faq-answer-visible').forEach(item => {
         if (item.id !== faqAnswerID) {
             // Close other open items
@@ -42,7 +43,7 @@ function toggleFaqQuestions(faqAnswerID) {
                 item.classList.remove('faq-answer-visible');
             }, 300);
         }
-    });
+    });*/
     
     // Toggle current FAQ
     if (!isVisible) {
@@ -79,7 +80,7 @@ function initFAQ() {
         if (questionElement) {
             const indicator = questionElement.querySelector('.indicator');
             if (indicator) {
-                indicator.textContent = '+';
+                //indicator.textContent = '+';
             }
         }
     });

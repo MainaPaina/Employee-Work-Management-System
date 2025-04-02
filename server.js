@@ -291,14 +291,6 @@ app.get('/contact', (req, res) => {
   res.render('contact', { activePage: 'contact' });
 });
 
-// FAQ page
-app.get('/faq', (req, res) => {
-  res.render('faq', { 
-    isAuthenticated: req.session.isAuthenticated || false,
-    activePage: 'faq'
-  });
-});
-
 // Profile route (protected)
 app.get('/profile', checkAuth, (req, res) => {
   res.render('profile', { 
