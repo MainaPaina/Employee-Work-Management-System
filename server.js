@@ -119,7 +119,13 @@ app.use((req, res, next) => {
 
 // Middleware to check if user is logged in
 const checkAuth = (req, res, next) => {
-  if (!req.session.user) { // Changed from req.session.isAuthenticated
+    if (!req.session.user) { // Changed from req.session.isAuthenticated
+        if (req.originalUrl === '/timesheet' || req.originalUrl === '/apply-leave') {
+            return res.redirect('/login?return=' + req.originalUrl + '&error=Please log in to access Timesheet');
+        }
+        if (req.originalUrl === '/apply-leave') {
+            return res.redirect('/login?return=' + req.originalUrl + '&error=Please log in to access Apply Leave');
+        }
     return res.redirect('/login?error=Please log in to access this page');
   }
   next();
@@ -151,7 +157,7 @@ app.use('/api/leaves', leaveRoutes); // Change from '/' to '/api/leaves'
 
 // Login and registration page routes only, not all auth routes
 app.get('/login', (req, res) => {
-  res.render('login', { activePage: 'login', error: req.query.error });
+  res.render('login', { return: req.query.return, activePage: 'login', error: req.query.error });
 });
 
 app.get('/register', (req, res) => {
@@ -162,7 +168,7 @@ app.get('/register', (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const returnUrl = req.body.returnUrl || '/dashboard';
+    const returnUrl = req.query.return || '/dashboard';
     
     // Find user in database
     const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
