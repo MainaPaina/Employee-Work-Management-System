@@ -1,132 +1,113 @@
-const jwt = require('jsonwebtoken');
+const supabase = require('../config/supabaseClient');
+const User = require('../model/User'); // User model for profile operations
 
 class AuthController {
-    constructor(userModel) {
-        this.userModel = userModel;
-    }
 
     async login(req, res) {
         const { username, password } = req.body;
+
+        if (!username || !password) {
+            req.flash('error', 'Username and password are required.');
+            return res.redirect('/login');
+        }
+
         try {
-            const user = await this.userModel.findUserByUsername(username);
-            if (!user || !user.validatePassword(password)) {
-                return res.status(401).json({ message: 'Invalid credentials' });
+            // 1. First, look up the user by username to get their email
+            const userData = await User.findByUsername(username);
+
+            if (!userData) {
+                console.log('No user found with username:', username);
+                req.flash('error', 'Invalid username or password.');
+                return res.redirect('/login');
             }
-            
-            // Generate JWT token
-            const accessToken = jwt.sign(
-                { 
-                    "UserInfo": {
-                        "username": user.username,
-                        "roles": user.roles
-                    }
-                },
-                process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: '15m' }
-            );
-            
-            const refreshToken = jwt.sign(
-                { "username": user.username },
-                process.env.REFRESH_TOKEN_SECRET,
-                { expiresIn: '1d' }
-            );
-            
-            // Save refreshToken with current user
-            user.refreshToken = refreshToken;
-            await this.userModel.updateUser(user);
-            
-            // Send tokens
-            res.cookie('jwt', refreshToken, { 
-                httpOnly: true, 
-                sameSite: 'None',
-                secure: true,
-                maxAge: 24 * 60 * 60 * 1000 
+
+            const email = userData.email;
+
+            // 2. Authenticate with Supabase Auth
+            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
             });
-            
-            res.status(200).json({ accessToken });
+
+            if (authError) {
+                console.error('Supabase login error:', authError.message);
+                req.flash('error', 'Invalid username or password.');
+                return res.redirect('/login');
+            }
+
+            if (!authData || !authData.user) {
+                req.flash('error', 'Login failed. Please try again.');
+                return res.redirect('/login');
+            }
+
+            // 2. Fetch user profile data from 'employees' table using User model
+            const profile = await User.findById(authData.user.id);
+
+            if (!profile) {
+                // This case might indicate an issue: user exists in auth but not in employees table
+                console.warn(`User ${authData.user.id} authenticated but profile not found in employees table.`);
+                // Log them out of Supabase session for safety?
+                await supabase.auth.signOut();
+                req.flash('error', 'Login failed: User profile not found.');
+                return res.redirect('/login');
+            }
+
+            // 3. Store essential user info in session
+            req.session.user = {
+                id: authData.user.id,          // Supabase Auth user ID
+                email: authData.user.email,
+                // Add relevant profile data needed across the app
+                full_name: profile.full_name, // Example field from 'employees'
+                role: profile.role,           // Example field from 'employees'
+                // DO NOT store sensitive data like password hashes here
+            };
+
+            // 4. Redirect to dashboard or intended page
+            const returnTo = req.session.returnTo || '/dashboard';
+            delete req.session.returnTo; // Clear the stored URL
+            req.flash('success', 'Login successful!'); // Optional success message
+            res.redirect(returnTo);
+
         } catch (error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
+            console.error('Login controller exception:', error);
+            req.flash('error', 'An unexpected error occurred during login.');
+            res.redirect('/login');
         }
     }
 
-    async register(req, res) {
-        const { username, password } = req.body;
-        try {
-            const existingUser = await this.userModel.findUserByUsername(username);
-            if (existingUser) {
-                return res.status(400).json({ message: 'User already exists' });
-            }
-            const newUser = await this.userModel.createUser({ username, password });
-            res.status(201).json({ message: 'User registered successfully', user: { username: newUser.username } });
-        } catch (error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
-        }
-    }
-    
-    async refresh(req, res) {
-        const cookies = req.cookies;
-        if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' });
-        
-        const refreshToken = cookies.jwt;
-        try {
-            const user = await this.userModel.findUserByRefreshToken(refreshToken);
-            if (!user) return res.status(403).json({ message: 'Forbidden' });
-            
-            // Evaluate jwt 
-            jwt.verify(
-                refreshToken,
-                process.env.REFRESH_TOKEN_SECRET,
-                (err, decoded) => {
-                    if (err || user.username !== decoded.username) {
-                        return res.status(403).json({ message: 'Forbidden' });
-                    }
-                    
-                    const accessToken = jwt.sign(
-                        {
-                            "UserInfo": {
-                                "username": user.username,
-                                "roles": user.roles
-                            }
-                        },
-                        process.env.ACCESS_TOKEN_SECRET,
-                        { expiresIn: '15m' }
-                    );
-                    
-                    res.json({ accessToken });
-                }
-            );
-        } catch (error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
-        }
-    }
-    
     async logout(req, res) {
-        const cookies = req.cookies;
-        if (!cookies?.jwt) return res.status(204).json({ message: 'No content' });
-        
-        const refreshToken = cookies.jwt;
         try {
-            // Is refreshToken in db?
-            const user = await this.userModel.findUserByRefreshToken(refreshToken);
-            
-            // Clear refreshToken in db
-            if (user) {
-                user.refreshToken = '';
-                await this.userModel.updateUser(user);
+            // Sign out from Supabase
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+                console.error('Supabase logout error:', error.message);
+                // Even if Supabase fails, clear the local session
             }
-            
-            // Clear cookie
-            res.clearCookie('jwt', { 
-                httpOnly: true, 
-                sameSite: 'None', 
-                secure: true 
+
+            // Clear the session
+            req.session.destroy(err => {
+                if (err) {
+                    console.error('Session destruction error:', err);
+                     // Still try to redirect
+                     res.clearCookie('connect.sid'); // Clear session cookie manually if possible
+                     return res.redirect('/'); // Redirect to home even if session clear failed
+                }
+                // Ensure session cookie is cleared
+                res.clearCookie('connect.sid'); // Default cookie name for express-session
+                res.redirect('/login'); // Redirect to login page after logout
             });
-            
-            res.status(204).json({ message: 'Logout successful' });
+
         } catch (error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
+            console.error('Logout controller exception:', error);
+            // Attempt to clear session and redirect even on exception
+            if (req.session) {
+                req.session.destroy(() => {});
+            }
+            res.clearCookie('connect.sid');
+            res.redirect('/');
         }
     }
 }
 
-module.exports = AuthController;
+module.exports = new AuthController(); // Export an instance

@@ -31,7 +31,7 @@
   --light-gray: #e9ecef;
   --dark-gray: #343a40;
   --text-shadow-light: 0 1px 1px rgba(255,255,255,0.8);
-  
+
   /* Dark mode versions of the text colors - will be used when in light mode */
   --dark-text-color: #212529;
   --dark-text-color-secondary: #343a40;
@@ -50,7 +50,7 @@ body {
   color: var(--text-color);
   background-color: var(--dark-color);
   overflow-x: hidden;
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 20%, rgba(74, 108, 253, 0.05) 0%, transparent 20%),
     radial-gradient(circle at 80% 60%, rgba(255, 125, 59, 0.05) 0%, transparent 20%),
     radial-gradient(circle at 40% 80%, rgba(0, 216, 195, 0.05) 0%, transparent 20%);
@@ -189,8 +189,8 @@ a:hover {
 /* Card styling with glass morphism effect */
 .card {
   background-color: rgba(18, 25, 43, 0.7);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
   box-shadow: var(--box-shadow);
   padding: 20px;
@@ -214,8 +214,8 @@ a:hover {
   width: 100%;
   z-index: 1000;
   background-color: rgba(18, 25, 43, 0.8);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   padding: 15px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -313,19 +313,19 @@ a:hover {
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .mobile-menu-toggle.active .toggle-bar:nth-child(1) {
     transform: translateY(8px) rotate(45deg);
   }
-  
+
   .mobile-menu-toggle.active .toggle-bar:nth-child(2) {
     opacity: 0;
   }
-  
+
   .mobile-menu-toggle.active .toggle-bar:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
   }
-  
+
   .nav-list {
     position: fixed;
     top: 0;
@@ -339,19 +339,19 @@ a:hover {
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
     z-index: 1000;
   }
-  
+
   .nav-list.active {
     right: 0;
   }
-  
+
   .nav-link::after {
     display: none;
   }
-  
+
   .nav-item {
     width: 100%;
   }
-  
+
   .nav-link {
     width: 100%;
     padding: 15px 0;
@@ -449,8 +449,8 @@ a:hover {
 /* Footer Styling */
 footer {
   background-color: rgba(18, 25, 43, 0.9);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   color: var(--text-color-secondary);
   padding: 60px 0 20px;
   margin-top: 60px;
@@ -563,7 +563,7 @@ footer {
     grid-template-columns: 1fr;
     gap: 30px;
   }
-  
+
   .footer-section:not(:last-child) {
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -619,8 +619,8 @@ footer {
   padding: 25px;
   border-radius: 16px;
   background-color: rgba(18, 25, 43, 0.7);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   box-shadow: var(--box-shadow);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
@@ -724,6 +724,7 @@ footer {
   border-radius: 10px;
   transition: width 1s ease;
   position: relative;
+  will-change: transform, background-position;
 }
 
 .timer-bar::before {
@@ -736,6 +737,7 @@ footer {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
+  will-change: background-position;
 }
 
 @keyframes shimmer {
@@ -792,12 +794,13 @@ footer {
 
 .period-option {
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
   font-size: 0.9rem;
+  /* The following styles will be inherited from .btn */
+  /* background: rgba(255, 255, 255, 0.05); */
+  /* border: 1px solid rgba(255, 255, 255, 0.1); */
+  /* cursor: pointer; */
+  /* transition: all 0.3s ease; */
 }
 
 .period-option:hover {
@@ -806,9 +809,9 @@ footer {
 }
 
 .period-option.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+  background: var(--accent) !important;
+  color: #fff !important;
+  border-color: var(--accent) !important;
   box-shadow: 0 4px 12px rgba(74, 108, 253, 0.3);
 }
 
@@ -862,12 +865,13 @@ footer {
   align-items: center;
   gap: 5px;
   padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
   font-size: 0.85rem;
+  /* The following styles will be inherited from .btn */
+  /* background: rgba(255, 255, 255, 0.05); */
+  /* border: 1px solid rgba(255, 255, 255, 0.1); */
+  /* cursor: pointer; */
+  /* transition: all 0.3s ease; */
 }
 
 .filter-chip:hover {
@@ -875,8 +879,9 @@ footer {
 }
 
 .filter-chip.active {
-  background: rgba(74, 108, 253, 0.2);
-  border-color: var(--accent);
+  background: rgba(74, 108, 253, 0.2) !important;
+  border-color: var(--accent) !important;
+  color: var(--text-color) !important;
 }
 
 .filter-chip i {
@@ -890,19 +895,19 @@ footer {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 10px;
   margin-top: 15px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
   border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  /* The following styles will be inherited from .btn */
+  /* padding: 10px; */
+  /* background: var(--accent); */
+  /* color: #fff; */
+  /* border: none; */
+  /* cursor: pointer; */
+  /* font-weight: 600; */
+  /* transition: all 0.3s ease; */
 }
 
 .apply-button:hover {
-  background: var(--accent-light);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(74, 108, 253, 0.3);
 }
@@ -936,19 +941,18 @@ footer {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
   border-radius: 8px;
-  background-color: rgba(30, 42, 69, 0.5);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  cursor: pointer;
-  transition: all 0.3s ease;
   font-size: 0.9rem;
+  /* The following styles will be inherited from .btn */
+  /* padding: 8px 16px; */
+  /* background-color: rgba(30, 42, 69, 0.5); */
+  /* color: white; */
+  /* border: 1px solid rgba(255, 255, 255, 0.05); */
+  /* cursor: pointer; */
+  /* transition: all 0.3s ease; */
 }
 
 .table-action-btn:hover {
-  background-color: rgba(74, 108, 253, 0.2);
-  border-color: rgba(74, 108, 253, 0.3);
   transform: translateY(-3px);
 }
 
@@ -990,11 +994,11 @@ footer {
   .timesheet-controls {
     grid-template-columns: 1fr;
   }
-  
+
   .dashboard-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .timesheet-table {
     display: block;
     overflow-x: auto;
@@ -1282,6 +1286,7 @@ footer {
   bottom: -30px;
   left: -30px;
   background: rgba(18, 25, 43, 0.8);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   padding: 20px;
   border-radius: 16px;
@@ -1333,31 +1338,31 @@ footer {
   .about-content {
     grid-template-columns: 1fr;
   }
-  
+
   .about-text {
     order: 2;
     padding-right: 0;
   }
-  
+
   .about-image {
     order: 1;
     margin-bottom: 50px;
   }
-  
+
   /* Fixed flex-direction rule */
   .action-buttons {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .feature-card {
     padding: 20px;
   }
-  
+
   .hero {
     padding: 60px 0;
   }
-  
+
   .features, .about {
     padding: 60px 0;
   }
@@ -1375,7 +1380,7 @@ footer {
   }
 }
 
-.page-header, 
+.page-header,
 .dashboard-cards,
 .timesheet-controls,
 .timesheet-table-container {
@@ -1587,9 +1592,9 @@ footer {
 }
 
 /* Global text readability improvements */
-.text-muted, 
+.text-muted,
 .about-text p,
-.feature-card p, 
+.feature-card p,
 .progress-name,
 .page-subtitle,
 .footer-desc {
@@ -1599,7 +1604,7 @@ footer {
 /* 4. Add proper text color handling for dark/light mode toggle */
 body.dark-mode {
   /* ...existing dark mode styles... */
-  
+
   /* Use dark mode text colors */
   --text-color: #f8f9fa;
   --text-color-secondary: #dee2e6;
@@ -1609,12 +1614,12 @@ body.dark-mode {
 /* Light mode */
 body:not(.dark-mode) {
   background-color: #f8f9fa;
-  
+
   /* Use light mode text colors */
   --text-color: var(--dark-text-color);
   --text-color-secondary: var(--dark-text-color-secondary);
   --text-muted: var(--dark-text-muted);
-  
+
   /* Improved text readability for specific elements in light mode */
   .hero p,
   .feature-card p,
@@ -1624,7 +1629,7 @@ body:not(.dark-mode) {
   .text-muted {
     color: #333333 !important; /* Much darker muted text in light mode */
   }
-  
+
   /* Fix for other commonly used text elements */
   .progress-name,
   .status-label,
@@ -1632,17 +1637,17 @@ body:not(.dark-mode) {
   .card-content h4 {
     color: #333333 !important;
   }
-  
+
   /* More readable card text */
   .feature-card {
     color: #212529;
   }
-  
+
   /* Fix for footer links */
   .footer-links a {
     color: #333333;
   }
-  
+
   /* Stronger secondary text */
   .login-form label,
   .profile-form label,
@@ -2076,84 +2081,84 @@ body:not(.dark-mode) .hero p {
 /* Updated light mode styles */
 body:not(.dark-mode) {
   background-color: #f8f9fa;
-  
+
   /* Use light mode text colors */
   --text-color: var(--dark-text-color);
   --text-color-secondary: var(--dark-text-color-secondary);
   --text-muted: var(--dark-text-muted);
-  
+
   /* Navbar light mode style */
   .navbar {
     background-color: #ffffff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     border-bottom: 1px solid #e9ecef;
   }
-  
+
   .navbar-logo {
     color: var(--dark-text-color);
   }
-  
+
   .nav-link {
     color: var(--dark-text-color) !important;
   }
-  
-  .nav-link:hover, 
+
+  .nav-link:hover,
   .nav-link.active {
     color: var(--primary-color) !important;
   }
-  
+
   /* Mobile menu toggle bars */
   .toggle-bar {
     background-color: var(--dark-text-color);
   }
-  
+
   /* Footer remains dark in light mode for visual separation */
   footer {
     background-color: #1e2A45;
     color: #f8f9fa;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
-  
+
   .footer-title {
     color: white !important;
   }
-  
+
   .footer-desc {
     color: #adb5bd !important;
   }
-  
+
   .footer-links a {
     color: #dee2e6 !important;
   }
-  
+
   .footer-links a:hover {
     color: var(--accent-color) !important;
   }
-  
+
   .footer-bottom {
     color: #adb5bd !important;
   }
-  
+
   /* User dropdown in light mode */
   .user-dropdown-btn {
     color: var(--dark-text-color);
   }
-  
+
   .user-avatar {
     background: var(--primary-color);
     color: white;
   }
-  
+
   .user-dropdown-content {
     background-color: #ffffff;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     border: 1px solid #e9ecef;
   }
-  
+
   .user-dropdown-content a {
     color: var(--dark-text-color) !important;
   }
-  
+
   .user-dropdown-content a:hover {
     background-color: #f8f9fa;
     color: var(--primary-color) !important;
@@ -2164,54 +2169,54 @@ body:not(.dark-mode) {
 body.dark-mode {
   background-color: #121212;
   color: #f8f9fa;
-  
+
   /* Header in dark mode */
   .navbar {
     background-color: rgba(18, 25, 43, 0.95);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
-  
+
   .nav-link {
     color: #f8f9fa !important;
   }
-  
-  .nav-link:hover, 
+
+  .nav-link:hover,
   .nav-link.active {
     color: var(--accent-color) !important;
   }
-  
+
   /* Footer in dark mode - slightly darker than the main background */
   footer {
     background-color: rgba(15, 20, 35, 0.95);
     border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
-  
+
   .footer-title {
     color: #f8f9fa !important;
   }
-  
+
   .footer-desc {
     color: #adb5bd !important;
   }
-  
+
   .footer-links a {
     color: #dee2e6 !important;
   }
-  
+
   /* User dropdown */
   .user-dropdown-btn {
     color: #f8f9fa;
   }
-  
+
   .user-dropdown-content {
     background-color: #1e1e1e;
     border: 1px solid #333;
   }
-  
+
   .user-dropdown-content a {
     color: #f8f9fa !important;
   }
-  
+
   .user-dropdown-content a:hover {
     background-color: #2d2d2d;
   }
@@ -2231,11 +2236,11 @@ body.dark-mode {
     background-color: #ffffff;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
   }
-  
+
   body:not(.dark-mode) .nav-link {
     border-bottom: 1px solid #e9ecef;
   }
-  
+
   body.dark-mode .nav-list {
     background-color: #1a1a1a;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
@@ -2260,62 +2265,62 @@ body:not(.dark-mode) {
   .navbar-logo i {
     color: var(--primary-color);
   }
-  
+
   /* Feature card icons are already bright with custom backgrounds */
-  
+
   /* Footer icons need to remain visible */
   .footer-links i {
     color: var(--accent-color) !important; /* Brighter icons in footer links */
   }
-  
+
   /* Social icons in footer */
   .social-icon i {
     color: white !important;
   }
-  
+
   /* Button icons */
   .btn i {
     color: inherit;
   }
-  
+
   /* Card icons */
   .card i,
   .feature-card i:not(.feature-icon-wrapper i) {
     color: var(--primary-color);
   }
-  
+
   /* Status indicators and form icons */
   .status-indicator i,
   .form-group i,
   .input-group i {
     color: var(--primary-color);
   }
-  
+
   /* Checkmarks and list icons */
   ul li i.fa-check-circle {
     color: var(--success-dark) !important;
   }
-  
+
   /* Alert icons */
   .alert-success i {
     color: #155724;
   }
-  
+
   .alert-danger i {
     color: #721c24;
   }
-  
+
   /* User dropdown icons */
   .user-dropdown-content a i {
     color: var(--primary-color) !important;
     margin-right: 8px;
   }
-  
+
   /* Icon in user avatar */
   .user-avatar i {
     color: white !important;
   }
-  
+
   /* Toggle button icons */
   .toggle-button i,
   .mobile-menu-toggle i {

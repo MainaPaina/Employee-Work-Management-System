@@ -1,29 +1,29 @@
-const db = require('../config/sqliteConn');
+const supabase = require('../config/supabaseClient'); // Use Supabase client
 
 class Employee {
   /**
-   * Create a new employee
-   * @param {Object} employeeData - Employee information
-   * @returns {Promise<Object>} - Newly created employee with ID
+   * Create a new employee record linked to a user
+   * @param {Object} employeeData - Employee information (including user_id)
+   * @returns {Promise<Object>} - Newly created employee data
    */
   static async create(employeeData) {
-    const { name, email, position, department, hireDate } = employeeData;
-    
+    // Assuming employeeData includes user_id, leave_quota, etc.
+    // Remove fields not directly in the employees table if needed
+    const { user_id, leave_quota, ...otherData } = employeeData; // Example structure
+
     try {
-      const result = await db.run(
-        `INSERT INTO employees (name, email, position, department, hire_date) 
-         VALUES (?, ?, ?, ?, ?)`,
-        [name, email, position, department, hireDate]
-      );
-      
-      return {
-        id: result.lastID,
-        name,
-        email,
-        position,
-        department,
-        hireDate
-      };
+      const { data, error } = await supabase
+        .from('employees')
+        .insert({
+          user_id: user_id, // Link to the users table
+          leave_quota: leave_quota, // Set initial quota
+          // ... add other relevant employee fields from your table
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
     } catch (error) {
       console.error('Error creating employee:', error);
       throw error;
@@ -31,40 +31,60 @@ class Employee {
   }
 
   /**
-   * Get employee by ID
+   * Get employee by Employee ID (the primary key of the employees table)
    * @param {number} id - Employee ID
    * @returns {Promise<Object>} - Employee data
    */
   static async getById(id) {
     try {
-      return await db.get('SELECT * FROM employees WHERE id = ?', [id]);
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*') // Select specific columns or related data if needed
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error getting employee:', error);
+      console.error('Error getting employee by ID:', error);
       throw error;
     }
   }
-  
+
   /**
-   * Get all employees
+   * Get all employees (consider pagination for large datasets)
    * @returns {Promise<Array>} - Array of employees
    */
   static async getAll() {
     try {
-      return await db.all('SELECT * FROM employees');
+      const { data, error } = await supabase
+        .from('employees')
+        .select('* , users ( id, username, name, email, role, active ) '); // Example: Join with users table
+        // Add .order() or .range() for sorting/pagination if needed
+
+      if (error) throw error;
+      return data;
     } catch (error) {
       console.error('Error getting all employees:', error);
       throw error;
     }
   }
-  
+
   /**
-   * Get employee by user ID
-   * @param {number} userId - User ID
+   * Get employee by the associated User ID
+   * @param {number} userId - User ID from the users table
    * @returns {Promise<Object>} - Employee data
    */
   static async getByUserId(userId) {
     try {
-      return await db.get('SELECT * FROM employees WHERE user_id = ?', [userId]);
+      const { data, error } = await supabase
+        .from('employees')
+        .select('* , users ( id, username, name, email, role, active ) ') // Join with users table
+        .eq('user_id', userId)
+        .single();
+
+      if (error) throw error;
+      return data;
     } catch (error) {
       console.error('Error getting employee by user ID:', error);
       throw error;
@@ -73,24 +93,24 @@ class Employee {
 
   /**
    * Update employee information
-   * @param {number} id - Employee ID
+   * @param {number} id - Employee ID (primary key of employees table)
    * @param {Object} employeeData - Updated employee data
    * @returns {Promise<boolean>} - Success status
    */
   static async update(id, employeeData) {
-    const { name, email, position, department, hireDate } = employeeData;
-    
+    // Destructure only the fields relevant to the 'employees' table
+    const { leave_quota, ...otherUpdatableFields } = employeeData;
+
     try {
-      await db.run(
-        `UPDATE employees SET 
-         name = ?, 
-         email = ?, 
-         position = ?, 
-         department = ?, 
-         hire_date = ? 
-         WHERE id = ?`,
-        [name, email, position, department, hireDate, id]
-      );
+      const { error } = await supabase
+        .from('employees')
+        .update({
+            leave_quota: leave_quota,
+            // ...otherUpdatableFields
+        })
+        .eq('id', id);
+
+      if (error) throw error;
       return true;
     } catch (error) {
       console.error('Error updating employee:', error);
@@ -99,13 +119,21 @@ class Employee {
   }
 
   /**
-   * Get employee timesheets
-   * @param {number} employeeId - Employee ID
+   * Get employee timesheets (assuming a 'timesheets' table exists)
+   * @param {number} employeeId - Employee ID (from employees table)
    * @returns {Promise<Array>} - Array of timesheets
    */
   static async getTimesheets(employeeId) {
     try {
-      return await db.all('SELECT * FROM timesheets WHERE employee_id = ?', [employeeId]);
+      // Assuming the timesheets table has an 'employee_id' foreign key
+      const { data, error } = await supabase
+        .from('timesheets')
+        .select('*')
+        .eq('employee_id', employeeId)
+        .order('date', { ascending: false }); // Example ordering
+
+      if (error) throw error;
+      return data;
     } catch (error) {
       console.error('Error getting employee timesheets:', error);
       throw error;
@@ -113,16 +141,19 @@ class Employee {
   }
 
   /**
-   * Get employee leave requests
-   * @param {number} employeeId - Employee ID
+   * Get employee leave requests (delegated to Leave model)
+   * @param {number} employeeId - User ID (since Leave model uses user ID)
    * @returns {Promise<Array>} - Array of leave requests
    */
   static async getLeaveRequests(employeeId) {
+    // Delegate to the already refactored Leave model method
+    // Note: Leave model uses user_id, ensure consistency
+    const Leave = require('./Leave'); // May need relative path adjustment
     try {
-      return await db.all('SELECT * FROM leaves WHERE employee_id = ?', [employeeId]);
+        return await Leave.getByEmployeeId(employeeId);
     } catch (error) {
-      console.error('Error getting employee leaves:', error);
-      throw error;
+        console.error('Error getting employee leaves via Leave model:', error);
+        throw error;
     }
   }
 }

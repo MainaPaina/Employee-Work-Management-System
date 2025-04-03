@@ -584,43 +584,47 @@ function setupTimeTracking() {
     }
 }
 
-// Helper function for time tracking API requests
-async function sendTimeTrackingRequest(url, method = 'POST') {
-    try {
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Something went wrong');
-        }
-        
-        return data;
-    } catch (error) {
-        console.error('Error:', error);
-        throw error.message || 'Network error';
-    }
-}
-
 // Update timesheet status without full page reload
 async function updateTimesheetStatus() {
     try {
-        const response = await fetch('/api/timesheet-status');
+        const token = localStorage.getItem('token'); // Retrieve the token
+        if (!token) {
+            console.error('updateTimesheetStatus: No token found, cannot update status.');
+            // Optionally stop the interval if token is permanently missing?
+            // clearInterval(intervalId); // Need to manage intervalId scope
+            return; // Don't attempt fetch without token
+        }
+
+        const response = await fetch('/api/status', {
+             headers: {
+                 'Authorization': `Bearer ${token}` // Add the Authorization header
+             }
+        });
+        
+        // Check for non-OK responses (like 401, 403)
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({})); // Attempt to get error details
+            const errorMessage = errorData.error || errorData.message || `Failed to fetch status: ${response.status}`;
+            console.error('Error updating timesheet status:', errorMessage);
+            // If unauthorized (401/403), maybe stop trying or redirect?
+            if (response.status === 401 || response.status === 403) {
+                 console.warn('Unauthorized access to timesheet status. Stopping updates or redirecting might be needed.');
+                 // Potentially clear interval or redirect here
+            }
+            return; // Stop processing on error
+        }
+
         const data = await response.json();
         
         // Update countdown timer
         const countdownElement = document.getElementById('countdown-timer');
         if (countdownElement && data.activeEntry) {
-            updateCountdown();
+            updateCountdown(); // Assuming updateCountdown exists elsewhere
         }
         
     } catch (error) {
-        console.error('Error updating timesheet status:', error);
+        // Catch fetch network errors or errors from response.json() if response wasn't JSON
+        console.error('Network or processing error in updateTimesheetStatus:', error);
     }
 }
 
@@ -747,3 +751,54 @@ notificationStyles.textContent = `
     }
 `;
 document.head.appendChild(notificationStyles);
+
+// Helper function for time tracking API requests
+async function sendTimeTrackingRequest(url, method = 'POST') {
+    try {
+        const token = localStorage.getItem('token'); // Retrieve the token
+        if (!token) {
+            // Handle cases where the token might be missing (e.g., user logged out)
+            // Maybe redirect to login or show an error
+            console.error('No authentication token found. Please log in.');
+            showNotification('Authentication error. Please log in again.', 'error');
+            // Optionally, redirect to login page:
+            // window.location.href = '/login';
+            throw new Error('Authentication token not found');
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Add the Authorization header
+            }
+        });
+
+        const data = await response.json();
+
+        // Check for non-OK responses (like 401, 403, 500 etc.)
+        if (!response.ok) {
+             // Use the error message from the server response if available
+            const errorMessage = data.error || data.message || `Request failed with status ${response.status}`;
+            console.error(`API Error (${response.status}):`, errorMessage);
+            throw new Error(errorMessage);
+        }
+
+        return data;
+    } catch (error) {
+        // Catch fetch errors (network issues) or errors thrown from response check
+        console.error('sendTimeTrackingRequest Error:', error);
+
+        // Attempt to parse JSON even from error responses if needed, but handle gracefully
+        let errorDetail = 'Network error or invalid response';
+        if (error instanceof Error) {
+            errorDetail = error.message;
+        } else if (typeof error === 'string') {
+            errorDetail = error;
+        }
+
+        // Avoid throwing the raw error which might include the non-JSON string like "Unauthorized"
+        // Throw a consistent error message or the parsed server message if available
+        throw new Error(errorDetail);
+    }
+}

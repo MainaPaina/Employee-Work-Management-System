@@ -1,17 +1,26 @@
-const db = require('../config/sqliteConn');
+const supabase = require('../config/supabaseClient'); // Use Supabase client
 
 class Leave {
     // Create leave request
     static async create(leaveData) {
         const { employeeId, leaveType, startDate, endDate, reason, days } = leaveData;
         try {
-            const result = await db.run(
-                `INSERT INTO leaves 
-                (employee_id, leave_type, start_date, end_date, reason, days, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [employeeId, leaveType, startDate, endDate, reason, days, 'pending']
-            );
-            return { id: result.lastID, ...leaveData, status: 'pending' };
+            const { data, error } = await supabase
+                .from('leaves')
+                .insert({
+                    employee_id: employeeId,
+                    leave_type: leaveType,
+                    start_date: startDate,
+                    end_date: endDate,
+                    reason: reason,
+                    days: days,
+                    status: 'pending'
+                })
+                .select()
+                .single(); // Assuming insert returns the created row
+
+            if (error) throw error;
+            return data;
         } catch (error) {
             console.error('Error creating leave request:', error);
             throw error;
@@ -21,10 +30,14 @@ class Leave {
     // Get leave requests by employee ID
     static async getByEmployeeId(employeeId) {
         try {
-            return await db.all(
-                `SELECT * FROM leaves WHERE employee_id = ? ORDER BY created_at DESC`,
-                [employeeId]
-            );
+            const { data, error } = await supabase
+                .from('leaves')
+                .select('*')
+                .eq('employee_id', employeeId)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            return data;
         } catch (error) {
             console.error('Error fetching leave requests:', error);
             throw error;
@@ -34,7 +47,14 @@ class Leave {
     // Get leave request by ID
     static async getById(id) {
         try {
-            return await db.get(`SELECT * FROM leaves WHERE id = ?`, [id]);
+            const { data, error } = await supabase
+                .from('leaves')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (error) throw error;
+            return data;
         } catch (error) {
             console.error('Error fetching leave request:', error);
             throw error;
@@ -44,10 +64,16 @@ class Leave {
     // Update leave request status
     static async updateStatus(id, status, reviewedBy = null) {
         try {
-            await db.run(
-                `UPDATE leaves SET status = ?, reviewed_by = ?, reviewed_at = CURRENT_TIMESTAMP WHERE id = ?`,
-                [status, reviewedBy, id]
-            );
+            const { error } = await supabase
+                .from('leaves')
+                .update({
+                    status: status,
+                    reviewed_by: reviewedBy,
+                    reviewed_at: new Date().toISOString() // Set review timestamp
+                })
+                .eq('id', id);
+
+            if (error) throw error;
             return true;
         } catch (error) {
             console.error('Error updating leave status:', error);
@@ -55,10 +81,15 @@ class Leave {
         }
     }
 
-    // Cancel leave request
-    static async cancel(id) {
+    // Cancel leave request (only if pending)
+    static async cancel(id, employeeId) { // Added employeeId for RLS potentially
         try {
-            await db.run(`DELETE FROM leaves WHERE id = ? AND status = 'pending'`, [id]);
+            const { error } = await supabase
+                .from('leaves')
+                .delete()
+                .match({ id: id, status: 'pending', employee_id: employeeId }); // Ensure user owns the request
+
+            if (error) throw error;
             return true;
         } catch (error) {
             console.error('Error canceling leave request:', error);
@@ -69,33 +100,45 @@ class Leave {
     // Get leave summary for an employee
     static async getLeaveSummary(employeeId) {
         try {
-            // Get total leave quota (this would come from employee settings or a separate table)
-            const employee = await db.get(
-                `SELECT leave_quota FROM employees WHERE id = ?`,
-                [employeeId]
-            );
-            
-            const totalQuota = employee ? employee.leave_quota : 20; // Default quota
-            
-            // Get used leaves (only count approved leaves)
-            const result = await db.get(
-                `SELECT SUM(days) as used_leaves FROM leaves 
-                WHERE employee_id = ? AND status = 'approved' 
-                AND start_date >= datetime('now', 'start of year')`,
-                [employeeId]
-            );
-            
-            const usedLeaves = result.used_leaves || 0;
-            
+            // Get total leave quota from the employees table
+            const { data: employeeData, error: employeeError } = await supabase
+                .from('employees')
+                .select('leave_quota')
+                .eq('user_id', employeeId) // Assuming employees table links via user_id
+                .single();
+
+            if (employeeError && employeeError.code !== 'PGRST116') {
+                // PGRST116 means no rows found, which might be okay if we have a default
+                console.error('Error fetching employee quota:', employeeError);
+                throw employeeError;
+            }
+            const totalQuota = employeeData ? employeeData.leave_quota : 20; // Default quota if not found
+
+            // Get approved leaves for the current year to calculate used leaves
+            const currentYear = new Date().getFullYear();
+            const startOfYear = `${currentYear}-01-01`;
+
+            const { data: approvedLeaves, error: approvedError } = await supabase
+                .from('leaves')
+                .select('days')
+                .eq('employee_id', employeeId)
+                .eq('status', 'approved')
+                .gte('start_date', startOfYear);
+
+            if (approvedError) throw approvedError;
+
+            const usedLeaves = approvedLeaves.reduce((sum, leave) => sum + leave.days, 0);
+
             // Get all leave requests for the current year
-            const requests = await db.all(
-                `SELECT * FROM leaves 
-                WHERE employee_id = ? 
-                AND start_date >= datetime('now', 'start of year')
-                ORDER BY start_date DESC`,
-                [employeeId]
-            );
-            
+            const { data: requests, error: requestsError } = await supabase
+                .from('leaves')
+                .select('*')
+                .eq('employee_id', employeeId)
+                .gte('start_date', startOfYear)
+                .order('start_date', { ascending: false });
+
+            if (requestsError) throw requestsError;
+
             return {
                 totalQuota,
                 usedLeaves,
@@ -107,22 +150,5 @@ class Leave {
         }
     }
 }
-
-// Ensure the leaves table exists
-db.run(`
-    CREATE TABLE IF NOT EXISTS leaves (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        employee_id INTEGER NOT NULL,
-        leave_type TEXT NOT NULL CHECK(leave_type IN ('annual', 'sick', 'personal', 'unpaid')),
-        start_date TEXT NOT NULL,
-        end_date TEXT NOT NULL,
-        reason TEXT NOT NULL,
-        days INTEGER NOT NULL,
-        status TEXT NOT NULL CHECK(status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
-        reviewed_by INTEGER,
-        reviewed_at TEXT,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    )
-`).catch(err => console.error('Error creating leaves table:', err));
 
 module.exports = Leave;

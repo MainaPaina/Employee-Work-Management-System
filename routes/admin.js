@@ -1,24 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/sqliteConn');
-const bcrypt = require('bcrypt');
+const { createClient } = require('@supabase/supabase-js'); // Import createClient
 
-// Storage for real-time user time entries
+// Anon key client (for general reads, respecting RLS)
+const supabase = require('../config/supabaseClient');
+
+// --- Service Role Client (for admin actions) ---
+// Ensure environment variables are loaded (e.g., using dotenv in server.js)
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let supabaseAdmin;
+if (supabaseUrl && supabaseServiceKey) {
+    supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false
+        }
+    });
+    console.log('Supabase Admin client initialized.');
+} else {
+    console.error('Supabase URL or Service Role Key missing. Supabase Admin client not initialized.');
+    // Optionally throw an error or handle this case appropriately
+    // For now, routes requiring admin client might fail if not initialized.
+}
+// --- End Service Role Client ---
+
+const bcrypt = require('bcrypt'); // Keep temporarily, remove usage later
+
 let userTimeEntries = {};
 
-/**
- * Set user time entries from server.js
- * @param {Object} entries - User time entries
- */
 function setUserTimeEntries(entries) {
     userTimeEntries = entries;
 }
 
-/**
- * Admin middleware - verify user has admin role
- */
 const checkAdmin = (req, res, next) => {
     if (!req.session.user || req.session.user.role !== 'admin') {
+        if (req.originalUrl.startsWith('/admin/api')) {
+            return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+        }
         return res.status(403).render('error', {
             message: 'Access denied. Admin privileges required.',
             activePage: 'error'
@@ -27,328 +47,292 @@ const checkAdmin = (req, res, next) => {
     next();
 };
 
-/**
- * Get timesheet data for all employees
- * @returns {Array} Array of timesheet entries
- */
 async function getTimesheetData() {
     try {
-        // Get current date for calculations
         const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
-        
-        // Get all employees
-        const employees = await db.all(`
-            SELECT id, name, username 
-            FROM users 
-            WHERE role = 'employee' AND active = 1
-        `);
-        
-        // Get approved leaves
-        const leaves = await db.all(`
-            SELECT employee_id as employeeId, start_date as start_date, end_date as end_date
-            FROM leaves
-            WHERE status = 'approved' 
-            AND end_date >= date('now', '-30 days')
-        `);
-        
-        // Get submitted timesheets
-        const submittedTimesheets = await db.all(`
-            SELECT employee_id as employeeId, date, hours_worked as hoursWorked
-            FROM timesheets
-            WHERE date >= date('now', '-30 days')
-        `);
-        
-        // Generate complete timesheet data for all employees
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        const thirtyDaysAgoISO = thirtyDaysAgo.toISOString().split('T')[0];
+
+        const { data: employees, error: employeesError } = await supabase
+            .from('users')
+            .select('id, name, username, email')
+            .eq('role', 'employee')
+            .eq('active', true);
+
+        if (employeesError) {
+            console.error('Supabase error fetching employees:', employeesError);
+            throw employeesError;
+        }
+
+        const { data: leaves, error: leavesError } = await supabase
+            .from('leaves')
+            .select('employee_id, start_date, end_date')
+            .eq('status', 'approved')
+            .gte('end_date', thirtyDaysAgoISO);
+
+        if (leavesError) {
+            console.error('Supabase error fetching leaves:', leavesError);
+            throw leavesError;
+        }
+
+        const { data: submittedTimesheets, error: tsError } = await supabase
+            .from('timesheets')
+            .select('employee_id, date, hours_worked')
+            .gte('date', thirtyDaysAgoISO);
+
+        if (tsError) {
+            console.error('Supabase error fetching timesheets:', tsError);
+            console.warn('Could not fetch timesheets, proceeding without them.');
+        }
+
+        const timesheetData = submittedTimesheets || [];
+
         const allTimesheets = [];
-        
-        // Use the last 30 days
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+
         for (let i = 0; i < 30; i++) {
             const date = new Date(currentYear, currentMonth, today.getDate() - i);
-            // Skip weekends in our dataset
             if (date.getDay() === 0 || date.getDay() === 6) continue;
-            
-            employees.forEach(employee => {
-                // Check if employee is on leave for this date
-                const onLeave = leaves.some(leave => {
+            const dateString = date.toISOString().split('T')[0];
+            const checkDate = new Date(date);
+            checkDate.setUTCHours(0, 0, 0, 0);
+
+            (employees || []).forEach(employee => {
+                const onLeave = (leaves || []).some(leave => {
                     const startDate = new Date(leave.start_date);
                     const endDate = new Date(leave.end_date);
-                    return leave.employeeId === employee.id && 
-                           date >= startDate && 
-                           date <= endDate;
+                    startDate.setUTCHours(0, 0, 0, 0);
+                    endDate.setUTCHours(0, 0, 0, 0);
+
+                    return leave.employee_id === employee.id &&
+                           checkDate >= startDate &&
+                           checkDate <= endDate;
                 });
-                
-                // Check if employee has submitted a timesheet for this date
-                const submitted = submittedTimesheets.find(ts => 
-                    ts.employeeId === employee.id && 
-                    new Date(ts.date).toDateString() === date.toDateString()
+
+                const submitted = timesheetData.find(ts =>
+                    ts.employee_id === employee.id &&
+                    ts.date === dateString
                 );
-                
+
                 let status, hoursWorked, missing;
-                
+
                 if (onLeave) {
                     status = 'leave';
                     hoursWorked = 0;
                     missing = false;
                 } else if (submitted) {
                     status = 'submitted';
-                    hoursWorked = submitted.hoursWorked;
+                    hoursWorked = submitted.hours_worked;
                     missing = false;
                 } else {
                     status = 'missing';
                     hoursWorked = 0;
                     missing = true;
                 }
-                
-                // Add timesheet entry
+
                 allTimesheets.push({
                     employeeId: employee.id,
                     employeeName: employee.name,
+                    employeeEmail: employee.email,
                     date: date,
-                    hoursWorked: hoursWorked,
+                    hoursWorked: hoursWorked || 0,
                     status: status,
                     missing: missing
                 });
             });
         }
-        
+
+        console.log(`Generated ${allTimesheets.length} aggregated timesheet entries.`);
         return allTimesheets;
     } catch (error) {
-        console.error('Error generating timesheet data:', error);
+        console.error('Error generating timesheet data:', error.message);
         return [];
     }
 }
 
-/**
- * Get employee activity status
- * @returns {Array} Array of employee activity data
- */
-async function getEmployeeActivityData() {
-    try {
-        // Get all active employees
-        const employees = await db.all(`
-            SELECT id, name, username, email 
-            FROM users 
-            WHERE role = 'employee' AND active = 1
-        `);
-        
-        // Get today's approved leaves
-        const today = new Date().toISOString().split('T')[0];
-        const approvedLeaves = await db.all(`
-            SELECT employee_id as employeeId
-            FROM leaves
-            WHERE status = 'approved' 
-            AND ? BETWEEN start_date AND end_date
-        `, [today]);
-        
-        // Generate employee activity data
-        const activityData = [];
-        
-        for (const employee of employees) {
-            // Check if employee has an approved leave for today
-            const onLeave = approvedLeaves.some(leave => 
-                leave.employeeId === employee.id
-            );
-            
-            // Get employee's time entry data
-            const userId = employee.id.toString();
-            const userEntry = userTimeEntries[userId] || { activeEntry: null };
-            
-            // Determine employee status
-            let status = 'not-checked-in';
-            let breakStatus = 'none';
-            let checkInTime = null;
-            
-            if (userEntry.activeEntry) {
-                status = 'checked-in';
-                checkInTime = userEntry.activeEntry.login;
-                
-                if (userEntry.activeEntry.pauseStart) {
-                    breakStatus = 'on-break';
-                } else if (userEntry.activeEntry.unavailableStart) {
-                    breakStatus = 'unavailable';
-                }
-            }
-            
-            activityData.push({
-                id: employee.id,
-                name: employee.name,
-                email: employee.email,
-                status: status,
-                breakStatus: breakStatus,
-                checkInTime: checkInTime,
-                onLeave: onLeave,
-                missing: !onLeave && status === 'not-checked-in'
-            });
-        }
-        
-        return activityData;
-    } catch (error) {
-        console.error('Error generating employee activity data:', error);
-        return [];
-    }
-}
-
-/**
- * API endpoint for timesheet data
- */
 router.get('/timesheets', checkAdmin, async (req, res) => {
     try {
+        console.log('GET /admin/timesheets called');
         const timesheets = await getTimesheetData();
         res.json(timesheets);
     } catch (error) {
         console.error('Error fetching timesheets:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error fetching timesheet data' });
     }
 });
 
-/**
- * API endpoint for employee activity
- */
-router.get('/api/employee-activity', checkAdmin, async (req, res) => {
-    try {
-        const activityData = await getEmployeeActivityData();
-        res.json(activityData);
-    } catch (error) {
-        console.error('Error fetching employee activity:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
-/**
- * Root admin route - Dashboard
- */
 router.get('/', checkAdmin, async (req, res) => {
     try {
-        // Fetch users for the user management section
-        const users = await db.all('SELECT id, username, name, role, active FROM users');
-        
-        // Get timesheet data
+        console.log('GET /admin called');
+        const { data: users, error: usersError } = await supabase
+            .from('users')
+            .select('id, username, name, role, active, email')
+            .order('name');
+
+        if (usersError) {
+            console.error('Supabase error fetching users for admin page:', usersError);
+            throw usersError;
+        }
+
         const timesheets = await getTimesheetData();
-        
-        // Get employee activity data
-        const employeeActivity = await getEmployeeActivityData();
-        
-        res.render('admin', { 
-            title: 'Admin Dashboard',
-            users,
-            timesheets,
-            employeeActivity,
-            activePage: 'admin'
+
+        res.render('admin', {
+            users: users || [],
+            timesheets: timesheets || [],
+            activePage: 'admin',
+            currentUser: req.session.user
         });
     } catch (error) {
-        console.error('Error loading admin dashboard:', error);
-        res.status(500).render('error', {
-            message: 'Error loading admin dashboard',
-            activePage: 'error'
+        console.error('Error fetching admin data:', error);
+        res.render('admin', {
+            users: [],
+            timesheets: [],
+            activePage: 'admin',
+            currentUser: req.session.user,
+            error: `Failed to load admin data: ${error.message}`
         });
     }
 });
 
-/**
- * Create new user API endpoint
- */
 router.post('/api/users', checkAdmin, async (req, res) => {
-    console.log('POST /admin/api/users route hit');
-    console.log('Request body:', req.body);
-    
+    // Ensure admin client is available
+    if (!supabaseAdmin) {
+        return res.status(500).json({ message: 'Admin client not configured.' });
+    }
+
     try {
         const { username, fullName, email, role, password } = req.body;
-        console.log('Extracted fields:', { username, fullName, email, role, password: password ? '[REDACTED]' : undefined });
-        
-        // Validate required fields
-        if (!username || !fullName || !email || !role || !password) {
-            return res.status(400).json({ 
-                error: true, 
-                message: 'All fields are required' 
-            });
+        console.log('POST /admin/api/users called with email:', email);
+
+        // --- SUPABASE REFACTOR START ---
+        // 1. Check if user already exists in public.users (using anon client respects RLS)
+        const { data: existingProfile, error: profileError } = await supabase
+            .from('users')
+            .select('id')
+            .or(`username.eq.${username},email.eq.${email}`)
+            .maybeSingle();
+
+        if (profileError) {
+            console.error('Supabase error checking existing user profile:', profileError);
+            return res.status(500).json({ message: 'Database error checking user existence.' });
         }
-        
-        // First check if the email already exists
-        const existingUser = await db.get('SELECT * FROM users WHERE email = ?', [email]);
-        if (existingUser) {
-            return res.status(409).json({ 
-                error: true,
-                message: 'Email address already in use. Please use a different email.'
-            });
+
+        if (existingProfile) {
+             console.warn(`User profile already exists for username ${username} or email ${email}.`);
+             return res.status(400).json({ message: 'Username or email already exists.' });
         }
-        
-        // Check if username is taken
-        const existingUsername = await db.get('SELECT * FROM users WHERE username = ?', [username]);
-        if (existingUsername) {
-            return res.status(409).json({ 
-                error: true,
-                message: 'Username already in use. Please choose another username.'
-            });
-        }
-        
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // Before running the database insert operation
-        console.log('Attempting to create user with data:', { 
-            username, 
-            name: fullName, 
-            email, 
-            role, 
-            password: '[HASHED]', 
-            active: 1 
+
+        // 2. Create user in Supabase Auth using the ADMIN client
+        console.log('Attempting to create user in Supabase Auth via Admin Client...');
+        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({ // Use supabaseAdmin
+            email: email,
+            password: password,
+            email_confirm: true, // Auto-confirm user for simplicity here
+            user_metadata: { name: fullName, role: role } // Store non-sensitive metadata
         });
 
-        try {
-            const result = await db.run(
-                'INSERT INTO users (username, name, email, role, password, active) VALUES (?, ?, ?, ?, ?, ?)',
-                [username, fullName, email, role, hashedPassword, 1]
-            );
-            console.log('Database insert result:', result);
-            
-            res.status(201).json({ success: true, message: 'User created successfully' });
-        } catch (dbError) {
-            console.error('Database error creating user:', dbError);
-            res.status(500).json({ 
-                error: true, 
-                message: 'Database error creating user', 
-                details: dbError.message 
-            });
+        if (authError) {
+            console.error('Supabase Auth error creating user:', authError);
+            let message = 'Error creating user in authentication system.';
+            if (authError.message.includes('already registered')) {
+                message = 'Email address is already registered.';
+            }
+            return res.status(400).json({ message: message, details: authError.message });
         }
+
+        if (!authData || !authData.user) {
+            console.error('Supabase Auth user creation did not return user data.');
+            return res.status(500).json({ message: 'User created in Auth, but failed to retrieve details.' });
+        }
+
+        const userId = authData.user.id;
+        console.log('User created in Supabase Auth with ID:', userId);
+
+        // 3. Insert corresponding profile into public.users (can use anon client if RLS allows admins)
+        //    Or use supabaseAdmin for guaranteed write access.
+        console.log('Inserting user profile into public.users using Admin Client...');
+        const { data: profileData, error: insertError } = await supabaseAdmin // Use supabaseAdmin for insert
+            .from('users')
+            .insert({
+                id: userId, // Link to the auth user
+                username: username,
+                name: fullName,
+                email: email, // Match the auth email
+                role: role,
+                active: true // Default to active
+            })
+            .select() 
+            .single();
+
+        if (insertError) {
+            console.error('Supabase error inserting user profile:', insertError);
+            console.warn(`Profile insertion failed for Auth user ${userId}. Attempting to delete Auth user.`);
+            // Use supabaseAdmin to delete the orphaned auth user
+            const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+            if (deleteAuthError) {
+                 console.error(`Failed to delete orphaned Auth user ${userId}:`, deleteAuthError);
+            }
+            return res.status(500).json({ message: 'Failed to save user profile after authentication.', details: insertError.message });
+        }
+
+        console.log('User profile created successfully:', profileData);
+        // --- SUPABASE REFACTOR END ---
+
+        res.status(201).json({
+            message: 'User created successfully',
+            userId: userId 
+        });
     } catch (error) {
         console.error('Error creating user:', error);
-        res.status(500).json({ error: true, message: 'Failed to create user' });
+        res.status(500).json({ message: `Server error creating user: ${error.message}` });
     }
 });
 
-/**
- * Delete user API endpoint
- */
 router.delete('/api/users/:id', checkAdmin, async (req, res) => {
+    // Ensure admin client is available
+    if (!supabaseAdmin) {
+        return res.status(500).json({ message: 'Admin client not configured.' });
+    }
+    
     try {
         const { id } = req.params;
-        
-        // Make sure ID is a number
-        if (isNaN(parseInt(id))) {
-            return res.status(400).json({ message: 'Invalid user ID' });
+        console.log('DELETE /admin/api/users/:id called for ID:', id);
+
+        if (!id || typeof id !== 'string' || id.length !== 36) {
+            return res.status(400).json({ message: 'Invalid user ID format.' });
         }
-        
-        // Don't allow deleting your own account
-        if (req.session.user && req.session.user.id === parseInt(id)) {
-            return res.status(400).json({ message: 'Cannot delete your own account' });
+
+        const sessionUserId = req.session.user?.id?.toString();
+        if (sessionUserId && sessionUserId === id) {
+            console.warn('Attempt to delete own account blocked for ID:', id);
+            return res.status(400).json({ message: 'Cannot delete your own account.' });
         }
-        
-        // Check if user exists
-        const user = await db.get('SELECT * FROM users WHERE id = ?', [id]);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+
+        // --- SUPABASE REFACTOR START ---
+        // Delete the user from Supabase Auth using the ADMIN client
+        // Cascade should handle public.users deletion.
+        console.log('Attempting to delete user from Supabase Auth via Admin Client:', id);
+        const { data: deleteData, error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(id); // Use supabaseAdmin
+
+        if (deleteError) {
+            console.error(`Supabase Auth error deleting user ${id}:`, deleteError);
+            if (deleteError.message.includes('User not found')) {
+                return res.status(404).json({ message: 'User not found in authentication system.' });
+            }
+            return res.status(500).json({ message: 'Failed to delete user from authentication system.', details: deleteError.message });
         }
-        
-        await db.run('DELETE FROM users WHERE id = ?', [id]);
-        res.json({ success: true, message: 'User deleted successfully' });
+
+        console.log('User deleted successfully from Supabase Auth:', id);
+        // --- SUPABASE REFACTOR END ---
+
+        res.json({ message: 'User deleted successfully' });
     } catch (error) {
         console.error('Error deleting user:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: `Server error deleting user: ${error.message}` });
     }
 });
 
-// Export the router and setter function
+// Export the router directly
 module.exports = router;
-module.exports.setUserTimeEntries = setUserTimeEntries;

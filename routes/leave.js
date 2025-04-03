@@ -1,92 +1,53 @@
 const express = require('express');
 const router = express.Router();
-const Leave = require('../model/Leave');
+const leaveController = require('../controllers/leaveController'); 
+const verifyJWT = require('../middleware/verifyJWT'); 
 
-// Get all leaves (admin only)
-router.get('/', (req, res, next) => {
-  req.checkAdmin(req, res, next);
-}, async (req, res) => {
-  try {
-    const leaves = await Leave.getAll();
-    res.json(leaves);
-  } catch (error) {
-    console.error('Error fetching all leaves:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+// Instantiate Controller (if it's a class)
+// const controller = new leaveController(); 
 
-// Get leave data for current user
-router.get('/my-leaves', async (req, res) => {
-  try {
-    const employeeId = req.session.user.id;
-    const leaves = await Leave.getByEmployeeId(employeeId);
-    res.json(leaves);
-  } catch (error) {
-    console.error('Error fetching leaves:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+// Note: checkAuth (session) is already applied in server.js for all /leave routes
 
-// Apply for leave
-router.post('/apply', async (req, res) => {
-  try {
-    const { startDate, endDate, leaveType, reason } = req.body;
-    const employeeId = req.session.user.id;
-    
-    const result = await Leave.create({
-      employeeId,
-      startDate,
-      endDate,
-      leaveType,
-      reason
+// === PAGE RENDERING ROUTES ===
+
+// GET /leave/apply - Display the form to apply for leave
+router.get('/apply', (req, res) => {
+    // TODO: Fetch necessary data like leave types, balances via controller
+    res.render('apply-leave', { 
+        activePage: 'applyLeave', 
+        title: 'Apply for Leave',
+        leaveTypes: ['Vacation', 'Sick', 'Personal'], 
+        // TODO: Replace placeholder with actual data from leaveController
+        leaveData: { 
+            totalQuota: 20, 
+            leaveUsed: 5, 
+            leaveRemaining: 15 
+        }
     });
-    
-    res.status(201).json({ message: 'Leave request submitted successfully', id: result.id });
-  } catch (error) {
-    console.error('Error applying for leave:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
 });
 
-// Cancel leave request
-router.post('/cancel/:id', async (req, res) => {
-  try {
-    const leaveId = req.params.id;
-    const employeeId = req.session.user.id;
-    
-    // Verify this leave belongs to the current user
-    const leave = await Leave.getById(leaveId);
-    if (!leave || leave.employeeId !== employeeId) {
-      return res.status(403).json({ message: 'Not authorized to cancel this leave request' });
-    }
-    
-    await Leave.cancel(leaveId);
-    res.json({ success: true, message: 'Leave request cancelled successfully' });
-  } catch (error) {
-    console.error('Error cancelling leave:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+// GET /leave/ - Display the user's leave history (Example)
+router.get('/', (req, res) => {
+    // TODO: Fetch leave history via controller
+     res.render('leave-history', { 
+        activePage: 'leaveHistory',
+        title: 'My Leave History',
+        leaveRequests: [] 
+    });
 });
 
-// Approve/Reject leave (admin only)
-router.post('/:id/status', (req, res, next) => {
-  req.checkAdmin(req, res, next);
-}, async (req, res) => {
-  try {
-    const { status } = req.body;
-    const leaveId = req.params.id;
-    const reviewerId = req.session.user.id;
-    
-    if (status !== 'approved' && status !== 'rejected') {
-      return res.status(400).json({ message: 'Invalid status' });
-    }
-    
-    await Leave.updateStatus(leaveId, status, reviewerId);
-    res.json({ success: true, message: `Leave request ${status} successfully` });
-  } catch (error) {
-    console.error('Error updating leave status:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+// === FORM SUBMISSION / API ROUTES ===
+
+// POST /leave/apply - Submit the leave application
+router.post('/apply', (req, res) => {
+    // TODO: Add validation and call controller method to save leave request
+    console.log('Leave application submitted:', req.body);
+    req.flash('success', 'Leave request submitted successfully!');
+    res.redirect('/leave'); 
 });
+
+// Maybe API routes for cancelling leave, etc., using verifyJWT if needed
+// router.delete('/:id', verifyJWT, leaveController.cancelLeave);
+
 
 module.exports = router;
