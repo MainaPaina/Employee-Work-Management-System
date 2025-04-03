@@ -118,13 +118,14 @@ const UserManagement = {
                 fullName: document.getElementById('fullName').value,
                 email: document.getElementById('email').value,
                 role: document.getElementById('role').value,
+                department: document.getElementById('department').value,
                 password: document.getElementById('password').value
             };
             
             // Validate form data
             if (!formData.username || !formData.fullName || !formData.email || 
                 !formData.role || !formData.password) {
-                Utils.showAlert('All fields are required', 'warning');
+                Utils.showAlert('Username, Full Name, Email, Role, and Password are required', 'warning');
                 return;
             }
             
@@ -771,6 +772,18 @@ document.addEventListener('DOMContentLoaded', function() {
     fixModalScrolling('editUserModal');
     fixModalScrolling('deleteUserModal');
     
+    // Initialize UI components
+    UI.init();
+    
+    // Initialize User Management features
+    UserManagement.init();
+    
+    // Initialize Employee Activity features
+    EmployeeActivity.init();
+    
+    // Initialize Pagination features
+    Pagination.init();
+    
     // Add CSS for better modal sizing
     const style = document.createElement('style');
     style.textContent = `
@@ -790,4 +803,3 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
 });
-

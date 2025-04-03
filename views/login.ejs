@@ -17,17 +17,17 @@
         </div>
         <% } %>
 
-        <form class="login-form" action="/login<%= '?return=' + locals.return %>" method="POST">
+        <form id="login-form" class="login-form" action="/auth/login<%= '?return=' + locals.return %>" method="POST">
             <div class="form-group">
                 <label for="username">
                     <i class="fas fa-user"></i> Username
                 </label>
-                <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    class="form-control" 
-                    placeholder="Enter your username"
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-control"
+                    placeholder="Enter your username (not email)"
                     required
                     autocomplete="username"
                 >
@@ -38,13 +38,13 @@
                     <i class="fas fa-lock"></i> Password
                 </label>
                 <div class="password-input-group">
-                    <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-control" 
+                    <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
                     autocomplete="current-password">
-                    
+
                     <button type="button" id="togglePassword" class="password-toggle">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -64,6 +64,8 @@
             </button>
         </form>
 
+        <div id="error-message" style="display: none;"></div>
+
         <div class="login-footer">
             <p>Don't have an account? click here to create one</p>
             <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
@@ -75,15 +77,73 @@
 document.addEventListener('DOMContentLoaded', function() {
     const togglePassword = document.getElementById('togglePassword');
     const passwordField = document.getElementById('password');
-    
+
     if (togglePassword && passwordField) {
         togglePassword.addEventListener('click', function() {
             const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordField.setAttribute('type', type);
-            
+
             // Toggle the eye icon
             togglePassword.querySelector('i').classList.toggle('fa-eye');
             togglePassword.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('login-form');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const errorMessageDiv = document.getElementById('error-message');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            if (errorMessageDiv) errorMessageDiv.textContent = '';
+            if (errorMessageDiv) errorMessageDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success && data.accessToken) {
+                    localStorage.setItem('token', data.accessToken);
+                    console.log('Token stored in localStorage.');
+
+                    window.location.href = data.redirectUrl || '/dashboard';
+                } else {
+                    const message = data.error || 'Login failed. Please try again.';
+                    console.error('Login failed:', message);
+                    if (errorMessageDiv) {
+                         errorMessageDiv.textContent = message;
+                         errorMessageDiv.style.display = 'block';
+                    } else {
+                        alert(message);
+                    }
+                }
+            } catch (error) {
+                console.error('Login request error:', error);
+                const message = 'An network error occurred. Please try again later.';
+                 if (errorMessageDiv) {
+                     errorMessageDiv.textContent = message;
+                     errorMessageDiv.style.display = 'block';
+                 } else {
+                    alert(message);
+                 }
+            }
         });
     }
 });
