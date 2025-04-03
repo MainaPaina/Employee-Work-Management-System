@@ -18,8 +18,8 @@ class LeaveController {
             
             if (error) {
                 console.error('Error fetching employee requests for page:', error);
-                 // Render page with error or default state
-                 return res.status(500).render('leave', { 
+                // Render page with error or default state
+                return res.status(500).render('leave', { 
                     requests: [], 
                     error: 'Could not load your leave requests.',
                     user: req.user // Pass user info if needed
@@ -64,7 +64,7 @@ class LeaveController {
                 return res.status(401).json({ error: 'User not authenticated.' });
             }
             if (!startDate || !endDate || !leaveType) {
-                 return res.status(400).json({ error: 'Start date, end date, and leave type are required.' });
+                return res.status(400).json({ error: 'Start date, end date, and leave type are required.' });
             }
 
             // Basic date validation
@@ -84,9 +84,9 @@ class LeaveController {
             const { data, error } = await this.leaveRequestModel.create(requestData);
 
             if (error) {
-                 console.error('Error creating leave request:', error);
-                 // Check for specific DB errors if needed
-                 return res.status(500).json({ error: 'Failed to submit leave request.' });
+                console.error('Error creating leave request:', error);
+                // Check for specific DB errors if needed
+                return res.status(500).json({ error: 'Failed to submit leave request.' });
             }
 
             res.status(201).json({ message: 'Leave request submitted successfully.', request: data });
@@ -111,7 +111,7 @@ class LeaveController {
             const { data: request, error: findError } = await this.leaveRequestModel.findById(requestId);
             
             if (findError || !request) {
-                 return res.status(404).json({ error: 'Leave request not found.' });
+                return res.status(404).json({ error: 'Leave request not found.' });
             }
 
             // 2. Check ownership and status
@@ -119,7 +119,7 @@ class LeaveController {
                 return res.status(403).json({ error: 'You are not authorized to cancel this request.' });
             }
             if (request.status !== 'Pending') {
-                 return res.status(400).json({ error: 'Only pending requests can be cancelled.' });
+                return res.status(400).json({ error: 'Only pending requests can be cancelled.' });
             }
 
             // 3. Update status to 'Cancelled' (using a generic update method or a specific cancel method)
@@ -127,8 +127,8 @@ class LeaveController {
             const { data, error } = await this.leaveRequestModel.updateStatus(requestId, 'Cancelled', employeeId, 'Cancelled by employee');
 
             if (error) {
-                 console.error('Error cancelling leave request:', error);
-                 return res.status(500).json({ error: 'Failed to cancel leave request.' });
+                console.error('Error cancelling leave request:', error);
+                return res.status(500).json({ error: 'Failed to cancel leave request.' });
             }
 
             res.status(200).json({ message: 'Leave request cancelled successfully.', request: data });
@@ -143,7 +143,7 @@ class LeaveController {
 
     // API: Get all leave requests (Admin/Manager)
     async getAllRequests(req, res) {
-         try {
+        try {
             // TODO: Add filtering/pagination options? e.g., req.query.status
             const { data, error } = await this.leaveRequestModel.findAll(); 
             if (error) throw error;
@@ -166,7 +166,7 @@ class LeaveController {
 
     // Private helper method for approving/rejecting
     async _handleApproval(req, res, status) {
-         try {
+        try {
             const requestId = req.params.id;
             const approverId = req.user?.id; // ID of the admin/manager
             const { comments } = req.body; // Optional comments from approver
@@ -175,21 +175,21 @@ class LeaveController {
                 return res.status(401).json({ error: 'Approver not authenticated.' });
             }
 
-             // Optional: Fetch request first to check if it's pending?
-             // const { data: request, error: findError } = await this.leaveRequestModel.findById(requestId);
-             // if (!request || request.status !== 'Pending') { ... }
+            // Optional: Fetch request first to check if it's pending?
+            // const { data: request, error: findError } = await this.leaveRequestModel.findById(requestId);
+            // if (!request || request.status !== 'Pending') { ... }
 
             const { data, error } = await this.leaveRequestModel.updateStatus(requestId, status, approverId, comments);
 
             if (error) {
-                 // Handle specific errors, e.g., request not found (might be caught by findById check)
-                 console.error(`Error setting leave request status to ${status}:`, error);
-                 return res.status(500).json({ error: `Failed to ${status.toLowerCase()} leave request.` });
+                // Handle specific errors, e.g., request not found (might be caught by findById check)
+                console.error(`Error setting leave request status to ${status}:`, error);
+                return res.status(500).json({ error: `Failed to ${status.toLowerCase()} leave request.` });
             }
-             if (!data) {
-                 // This might happen if the request ID didn't exist or didn't match update criteria
-                 return res.status(404).json({ error: 'Leave request not found or already processed.' });
-             }
+            if (!data) {
+                // This might happen if the request ID didn't exist or didn't match update criteria
+                return res.status(404).json({ error: 'Leave request not found or already processed.' });
+            }
 
             res.status(200).json({ message: `Leave request ${status.toLowerCase()} successfully.`, request: data });
 
