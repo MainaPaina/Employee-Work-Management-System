@@ -121,8 +121,8 @@ router.post('/login', async (req, res) => {
         //    redirectUrl: '/dashboard' // Suggest redirect URL
         //});
         //// If handling traditional form POST without JS, you'd use:
-         req.flash('success', 'Login successful!');
-         res.redirect('/timesheet');
+        req.flash('success', 'Login successful!');
+        res.redirect('/timesheet');
 
     } catch (error) {
         console.error('Login process error:', error);
