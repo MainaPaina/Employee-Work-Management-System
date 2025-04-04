@@ -66,7 +66,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/apply-leave" class="nav-link <%= (typeof activePage !== 'undefined' && activePage === 'apply-leave') ? 'active' : '' %>">
+                        <a href="/leave/apply" class="nav-link <%= (typeof activePage !== 'undefined' && activePage === 'applyLeave') ? 'active' : '' %>">
                             <i class="fas fa-calendar-alt"></i> Apply Leave
                         </a>
                     </li>
@@ -89,7 +89,7 @@
                                 <% if (locals.user && user.role === 'admin') { %>
                                     <a href="/admin"><i class="fas fa-cog"></i> Admin Settings</a>
                                 <% } %>
-                                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                                <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                             </div>
                         </div>
                     </li>
@@ -102,6 +102,7 @@
                     </li>
                  <% } %> 
             </ul>
+            
         </div>
     </nav>
 

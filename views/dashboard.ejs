@@ -16,21 +16,21 @@
         <div class="summary-card status-card">
             <h3><i class="fas fa-user-clock"></i> Today's Status</h3>
             <div id="status-content">
-                <% if (activeEntry) { %>
+                <% if (dashboardData.activeEntry) { %>
                     <div class="status-item">
                         <span class="status-label">Clock In:</span>
-                        <span class="status-value"><%= activeEntry.login %></span>
+                        <span class="status-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">Remaining Time:</span>
-                        <span class="status-value"><%= remainingHours %> hours</span>
+                        <span class="status-value"><%= dashboardData.remainingHours %> hours</span>
                     </div>
-                    <% if (activeEntry.pauseStart) { %>
+                    <% if (dashboardData.activeEntry.last_break_start_time && !dashboardData.activeEntry.last_break_end_time) { %>
                         <div class="status-item">
                             <span class="status-label">Status:</span>
                             <span class="status-value status-break">On Break</span>
                         </div>
-                    <% } else if (activeEntry.unavailableStart) { %>
+                    <% } else if (dashboardData.activeEntry.last_unavailable_start_time && !dashboardData.activeEntry.last_unavailable_end_time) { %>
                         <div class="status-item">
                             <span class="status-label">Status:</span>
                             <span class="status-value status-unavailable">Unavailable</span>
@@ -57,7 +57,7 @@
                 <div class="progress-bar" style="width: 60%"></div>
             </div>
             <p class="leave-balance-text">15 days used out of 25</p>
-            <a href="/apply-leave" class="btn btn-outline">View Details</a>
+            <a href="/leave/apply" class="btn btn-outline">View Details</a>
         </div>
     </div>
     
@@ -76,14 +76,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% if (typeof recentEntries !== 'undefined' && recentEntries && recentEntries.length > 0) { %>
-                        <% recentEntries.forEach(entry => { %>
+                    <% if (dashboardData.recentEntries && dashboardData.recentEntries.length > 0) { %>
+                        <% dashboardData.recentEntries.forEach(entry => { %>
                             <tr>
-                                <td><%= entry.date %></td>
-                                <td><%= entry.login %></td>
-                                <td><%= entry.logout || '---' %></td>
-                                <td><%= entry.pause %></td>
-                                <td><%= entry.totalAvailable %></td>
+                                <td><%= new Date(entry.date).toLocaleDateString() %></td>
+                                <td><%= entry.start_time ? new Date(entry.start_time).toLocaleTimeString() : 'N/A' %></td>
+                                <td><%= entry.end_time ? new Date(entry.end_time).toLocaleTimeString() : 'N/A' %></td>
+                                <td><%= entry.total_break_duration ? (entry.total_break_duration / 60).toFixed(1) + 'h' : '0h' %></td>
+                                <td><%= entry.hours_worked ? entry.hours_worked.toFixed(1) + 'h' : 'N/A' %></td>
                             </tr>
                         <% }); %>
                     <% } else { %>
@@ -140,7 +140,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch('/api/clock-in', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT Auth header
                     }
                 });
                 
