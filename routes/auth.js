@@ -113,16 +113,16 @@ router.post('/login', async (req, res) => {
         console.log(`User logged in: ${sessionUser.email}, Role: ${sessionUser.role}`);
         // Redirect for traditional forms is handled differently than sending JSON
         // For JS handling fetch: Send JSON including the token
-        res.json({
-            success: true,
-            message: 'Login successful!',
-            accessToken: accessToken, // Send token to client
-            user: sessionUser, // Send user info (optional, but useful)
-            redirectUrl: '/dashboard' // Suggest redirect URL
-        });
-        // If handling traditional form POST without JS, you'd use:
-        // req.flash('success', 'Login successful!');
-        // res.redirect('/dashboard');
+        //res.json({
+        //    success: true,
+        //    message: 'Login successful!',
+        //    accessToken: accessToken, // Send token to client
+        //    user: sessionUser, // Send user info (optional, but useful)
+        //    redirectUrl: '/dashboard' // Suggest redirect URL
+        //});
+        //// If handling traditional form POST without JS, you'd use:
+         req.flash('success', 'Login successful!');
+         res.redirect('/timesheet');
 
     } catch (error) {
         console.error('Login process error:', error);

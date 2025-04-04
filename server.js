@@ -10,6 +10,7 @@ const ejs = require('ejs');
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash'); // Needed for flash messages
 
+
 // Import models if used directly in server.js
 const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
