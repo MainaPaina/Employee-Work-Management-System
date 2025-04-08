@@ -57,90 +57,350 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Countdown timer functionality - Make it globally accessible
+    // Global variable to track if a timer is already running
+    window.timerRunning = false;
+
     window.updateCountdown = function() {
+        // If a timer is already running, don't start another one
+        if (window.timerRunning) {
+            console.log('Timer already running, not starting a new one');
+            return;
+        }
+
         const countdownElement = document.getElementById('countdown-timer');
+        const hoursWorkedElement = document.getElementById('hours-worked');
         if (!countdownElement) return;
 
+        console.log('Initial countdown element text:', countdownElement.textContent);
+        if (hoursWorkedElement) {
+            console.log('Initial hours worked element text:', hoursWorkedElement.textContent);
+        }
+
         const timerBar = document.querySelector('.timer-bar');
-        const initialTime = parseTimeString(countdownElement.textContent);
-        let remainingSeconds = initialTime.hours * 3600 + initialTime.minutes * 60;
 
-        if (remainingSeconds <= 0) return;
+        // Force valid values for remaining time
+        let remainingTime;
+        try {
+            remainingTime = parseTimeString(countdownElement.textContent);
+            console.log('Parsed remaining time:', remainingTime);
+        } catch (error) {
+            console.error('Error parsing remaining time:', error);
+            remainingTime = { hours: 8, minutes: 0 };
+        }
 
-        // Calculate initial percentage
+        // Ensure remaining seconds is not negative
+        let remainingSeconds = Math.max(0, remainingTime.hours * 3600 + remainingTime.minutes * 60);
+        console.log('Remaining seconds:', remainingSeconds);
+
+        // Get the clock-in time if available
+        const clockInTimeText = document.getElementById('clockInTime');
+        let clockInTime = null;
+        let workedSeconds = 0;
+
+        if (clockInTimeText && clockInTimeText.textContent !== '--:--') {
+            try {
+                // Parse the clock-in time
+                const timeString = clockInTimeText.textContent;
+                const [hours, minutes] = timeString.split(':').map(Number);
+
+                // Create a date object for today with the clock-in time
+                clockInTime = new Date();
+                clockInTime.setHours(hours, minutes, 0, 0);
+
+                // If the clock-in time is in the future (after current time), it must be from yesterday
+                const now = new Date();
+                if (clockInTime > now) {
+                    clockInTime.setDate(clockInTime.getDate() - 1);
+                }
+
+                console.log('Parsed clock-in time:', clockInTime.toLocaleTimeString());
+
+                // Calculate elapsed time in seconds
+                const elapsedMs = now - clockInTime;
+                const elapsedSeconds = elapsedMs / 1000;
+
+                // Get break and unavailable time from the status text if available
+                const totalBreakTimeText = document.getElementById('totalBreakTime');
+                let breakMinutes = 0;
+                if (totalBreakTimeText && totalBreakTimeText.textContent !== '0 mins') {
+                    const breakMatch = totalBreakTimeText.textContent.match(/(\d+)\s*mins/);
+                    if (breakMatch && breakMatch[1]) {
+                        breakMinutes = parseInt(breakMatch[1], 10);
+                        console.log('Break minutes:', breakMinutes);
+                    }
+                }
+
+                // Calculate worked seconds (elapsed time minus breaks)
+                workedSeconds = elapsedSeconds - (breakMinutes * 60);
+                console.log('Elapsed seconds:', elapsedSeconds, 'Break seconds:', breakMinutes * 60);
+                console.log('Calculated worked seconds from clock-in time:', workedSeconds);
+            } catch (error) {
+                console.error('Error calculating worked time from clock-in time:', error);
+                // Fall back to using the hours worked element
+                if (hoursWorkedElement) {
+                    try {
+                        const workedTime = parseTimeString(hoursWorkedElement.textContent);
+                        console.log('Falling back to parsed worked time:', workedTime);
+                        workedSeconds = Math.max(0, workedTime.hours * 3600 + workedTime.minutes * 60);
+                        console.log('Fallback worked seconds calculated as:', workedSeconds);
+                    } catch (fallbackError) {
+                        console.error('Error parsing worked time as fallback:', fallbackError);
+                        workedSeconds = 0;
+                    }
+                }
+            }
+        } else if (hoursWorkedElement) {
+            // No clock-in time available, use the hours worked element
+            try {
+                const workedTime = parseTimeString(hoursWorkedElement.textContent);
+                console.log('Parsed worked time from display:', workedTime);
+                workedSeconds = Math.max(0, workedTime.hours * 3600 + workedTime.minutes * 60);
+                console.log('Initial worked seconds calculated as:', workedSeconds);
+
+                // Double-check the calculation
+                const calculatedHours = Math.floor(workedSeconds / 3600);
+                const calculatedMinutes = Math.floor((workedSeconds % 3600) / 60);
+                console.log(`This should display as: ${calculatedHours}:${calculatedMinutes.toString().padStart(2, '0')}`);
+            } catch (error) {
+                console.error('Error parsing worked time:', error);
+                workedSeconds = 0;
+            }
+        }
+        console.log('Final initial worked seconds:', workedSeconds);
+
+        // Calculate initial percentage based on worked time
         const workDaySeconds = 8 * 3600; // 8 hours in seconds
-        let initialPercentage = Math.min(100, Math.max(0, (1 - remainingSeconds / workDaySeconds) * 100));
+        let initialPercentage = Math.min(100, Math.max(0, (workedSeconds / workDaySeconds) * 100));
 
-        // Start timer immediately
-        startTimer();
+        // Update progress bar with initial percentage
+        if (timerBar) {
+            timerBar.style.width = `${initialPercentage}%`;
+        }
+
+        // Check if the user is clocked in
+        const statusText = document.getElementById('statusText');
+        // Check for any indication that the user is actively working
+        const isActivelyWorking = statusText && (
+            statusText.textContent.includes('Active') ||
+            statusText.textContent.includes('Currently clocked in') ||
+            statusText.textContent.includes('Status: active') ||
+            statusText.textContent.includes('Status: Active') ||
+            !statusText.textContent.includes('Not clocked in')
+        );
+
+        console.log('Status text:', statusText ? statusText.textContent : 'Not found');
+        console.log('Is actively working:', isActivelyWorking);
+
+        // Force start the timer if we have an active entry (debug)
+        const clockInTimeText = document.getElementById('clockInTime');
+        const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
+        if (hasActiveEntry && !isActivelyWorking) {
+            console.log('Found active entry but status text does not indicate active. Forcing timer start.');
+            console.log('Clock in time:', clockInTimeText.textContent);
+        }
+
+        // Start the timer if the user has an active entry, regardless of status
+        // This ensures the timer runs even if the user is on break or unavailable
+        if (hasActiveEntry) {
+            // Start timer immediately
+            startTimer();
+            console.log('Starting timer. User has an active entry. Clock in time:', clockInTimeText ? clockInTimeText.textContent : 'Not found');
+        } else if (isActivelyWorking) {
+            // Fallback for cases where the active entry might not be detected correctly
+            startTimer();
+            console.log('Starting timer based on active status. isActivelyWorking:', isActivelyWorking);
+        } else {
+            console.log('User is not clocked in. Timer not started.');
+        }
 
         function startTimer() {
-            const timer = setInterval(() => {
-                remainingSeconds -= 60; // Decrease by 1 minute (60 seconds)
+            // Set the global flag to indicate a timer is running
+            window.timerRunning = true;
 
-                if (remainingSeconds <= 0) {
+            console.log('Starting timer with worked seconds:', workedSeconds);
+            const timer = setInterval(() => {
+                // Check if the user still has an active entry (clocked in)
+                const clockInTimeText = document.getElementById('clockInTime');
+                const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
+
+                // Only stop the timer if the user has clocked out
+                if (!hasActiveEntry) {
+                    console.log('User has clocked out. Clock in time:', clockInTimeText ? clockInTimeText.textContent : 'Not found');
+                    console.log('Stopping timer.');
                     clearInterval(timer);
-                    countdownElement.textContent = '0:00';
-                    timerBar.style.width = '100%';
+                    window.timerRunning = false; // Reset the flag when the timer stops
                     return;
                 }
 
-                const hours = Math.floor(remainingSeconds / 3600);
-                const minutes = Math.floor((remainingSeconds % 3600) / 60);
-                countdownElement.textContent = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                // Check the current status for logging purposes
+                const statusText = document.getElementById('statusText');
+                console.log('Current status:', statusText ? statusText.textContent : 'Not found');
+                console.log('Continuing timer as user is still clocked in.');
+
+                // Increase worked time by 60 seconds (1 minute)
+                workedSeconds += 60;
+                console.log('Incremented worked seconds to:', workedSeconds);
+
+                // Decrease remaining time by 60 seconds (1 minute)
+                remainingSeconds -= 60;
+                console.log('Decremented remaining seconds to:', remainingSeconds);
+
+                // Update the display
+                if (remainingSeconds <= 0) {
+                    clearInterval(timer);
+                    countdownElement.textContent = '0:00';
+                    if (hoursWorkedElement) {
+                        // Ensure worked seconds is not negative
+                        const safeWorkedSeconds = Math.max(0, workedSeconds);
+                        console.log('Safe worked seconds for display (time complete):', safeWorkedSeconds);
+
+                        // Calculate hours and minutes
+                        const workedHours = Math.min(8, safeWorkedSeconds / 3600);
+                        let workedMinutes = Math.round((workedHours % 1) * 60);
+                        console.log('Calculated worked hours (time complete):', workedHours, 'minutes:', workedMinutes);
+
+                        // Handle case where minutes might be 60 due to rounding
+                        let displayHours = Math.floor(workedHours);
+                        if (workedMinutes === 60) {
+                            displayHours += 1;
+                            workedMinutes = 0;
+                        }
+
+                        // Force update the display
+                        const newWorkedTimeText = `${displayHours}:${workedMinutes.toString().padStart(2, '0')}`;
+                        hoursWorkedElement.textContent = newWorkedTimeText;
+                        console.log(`Updated worked hours display (time complete) to: ${newWorkedTimeText}`);
+                    }
+                    if (timerBar) {
+                        timerBar.style.width = '100%';
+                    }
+                    return;
+                }
+
+                // Update remaining hours display
+                // Ensure remaining seconds is not negative
+                const safeRemainingSeconds = Math.max(0, remainingSeconds);
+                const remainingHours = Math.floor(safeRemainingSeconds / 3600);
+                let remainingMinutes = Math.round((safeRemainingSeconds % 3600) / 60);
+
+                // Handle case where minutes might be 60 due to rounding
+                let displayRemainingHours = remainingHours;
+                if (remainingMinutes === 60) {
+                    displayRemainingHours += 1;
+                    remainingMinutes = 0;
+                }
+
+                countdownElement.textContent = `${displayRemainingHours}:${remainingMinutes.toString().padStart(2, '0')}`;
+                console.log(`Updated remaining hours display: ${displayRemainingHours}:${remainingMinutes.toString().padStart(2, '0')}`);
+
+                // Update worked hours display
+                if (hoursWorkedElement) {
+                    // Ensure worked seconds is not negative
+                    const safeWorkedSeconds = Math.max(0, workedSeconds);
+                    console.log('Safe worked seconds for display:', safeWorkedSeconds);
+
+                    // Calculate hours and minutes
+                    const workedHours = Math.min(8, safeWorkedSeconds / 3600);
+                    let workedMinutes = Math.round((workedHours % 1) * 60);
+                    console.log('Calculated worked hours:', workedHours, 'minutes:', workedMinutes);
+
+                    // Handle case where minutes might be 60 due to rounding
+                    let displayHours = Math.floor(workedHours);
+                    if (workedMinutes === 60) {
+                        displayHours += 1;
+                        workedMinutes = 0;
+                    }
+
+                    // Force update the display
+                    const newWorkedTimeText = `${displayHours}:${workedMinutes.toString().padStart(2, '0')}`;
+                    hoursWorkedElement.textContent = newWorkedTimeText;
+                    console.log(`Updated worked hours display to: ${newWorkedTimeText}`);
+                }
 
                 // Update progress bar
-                const percentage = Math.min(100, Math.max(0, (1 - remainingSeconds / workDaySeconds) * 100));
-                timerBar.style.width = `${percentage}%`;
+                if (timerBar) {
+                    const percentage = Math.min(100, Math.max(0, (workedSeconds / workDaySeconds) * 100));
+                    timerBar.style.width = `${percentage}%`;
+                }
 
-            }, 60000); // Update every minute
+                // Log the current time to help debug timing issues
+                const now = new Date();
+                console.log(`Timer update at: ${now.toLocaleTimeString()}`);
+            }, 60000); // Update every 60 seconds (1 minute) for more stable display
         }
 
         // Parse time string in format "H:MM"
         function parseTimeString(timeStr) {
             try {
+                if (!timeStr) {
+                    console.warn('Empty time string');
+                    return { hours: 0, minutes: 0 };
+                }
+
                 // Clean up the input string
-                const cleanTimeStr = timeStr.trim();
+                const cleanTimeStr = timeStr.toString().trim();
+                console.log('Parsing time string:', cleanTimeStr);
+
+                // Special case for negative values
+                if (cleanTimeStr.includes('-')) {
+                    console.warn('Negative time detected:', cleanTimeStr);
+                    return { hours: 0, minutes: 0 };
+                }
 
                 // Check if the string is in the expected format
                 if (!/^\d+:\d{2}$/.test(cleanTimeStr)) {
-                    console.warn('Invalid time format:', timeStr);
-                    return { hours: 8, minutes: 0 }; // Default to 8 hours
+                    console.warn('Invalid time format:', cleanTimeStr);
+
+                    // Try to extract numbers if possible
+                    const numbers = cleanTimeStr.match(/\d+/g);
+                    if (numbers && numbers.length >= 2) {
+                        const hours = parseInt(numbers[0], 10);
+                        const minutes = parseInt(numbers[1], 10);
+                        if (!isNaN(hours) && !isNaN(minutes)) {
+                            return {
+                                hours: Math.max(0, hours),
+                                minutes: Math.min(59, Math.max(0, minutes))
+                            };
+                        }
+                    }
+
+                    return { hours: 0, minutes: 0 };
                 }
 
                 const [hours, minutes] = cleanTimeStr.split(':').map(part => parseInt(part, 10));
 
                 // Check if the parsed values are valid numbers
                 if (isNaN(hours) || isNaN(minutes)) {
-                    console.warn('Invalid time values:', timeStr);
-                    return { hours: 8, minutes: 0 }; // Default to 8 hours
+                    console.warn('Invalid time values:', cleanTimeStr);
+                    return { hours: 0, minutes: 0 };
                 }
 
-                return { hours, minutes };
+                // Ensure values are in valid ranges
+                return {
+                    hours: Math.max(0, hours),
+                    minutes: Math.min(59, Math.max(0, minutes))
+                };
             } catch (error) {
                 console.error('Error parsing time string:', error);
-                return { hours: 8, minutes: 0 }; // Default to 8 hours
+                return { hours: 0, minutes: 0 };
             }
         }
     }
 
     updateCountdown();
 
-    // Add animation for cards
+    // Add animation for cards - but only once to avoid conflicts with the timer
     const cards = document.querySelectorAll('.dashboard-card, .feature-card');
     if (cards.length > 0) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animated');
-                    observer.unobserve(entry.target);
+        // Add animated class directly without using IntersectionObserver
+        // This avoids potential conflicts with the timer
+        setTimeout(() => {
+            cards.forEach(card => {
+                if (!card.classList.contains('animated')) {
+                    card.classList.add('animated');
                 }
             });
-        }, { threshold: 0.1 });
-
-        cards.forEach(card => {
-            observer.observe(card);
-        });
+        }, 100); // Short delay to ensure DOM is ready
     }
 
     // Add hover effect for table rows
@@ -614,9 +874,17 @@ function setupTimeTracking() {
         });
     }
 
-    // Auto-refresh timesheet status
+    // Auto-refresh timesheet status - but only if no timer is running
     if (document.querySelector('.time-tracking-panel')) {
-        setInterval(updateTimesheetStatus, 60000); // Update every minute
+        setInterval(() => {
+            // Only update if no timer is running to avoid conflicts
+            if (!window.timerRunning) {
+                console.log('No timer running, safe to update timesheet status');
+                updateTimesheetStatus();
+            } else {
+                console.log('Timer is running, skipping timesheet status update to avoid conflicts');
+            }
+        }, 120000); // Update every 2 minutes
     }
 }
 
@@ -652,14 +920,88 @@ async function updateTimesheetStatus() {
 
         const data = await response.json();
 
-        // Update countdown timer
+        // Update UI directly without starting a new timer
+        // This avoids conflicts with the existing timer
+        const hoursWorkedElement = document.getElementById('hours-worked');
         const countdownElement = document.getElementById('countdown-timer');
-        if (countdownElement && data.activeEntry) {
-            // Check if window.updateCountdown exists, otherwise don't try to call it
-            if (typeof window.updateCountdown === 'function') {
-                window.updateCountdown();
+        const timerBar = document.querySelector('.timer-bar');
+
+        // Update hours worked display - but only if the user is clocked in or the display is empty
+        if (hoursWorkedElement && data.hoursWorked !== undefined) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !data.activeEntry;
+            const currentDisplay = hoursWorkedElement.textContent;
+
+            // Only update if the user is clocked in or the display is empty/invalid
+            if (!isUserClockedOut || currentDisplay === '--:--' || !currentDisplay.match(/^\d+:\d{2}$/)) {
+                const hoursWorked = Math.floor(data.hoursWorked);
+                const minutesWorked = Math.round((data.hoursWorked % 1) * 60);
+
+                // Handle case where minutes might be 60 due to rounding
+                let displayHours = hoursWorked;
+                let displayMinutes = minutesWorked;
+                if (displayMinutes === 60) {
+                    displayHours += 1;
+                    displayMinutes = 0;
+                }
+
+                const newDisplay = `${displayHours}:${displayMinutes.toString().padStart(2, '0')}`;
+                hoursWorkedElement.textContent = newDisplay;
+                console.log(`Updated hours worked display: ${newDisplay}`);
+
+                // Start the timer if the user is actively working and the timer is not already running
+                if (!isUserClockedOut &&
+                    typeof window.updateCountdown === 'function' && !window.timerRunning) {
+                    // Always start the timer if the user is clocked in, regardless of status
+                    // This ensures the timer runs even if the user is on break or unavailable
+                    console.log('Starting timer from updateTimesheetStatus function');
+                    console.log('User status:', data.activeEntry.status);
+                    window.updateCountdown();
+                }
             } else {
-                console.warn('updateCountdown function not found');
+                console.log('User is clocked out. Preserving current hours worked display:', currentDisplay);
+            }
+        }
+
+        // Update remaining hours display - but only if the user is clocked in or the display is empty
+        if (countdownElement && data.remainingHours !== undefined) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !data.activeEntry;
+            const currentDisplay = countdownElement.textContent;
+
+            // Only update if the user is clocked in or the display is empty/invalid
+            if (!isUserClockedOut || currentDisplay === '--:--' || !currentDisplay.match(/^\d+:\d{2}$/)) {
+                const hoursRemaining = Math.floor(data.remainingHours);
+                const minutesRemaining = Math.round((data.remainingHours % 1) * 60);
+
+                // Handle case where minutes might be 60 due to rounding
+                let displayHours = hoursRemaining;
+                let displayMinutes = minutesRemaining;
+                if (displayMinutes === 60) {
+                    displayHours += 1;
+                    displayMinutes = 0;
+                }
+
+                const newDisplay = `${displayHours}:${displayMinutes.toString().padStart(2, '0')}`;
+                countdownElement.textContent = newDisplay;
+                console.log(`Updated remaining hours display: ${newDisplay}`);
+            } else {
+                console.log('User is clocked out. Preserving current remaining hours display:', currentDisplay);
+            }
+        }
+
+        // Update progress bar - but only if the user is clocked in
+        if (timerBar && data.hoursWorked !== undefined) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !data.activeEntry;
+
+            // Only update if the user is clocked in
+            if (!isUserClockedOut) {
+                const percentage = Math.min(100, Math.max(0, (data.hoursWorked / 8) * 100));
+                timerBar.style.width = `${percentage}%`;
+                console.log(`Updated progress bar: ${percentage}%`);
+            } else {
+                console.log('User is clocked out. Preserving current progress bar width:', timerBar.style.width);
             }
         }
 

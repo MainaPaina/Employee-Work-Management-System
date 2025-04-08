@@ -254,9 +254,11 @@ class TimeEntry {
     static async findRecentEntriesByEmployeeId(employeeId, limit = 10) {
         const client = getAdminClient();
 
+        console.log(`[TimeEntry] Finding recent entries for employee ${employeeId}, limit: ${limit}`);
+
         const { data, error } = await client
             .from('timesheets')
-            .select('*') // Adjust columns as needed
+            .select('*') // Select all columns
             .eq('employee_id', employeeId)
             .order('date', { ascending: false }) // Order by date descending
             .order('start_time', { ascending: false }) // Then by start time descending
@@ -267,6 +269,58 @@ class TimeEntry {
             throw new Error(`Failed to find recent timesheet entries: ${error.message}`);
         }
 
+        // Log the raw data for debugging
+        console.log(`[TimeEntry] Found ${data ? data.length : 0} recent entries`);
+        if (data && data.length > 0) {
+            console.log('[TimeEntry] First entry sample:', JSON.stringify(data[0], null, 2));
+        }
+
+        // Ensure we're returning an array
+        const entries = data || [];
+
+        // Process entries to ensure all required fields are present
+        const processedEntries = entries.map(entry => {
+            // Ensure date is in the correct format
+            if (!entry.date) {
+                console.log(`[TimeEntry] Entry ${entry.id} missing date, adding current date`);
+                entry.date = new Date().toISOString().split('T')[0];
+            }
+
+            // Ensure status is present
+            if (!entry.status) {
+                console.log(`[TimeEntry] Entry ${entry.id} missing status, setting to 'unknown'`);
+                entry.status = 'unknown';
+            }
+
+            return entry;
+        });
+
+        return processedEntries; // Return processed array of entries
+    }
+
+    // Method to find all timesheet entries for a specific employee and date
+    static async findEntriesByEmployeeIdAndDate(employeeId, dateString) {
+        if (!employeeId || !dateString) {
+            throw new Error('Employee ID and date are required to find entries.');
+        }
+
+        console.log(`[TimeEntry] Finding entries for employee ${employeeId} on date ${dateString}`);
+
+        const client = getAdminClient();
+
+        const { data, error } = await client
+            .from('timesheets')
+            .select('*') // Select all columns
+            .eq('employee_id', employeeId)
+            .eq('date', dateString)
+            .order('start_time', { ascending: true }); // Order by start time
+
+        if (error) {
+            console.error('Supabase select error (findEntriesByEmployeeIdAndDate):', error);
+            throw new Error(`Failed to find timesheet entries: ${error.message}`);
+        }
+
+        console.log(`[TimeEntry] Found ${data ? data.length : 0} entries for date ${dateString}`);
         return data || []; // Return array of entries or empty array
     }
 

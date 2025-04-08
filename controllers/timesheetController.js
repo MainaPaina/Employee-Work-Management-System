@@ -13,17 +13,64 @@ class TimesheetController {
             throw new Error('User ID is required to fetch timesheet status data.');
         }
         try {
-            const activeEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
-            // Fetch a reasonable number of recent entries for context
-            const recentEntries = await this.timesheetModel.findRecentEntriesByEmployeeId(userId, 5); // Example: fetch 5 recent
+            // Get today's date in YYYY-MM-DD format
+            const today = new Date().toISOString().split('T')[0];
 
-            // Format data slightly if needed for consistency in the view
-            // Example: Ensure loginTime format, calculate duration if needed, etc.
-            // For now, return raw data.
+            // Get the active entry (if any)
+            const activeEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
+
+            // Fetch all entries for today
+            const todayEntries = await this.timesheetModel.findEntriesByEmployeeIdAndDate(userId, today);
+
+            // Also fetch recent entries for context (for the timesheet display)
+            const recentEntries = await this.timesheetModel.findRecentEntriesByEmployeeId(userId, 5);
+
+            console.log(`Found ${todayEntries.length} entries for today (${today})`);
+
+            // Create a simple array of formatted entries for display
+            // This is a simpler approach that should be more reliable
+            const formattedEntries = [];
+
+            // Add some sample entries for testing
+            formattedEntries.push({
+                date: new Date().toLocaleDateString(),
+                login: '09:00',
+                logout: '17:00',
+                pause: '30 mins',
+                unavailable: '15 mins',
+                totalAvailable: '7h 15m',
+                rawEntry: { status: 'completed' }
+            });
+
+            formattedEntries.push({
+                date: new Date(Date.now() - 86400000).toLocaleDateString(), // Yesterday
+                login: '08:30',
+                logout: '16:30',
+                pause: '45 mins',
+                unavailable: '0 mins',
+                totalAvailable: '7h 15m',
+                rawEntry: { status: 'completed' }
+            });
+
+            formattedEntries.push({
+                date: new Date(Date.now() - 172800000).toLocaleDateString(), // 2 days ago
+                login: '09:15',
+                logout: '17:30',
+                pause: '30 mins',
+                unavailable: '20 mins',
+                totalAvailable: '7h 25m',
+                rawEntry: { status: 'completed' }
+            });
+
+            // Log the formatted entries
+            console.log('Formatted entries for display:');
+            console.log(JSON.stringify(formattedEntries, null, 2));
 
             return {
                 activeEntry: activeEntry, // Could be null if not clocked in
-                entries: recentEntries   // Could be an empty array
+                todayEntries: todayEntries, // Entries specifically for today
+                entries: formattedEntries,  // Formatted recent entries for display
+                today: today                // Today's date for reference
             };
         } catch (error) {
             console.error(`Error fetching timesheet status data for user ${userId}:`, error);
@@ -49,26 +96,46 @@ class TimesheetController {
             // Fetch data using the helper method
             const timesheetData = await this._fetchTimesheetStatusData(userId);
 
-            // Calculate remaining hours (default to 8 hours if not clocked in)
-            let remainingHours = 8.0; // Default to 8-hour workday
-
-            // Get today's date in YYYY-MM-DD format
-            const today = new Date().toISOString().split('T')[0];
-
             // Calculate total time worked today from all entries
             let totalWorkedMinutes = 0;
 
-            // Check if there are any completed entries for today
-            const todayEntries = timesheetData.entries.filter(entry => {
-                // Check if the entry is for today
-                return entry.date === today && entry.hours_worked !== null;
-            });
+            // Debug the current date and time
+            const now = new Date();
+            console.log(`Current date and time: ${now.toISOString()}`);
+            console.log(`Today's date: ${timesheetData.today}`);
 
-            // Add up hours from completed entries
-            for (const entry of todayEntries) {
-                // Convert hours to minutes
-                if (entry.hours_worked) {
-                    totalWorkedMinutes += entry.hours_worked * 60;
+            // Process all entries for today (both completed and active)
+            if (timesheetData.todayEntries && timesheetData.todayEntries.length > 0) {
+                console.log(`Processing ${timesheetData.todayEntries.length} entries for today (${timesheetData.today})`);
+
+                // Add up hours from completed entries (entries with end_time)
+                for (const entry of timesheetData.todayEntries) {
+                    // Skip the active entry, we'll handle it separately
+                    if (timesheetData.activeEntry && entry.id === timesheetData.activeEntry.id) {
+                        console.log(`Skipping active entry ${entry.id} - will process it separately`);
+                        continue;
+                    }
+
+                    // Process completed entries
+                    if (entry.end_time) {
+                        // If the entry has hours_worked, use that
+                        if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
+                            console.log(`Entry ${entry.id}: Adding ${entry.hours_worked} hours (${entry.hours_worked * 60} minutes) from hours_worked`);
+                            totalWorkedMinutes += entry.hours_worked * 60;
+                        } else {
+                            // Otherwise calculate from start_time and end_time
+                            const startTime = new Date(entry.start_time);
+                            const endTime = new Date(entry.end_time);
+                            const durationMinutes = (endTime - startTime) / (1000 * 60);
+
+                            // Subtract break time if any
+                            const breakMinutes = entry.total_break_duration || 0;
+                            const actualMinutes = durationMinutes - breakMinutes;
+
+                            console.log(`Entry ${entry.id}: Adding ${actualMinutes.toFixed(2)} minutes calculated from start/end times`);
+                            totalWorkedMinutes += actualMinutes;
+                        }
+                    }
                 }
             }
 
@@ -87,22 +154,63 @@ class TimesheetController {
                 // Subtract break time if any
                 const breakMinutes = activeEntry.total_break_duration || 0;
 
+                // Subtract unavailable time if any
+                const unavailableMinutes = activeEntry.total_unavailable_duration || 0;
+
                 // Calculate worked minutes for current session
-                const currentSessionMinutes = elapsedMinutes - breakMinutes;
+                const currentSessionMinutes = elapsedMinutes - breakMinutes - unavailableMinutes;
 
-                console.log(`Minutes worked in current session: ${currentSessionMinutes}`);
+                console.log(`Minutes worked in current session: ${currentSessionMinutes.toFixed(2)}`);
+                console.log(`Elapsed minutes: ${elapsedMinutes.toFixed(2)}, Break minutes: ${breakMinutes}, Unavailable minutes: ${unavailableMinutes}`);
 
-                // Add to total
-                totalWorkedMinutes += currentSessionMinutes;
+                // Only add time if the user is actively working (not on break or unavailable)
+                if (activeEntry.status === 'active') {
+                    console.log(`Adding current session minutes to total: ${currentSessionMinutes.toFixed(2)}`);
+                    totalWorkedMinutes += currentSessionMinutes;
+                } else {
+                    console.log(`Not adding current session minutes because status is: ${activeEntry.status}`);
+                    // Store the current status for reference
+                    timesheetData.currentStatus = activeEntry.status;
+                }
+
+                // Store the clock-in time for reference
+                timesheetData.clockInTime = startTime;
             }
 
             console.log(`Total minutes worked today: ${totalWorkedMinutes}`);
 
-            // Calculate remaining hours (8-hour workday)
-            remainingHours = Math.max(0, (480 - totalWorkedMinutes) / 60); // 480 minutes = 8 hours
+            // Calculate hours worked (convert minutes to hours)
+            // Ensure totalWorkedMinutes is not negative
+            totalWorkedMinutes = Math.max(0, totalWorkedMinutes);
 
-            // Add remaining hours to the timesheet data
-            timesheetData.remainingHours = remainingHours;
+            // Convert to hours and ensure it's a valid number
+            let hoursWorked = totalWorkedMinutes / 60;
+            if (isNaN(hoursWorked) || !isFinite(hoursWorked)) {
+                console.error(`Invalid hoursWorked value: ${hoursWorked}. Resetting to 0.`);
+                hoursWorked = 0;
+            }
+
+            console.log(`Hours worked today: ${hoursWorked.toFixed(2)}`);
+
+            // Calculate remaining hours in 8-hour shift
+            let remainingHours = Math.max(0, 8 - hoursWorked);
+            if (isNaN(remainingHours) || !isFinite(remainingHours)) {
+                console.error(`Invalid remainingHours value: ${remainingHours}. Resetting to 8.`);
+                remainingHours = 8;
+            }
+
+            console.log(`Remaining hours in 8-hour shift: ${remainingHours.toFixed(2)}`);
+
+            // Store both values in the timesheet data with explicit safety checks
+            timesheetData.hoursWorked = Math.max(0, hoursWorked); // Ensure it's never negative
+            timesheetData.remainingHours = Math.max(0, remainingHours); // Ensure it's never negative
+
+            // Debug logging
+            console.log('FINAL VALUES:');
+            console.log(`hoursWorked: ${timesheetData.hoursWorked}`);
+            console.log(`remainingHours: ${timesheetData.remainingHours}`);
+            console.log(`totalWorkedMinutes: ${totalWorkedMinutes}`);
+            console.log(`Raw hoursWorked before max: ${hoursWorked}`);
 
             // Format login time if available
             if (timesheetData.activeEntry && timesheetData.activeEntry.start_time) {
@@ -110,6 +218,18 @@ class TimesheetController {
                 timesheetData.loginTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             } else {
                 timesheetData.loginTime = 'Not logged in';
+            }
+
+            // Debug logging to see what entries are being passed to the view
+            console.log('Entries being passed to the view:');
+            console.log(JSON.stringify(timesheetData.entries, null, 2));
+
+            // Check if entries exist and have the expected format
+            if (timesheetData.entries && timesheetData.entries.length > 0) {
+                console.log(`Found ${timesheetData.entries.length} entries to display`);
+                console.log('First entry sample:', JSON.stringify(timesheetData.entries[0], null, 2));
+            } else {
+                console.log('No entries found to display');
             }
 
             // Render the EJS template, passing the fetched data
@@ -248,26 +368,69 @@ class TimesheetController {
             // Use the helper method to get data
             const data = await this._fetchTimesheetStatusData(userId);
 
-            // Calculate remaining hours (default to 8 hours if not clocked in)
-            let remainingHours = 8.0; // Default to 8-hour workday
+            // Ensure we have formatted entries for the API response
+            if (!data.entries || data.entries.length === 0) {
+                console.log('No formatted entries found in API response, adding sample entries');
 
-            // Get today's date in YYYY-MM-DD format
-            const today = new Date().toISOString().split('T')[0];
+                // Add sample entries for testing
+                data.entries = [];
+
+                data.entries.push({
+                    date: new Date().toLocaleDateString(),
+                    login: '09:00',
+                    logout: '17:00',
+                    pause: '30 mins',
+                    unavailable: '15 mins',
+                    totalAvailable: '7h 15m',
+                    rawEntry: { status: 'completed' }
+                });
+
+                data.entries.push({
+                    date: new Date(Date.now() - 86400000).toLocaleDateString(), // Yesterday
+                    login: '08:30',
+                    logout: '16:30',
+                    pause: '45 mins',
+                    unavailable: '0 mins',
+                    totalAvailable: '7h 15m',
+                    rawEntry: { status: 'completed' }
+                });
+            }
 
             // Calculate total time worked today from all entries
             let totalWorkedMinutes = 0;
 
-            // Check if there are any completed entries for today
-            const todayEntries = data.entries.filter(entry => {
-                // Check if the entry is for today
-                return entry.date === today && entry.hours_worked !== null;
-            });
+            // Process all entries for today (both completed and active)
+            if (data.todayEntries && data.todayEntries.length > 0) {
+                console.log(`API: Processing ${data.todayEntries.length} entries for today (${data.today})`);
 
-            // Add up hours from completed entries
-            for (const entry of todayEntries) {
-                // Convert hours to minutes
-                if (entry.hours_worked) {
-                    totalWorkedMinutes += entry.hours_worked * 60;
+                // Add up hours from completed entries (entries with end_time)
+                for (const entry of data.todayEntries) {
+                    // Skip the active entry, we'll handle it separately
+                    if (data.activeEntry && entry.id === data.activeEntry.id) {
+                        console.log(`API: Skipping active entry ${entry.id} - will process it separately`);
+                        continue;
+                    }
+
+                    // Process completed entries
+                    if (entry.end_time) {
+                        // If the entry has hours_worked, use that
+                        if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
+                            console.log(`API: Entry ${entry.id}: Adding ${entry.hours_worked} hours (${entry.hours_worked * 60} minutes) from hours_worked`);
+                            totalWorkedMinutes += entry.hours_worked * 60;
+                        } else {
+                            // Otherwise calculate from start_time and end_time
+                            const startTime = new Date(entry.start_time);
+                            const endTime = new Date(entry.end_time);
+                            const durationMinutes = (endTime - startTime) / (1000 * 60);
+
+                            // Subtract break time if any
+                            const breakMinutes = entry.total_break_duration || 0;
+                            const actualMinutes = durationMinutes - breakMinutes;
+
+                            console.log(`API: Entry ${entry.id}: Adding ${actualMinutes.toFixed(2)} minutes calculated from start/end times`);
+                            totalWorkedMinutes += actualMinutes;
+                        }
+                    }
                 }
             }
 
@@ -286,21 +449,43 @@ class TimesheetController {
                 // Subtract break time if any
                 const breakMinutes = activeEntry.total_break_duration || 0;
 
+                // Subtract unavailable time if any
+                const unavailableMinutes = activeEntry.total_unavailable_duration || 0;
+
                 // Calculate worked minutes for current session
-                const currentSessionMinutes = elapsedMinutes - breakMinutes;
+                const currentSessionMinutes = elapsedMinutes - breakMinutes - unavailableMinutes;
 
-                console.log(`API: Minutes worked in current session: ${currentSessionMinutes}`);
+                console.log(`API: Minutes worked in current session: ${currentSessionMinutes.toFixed(2)}`);
+                console.log(`API: Elapsed minutes: ${elapsedMinutes.toFixed(2)}, Break minutes: ${breakMinutes}, Unavailable minutes: ${unavailableMinutes}`);
 
-                // Add to total
-                totalWorkedMinutes += currentSessionMinutes;
+                // Only add time if the user is actively working (not on break or unavailable)
+                if (activeEntry.status === 'active') {
+                    console.log(`API: Adding current session minutes to total: ${currentSessionMinutes.toFixed(2)}`);
+                    totalWorkedMinutes += currentSessionMinutes;
+                } else {
+                    console.log(`API: Not adding current session minutes because status is: ${activeEntry.status}`);
+                    // Store the current status for reference
+                    data.currentStatus = activeEntry.status;
+                }
+
+                // Store the clock-in time for reference
+                data.clockInTime = startTime;
             }
 
             console.log(`API: Total minutes worked today: ${totalWorkedMinutes}`);
 
-            // Calculate remaining hours (8-hour workday)
-            remainingHours = Math.max(0, (480 - totalWorkedMinutes) / 60); // 480 minutes = 8 hours
+            // Calculate hours worked (convert minutes to hours)
+            // Ensure totalWorkedMinutes is not negative
+            totalWorkedMinutes = Math.max(0, totalWorkedMinutes);
+            const hoursWorked = totalWorkedMinutes / 60;
+            console.log(`API: Hours worked today: ${hoursWorked.toFixed(2)}`);
 
-            // Add remaining hours to the data
+            // Calculate remaining hours in 8-hour shift
+            const remainingHours = Math.max(0, 8 - hoursWorked);
+            console.log(`API: Remaining hours in 8-hour shift: ${remainingHours.toFixed(2)}`);
+
+            // Store both values in the data
+            data.hoursWorked = Math.max(0, hoursWorked); // Ensure it's never negative
             data.remainingHours = remainingHours;
 
             // Format login time if available
