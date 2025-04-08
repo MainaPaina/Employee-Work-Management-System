@@ -9,7 +9,7 @@ node_modules/*
 .qodo
 
 # Test and development files
-scripts
+scripts/*
 test-auth-routes.js
 test-routes.js
 run-migration.js

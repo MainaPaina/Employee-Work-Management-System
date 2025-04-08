@@ -52,6 +52,29 @@ class TimesheetController {
             // Calculate remaining hours (default to 8 hours if not clocked in)
             let remainingHours = 8.0; // Default to 8-hour workday
 
+            // Get today's date in YYYY-MM-DD format
+            const today = new Date().toISOString().split('T')[0];
+
+            // Calculate total time worked today from all entries
+            let totalWorkedMinutes = 0;
+
+            // Check if there are any completed entries for today
+            const todayEntries = timesheetData.entries.filter(entry => {
+                // Check if the entry is for today
+                return entry.date === today && entry.hours_worked !== null;
+            });
+
+            // Add up hours from completed entries
+            for (const entry of todayEntries) {
+                // Convert hours to minutes
+                if (entry.hours_worked) {
+                    totalWorkedMinutes += entry.hours_worked * 60;
+                }
+            }
+
+            console.log(`Total minutes worked from completed entries: ${totalWorkedMinutes}`);
+
+            // Add time from current active entry if it exists
             if (timesheetData.activeEntry) {
                 const activeEntry = timesheetData.activeEntry;
                 const startTime = new Date(activeEntry.start_time);
@@ -64,12 +87,19 @@ class TimesheetController {
                 // Subtract break time if any
                 const breakMinutes = activeEntry.total_break_duration || 0;
 
-                // Calculate worked minutes
-                const workedMinutes = elapsedMinutes - breakMinutes;
+                // Calculate worked minutes for current session
+                const currentSessionMinutes = elapsedMinutes - breakMinutes;
 
-                // Calculate remaining hours (8-hour workday)
-                remainingHours = Math.max(0, (480 - workedMinutes) / 60); // 480 minutes = 8 hours
+                console.log(`Minutes worked in current session: ${currentSessionMinutes}`);
+
+                // Add to total
+                totalWorkedMinutes += currentSessionMinutes;
             }
+
+            console.log(`Total minutes worked today: ${totalWorkedMinutes}`);
+
+            // Calculate remaining hours (8-hour workday)
+            remainingHours = Math.max(0, (480 - totalWorkedMinutes) / 60); // 480 minutes = 8 hours
 
             // Add remaining hours to the timesheet data
             timesheetData.remainingHours = remainingHours;
@@ -221,6 +251,29 @@ class TimesheetController {
             // Calculate remaining hours (default to 8 hours if not clocked in)
             let remainingHours = 8.0; // Default to 8-hour workday
 
+            // Get today's date in YYYY-MM-DD format
+            const today = new Date().toISOString().split('T')[0];
+
+            // Calculate total time worked today from all entries
+            let totalWorkedMinutes = 0;
+
+            // Check if there are any completed entries for today
+            const todayEntries = data.entries.filter(entry => {
+                // Check if the entry is for today
+                return entry.date === today && entry.hours_worked !== null;
+            });
+
+            // Add up hours from completed entries
+            for (const entry of todayEntries) {
+                // Convert hours to minutes
+                if (entry.hours_worked) {
+                    totalWorkedMinutes += entry.hours_worked * 60;
+                }
+            }
+
+            console.log(`API: Total minutes worked from completed entries: ${totalWorkedMinutes}`);
+
+            // Add time from current active entry if it exists
             if (data.activeEntry) {
                 const activeEntry = data.activeEntry;
                 const startTime = new Date(activeEntry.start_time);
@@ -233,12 +286,19 @@ class TimesheetController {
                 // Subtract break time if any
                 const breakMinutes = activeEntry.total_break_duration || 0;
 
-                // Calculate worked minutes
-                const workedMinutes = elapsedMinutes - breakMinutes;
+                // Calculate worked minutes for current session
+                const currentSessionMinutes = elapsedMinutes - breakMinutes;
 
-                // Calculate remaining hours (8-hour workday)
-                remainingHours = Math.max(0, (480 - workedMinutes) / 60); // 480 minutes = 8 hours
+                console.log(`API: Minutes worked in current session: ${currentSessionMinutes}`);
+
+                // Add to total
+                totalWorkedMinutes += currentSessionMinutes;
             }
+
+            console.log(`API: Total minutes worked today: ${totalWorkedMinutes}`);
+
+            // Calculate remaining hours (8-hour workday)
+            remainingHours = Math.max(0, (480 - totalWorkedMinutes) / 60); // 480 minutes = 8 hours
 
             // Add remaining hours to the data
             data.remainingHours = remainingHours;

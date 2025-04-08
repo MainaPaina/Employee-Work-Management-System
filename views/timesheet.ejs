@@ -21,7 +21,7 @@
                 <i class="fas fa-clock"></i>
             </div>
             <div class="card-content">
-                <h4>Remaining Hours</h4>
+                <h4>Remaining Hours (8hr Day)</h4>
                 <div class="countdown-container">
                     <div id="countdown-timer" class="countdown-timer">
                         <%
@@ -37,7 +37,15 @@
                         <%= hours %>:<%= minutes.toString().padStart(2, '0') %>
                     </div>
                     <div class="timer-progress">
-                        <div class="timer-bar" style="width: 50%;"></div>
+                        <%
+                        // Calculate progress percentage
+                        let progressPercentage = 0;
+                        if (timesheetData.remainingHours !== undefined && !isNaN(timesheetData.remainingHours)) {
+                            // Calculate percentage based on 8-hour workday
+                            progressPercentage = Math.min(100, Math.max(0, (1 - timesheetData.remainingHours / 8) * 100));
+                        }
+                        %>
+                        <div class="timer-bar" style="width: <%= progressPercentage %>%;"></div>
                     </div>
                 </div>
             </div>

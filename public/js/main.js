@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Calculate initial percentage
         const workDaySeconds = 8 * 3600; // 8 hours in seconds
-        let initialPercentage = 100 - (remainingSeconds / workDaySeconds * 100);
+        let initialPercentage = Math.min(100, Math.max(0, (1 - remainingSeconds / workDaySeconds) * 100));
 
         // Start timer immediately
         startTimer();
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 countdownElement.textContent = `${hours}:${minutes.toString().padStart(2, '0')}`;
 
                 // Update progress bar
-                const percentage = 100 - (remainingSeconds / workDaySeconds * 100);
+                const percentage = Math.min(100, Math.max(0, (1 - remainingSeconds / workDaySeconds) * 100));
                 timerBar.style.width = `${percentage}%`;
 
             }, 60000); // Update every minute
