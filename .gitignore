@@ -2,8 +2,7 @@
 package-lock.json
 node_modules/*
 .vs/*
-migrations/*
-data/*
+
 
 # Environment variables and configuration
 .env
@@ -14,6 +13,8 @@ scripts
 test-auth-routes.js
 test-routes.js
 requirements.txt
+migrations/*
+data/*
 
 # Large files
 *.zip
