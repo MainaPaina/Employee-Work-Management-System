@@ -2,6 +2,8 @@
 package-lock.json
 node_modules/*
 .vs/*
+migrations/*
+data/*
 
 # Environment variables and configuration
 .env
