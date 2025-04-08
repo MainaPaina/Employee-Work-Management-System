@@ -1,0 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-size: xx-large;
+    min-height: 100vh;
+    display: grid;
+    color: green;
+    background-color: darkslategrey;
+    place-content: center;
+}

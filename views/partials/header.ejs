@@ -1,0 +1,14 @@
+<header class="site-header">
+    <div class="header-container">
+        <div class="logo">
+            <h1>TimeTrack</h1>
+            <span class="tagline">Manage your time effectively</span>
+        </div>
+        <div class="user-info">
+            <% if (locals.isAuthenticated && locals.user) { %>
+                <span>Welcome, <%= locals.user.name %></span>
+                <span class="user-role"><%= locals.user.role %></span>
+            <% } %>
+        </div>
+    </div>
+</header>

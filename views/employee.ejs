@@ -1,0 +1,47 @@
+<!-- filepath: time-management-app/view/employee.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <title>Employee Details</title>
+</head>
+<body>
+    <%- include('partials/header') %>
+    <%- include('partials/navbar') %>
+
+    <div class="container">
+        <h1>Employee Details</h1>
+        <div class="employee-info">
+            <h2><%= employee.name %></h2>
+            <p>Email: <%= employee.email %></p>
+            <p>Position: <%= employee.position %></p>
+            <p>Department: <%= employee.department %></p>
+        </div>
+
+        <h3>Timesheets</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Hours Worked</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% timesheets.forEach(timesheet => { %>
+                    <tr class="<%= timesheet.missing ? 'highlight' : '' %>">
+                        <td><%= timesheet.date.toDateString() %></td>
+                        <td><%= timesheet.hoursWorked %></td>
+                        <td><%= timesheet.missing ? 'Missing' : 'Submitted' %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <%- include('partials/footer') %>
+</body>
+</html>

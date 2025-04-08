@@ -1,0 +1,40 @@
+<ul class="nav-menu">
+    <li class="nav-item">
+        <a href="/" class="nav-link <%= activePage === 'home' ? 'active' : '' %>">Home</a>
+    </li>
+    <li class="nav-item">
+        <a href="/dashboard" class="nav-link <%= activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+    </li>
+    <li class="nav-item">
+        <a href="/timesheet" class="nav-link <%= activePage === 'timesheet' ? 'active' : '' %>">Timesheet</a>
+    </li>
+    <% if (locals.user && locals.user.role === 'admin') { %>
+        <li class="nav-item">
+            <a href="/admin" class="nav-link <%= activePage === 'admin' ? 'active' : '' %>">Admin</a>
+        </li>
+    <% } %>
+    <li class="nav-item">
+        <a href="/leave/apply" class="nav-link <%= activePage === 'applyLeave' ? 'active' : '' %>">Apply Leave</a>
+    </li>
+    <li class="nav-item">
+        <a href="/profile" class="nav-link <%= activePage === 'profile' ? 'active' : '' %>">Profile</a>
+    </li>
+</ul>
+<div class="auth-buttons">
+    <% if (locals.isAuthenticated) { %>
+        <a href="#" id="logoutBtn" class="logout-btn">Logout</a>
+        <script>
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Create a form and submit it to the logout endpoint
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/logout';
+                document.body.appendChild(form);
+                form.submit();
+            });
+        </script>
+    <% } else { %>
+        <a href="/login" class="login-btn">Login</a>
+    <% } %>
+</div>

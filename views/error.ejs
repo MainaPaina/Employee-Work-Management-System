@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Error</title>
+</head>
+<body>
+  <h1>Error</h1>
+  <p><%= message %></p>
+  <% if (typeof error !== 'undefined' && error.stack) { %>
+    <pre><%= error.stack %></pre>
+  <% } %>
+  <a href="/">Back to Home</a>
+</body>
+</html>

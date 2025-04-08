@@ -1,0 +1,364 @@
+.dashboard-container {
+    padding: 2rem;
+}
+
+.welcome-banner {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border-radius: 10px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-banner h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.current-date {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.quick-actions {
+    margin-bottom: 2rem;
+}
+
+.action-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.action-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #6a11cb;
+}
+
+.summary-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+.status-active {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-break {
+    color: #fd7e14;
+    font-weight: bold;
+}
+
+.status-unavailable {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.progress-container {
+    background: #e9ecef;
+    border-radius: 4px;
+    height: 10px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.progress-bar {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    height: 100%;
+}
+
+.no-active {
+    color: #6c757d;
+    margin: 1rem 0;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid #6a11cb;
+    color: #6a11cb;
+}
+
+.recent-entries-section {
+    margin-bottom: 2.5rem;
+}
+
+.leave-balance-text {
+    margin: 0.5rem 0;
+}
+
+.table-responsive {
+    margin-bottom: 2rem;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 0.75rem;
+    text-align: left;
+}
+
+/* Table and text visibility fixes */
+.table th {
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    color: #444;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Button styles for tertiary buttons */
+.btn-tertiary {
+    background: #5e3897; /* Lighter purple */
+    color: white;
+    border: none;
+}
+
+.btn-tertiary:hover {
+    background: #7b52b9; /* Even lighter when hovering */
+    transform: translateY(-2px);
+}
+
+/* Dark Mode Styles */
+body.dark-mode .action-card {
+    background: #2d2d2d;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #f8f9fa;
+    border: 1px solid #444;
+}
+
+body.dark-mode .action-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .summary-card {
+    background: #2d2d2d;
+    color: #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid #444;
+}
+
+body.dark-mode .card-icon {
+    color: #8a2be2; /* Brighter purple in dark mode */
+}
+
+body.dark-mode .status-label {
+    color: #adb5bd;
+}
+
+body.dark-mode .status-value {
+    color: #f8f9fa;
+}
+
+body.dark-mode .no-active {
+    color: #adb5bd;
+}
+
+body.dark-mode .progress-container {
+    background: #444;
+}
+
+body.dark-mode .btn-outline {
+    border-color: #8a2be2;
+    color: #8a2be2;
+}
+
+body.dark-mode .btn-outline:hover {
+    background: rgba(138, 43, 226, 0.2);
+}
+
+body.dark-mode h2, 
+body.dark-mode h3 {
+    color: #f8f9fa;
+}
+
+body.dark-mode .table th {
+    color: #e9ecef;
+    border-bottom: 2px solid #495057;
+}
+
+body.dark-mode .table td {
+    color: #dee2e6; /* Lighter gray for better visibility */
+    border-bottom: 1px solid #495057;
+}
+
+body.dark-mode .table tr:hover {
+    background-color: #3a3a3a; /* Slightly lighter than the card background */
+}
+
+body.dark-mode .btn-tertiary {
+    background: #8a4fff; /* Brighter in dark mode */
+    color: white;
+}
+
+body.dark-mode .btn-tertiary:hover {
+    background: #9a68ff;
+}
+
+/* Empty placeholder row styling */
+.table td.text-center {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+body.dark-mode .table td.text-center {
+    color: #adb5bd;
+}
+
+/* Improve card responsiveness */
+@media (max-width: 768px) {
+    .summary-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-card {
+        margin-bottom: 1rem;
+    }
+    
+    .welcome-banner {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .welcome-banner h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Fix status indicators */
+.status-active, .status-break, .status-unavailable {
+    font-weight: 600;
+}
+
+/* Fix alert styles in dark mode */
+body.dark-mode .alert-success {
+    background-color: rgba(40, 167, 69, 0.2);
+    border-color: rgba(40, 167, 69, 0.3);
+    color: #2ecc71;
+}
+
+body.dark-mode .alert-error {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-color: rgba(220, 53, 69, 0.3);
+    color: #ff6b6b;
+}
+
+/* Message container dark mode */
+body.dark-mode .message-container {
+    background-color: transparent;
+}
+
+/* Update the dark mode table styles to improve visibility */
+
+/* Remove duplicate table styles and fix visibility */
+body.dark-mode .table {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+
+body.dark-mode .table th {
+    color: #ffffff;
+    border-bottom: 2px solid #555;
+    background-color: #333;
+    font-weight: bold;
+    padding: 0.75rem;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+body.dark-mode .table td {
+    color: #ffffff;
+    border-bottom: 1px solid #444;
+}
+
+body.dark-mode .table tr:hover {
+    background-color: #3a3a3a;
+}
+
+/* Ensure any links in tables are visible */
+body.dark-mode .table a {
+    color: #9a68ff;
+}
+
+body.dark-mode .table a:hover {
+    color: #b68fff;
+    text-decoration: underline;
+}
+
+/* Add styles for empty table indicators */
+body.dark-mode .empty-table-message {
+    color: #adb5bd;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Make actions more visible in tables */
+body.dark-mode .table .table-actions {
+    color: #8a4fff;
+}
+
+/* Fix for table in cards */
+body.dark-mode .summary-card .table th,
+body.dark-mode .summary-card .table td {
+    color: #ffffff;
+}
+
+/* Prevent text from inheriting opacity */
+body.dark-mode .table-responsive * {
+    opacity: 1;
+}
+
+/* Ensure table headers inside cards match */
+body.dark-mode .summary-card .table th {
+    background-color: #333;
+    color: #ffffff;
+}

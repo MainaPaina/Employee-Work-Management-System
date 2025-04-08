@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Management App</title>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="icon" type="image/icon" href="img/logo.ico">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/fontawesome/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+        
+        footer {
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="navbar-logo">
+                <i class="fas fa-clock logo-icon"></i>
+                <span>TimeManager</span>
+            </a>
+            
+            <button class="mobile-menu-toggle" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="toggle-bar"></span>
+                <span class="toggle-bar"></span>
+                <span class="toggle-bar"></span>
+            </button>
+            
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/" class="nav-link <%= (typeof activePage !== 'undefined' && activePage === 'home') ? 'active' : '' %>">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/contact" class="nav-link <%= (typeof activePage !== 'undefined' && activePage === 'contact') ? 'active' : '' %>">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                </li>
+                <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                    <!-- Navigation for authenticated users -->
+                    <li class="nav-item">
+                        <a href="/dashboard" class="nav-link <%= (typeof activePage !== 'undefined' && activePage === 'dashboard') ? 'active' : '' %>">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/leave/apply" class="nav-link <%= (typeof activePage !== 'undefined' && activePage === 'applyLeave') ? 'active' : '' %>">
+                            <i class="fas fa-calendar-alt"></i> Apply Leave
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/timesheet" class="nav-link <%= (typeof activePage !== 'undefined' && activePage === 'timesheet') ? 'active' : '' %>">
+                            <i class="fas fa-clock"></i> TimeSheet
+                        </a>
+                    </li>
+                    <li class="nav-item ml-auto">
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-btn">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span class="user-name"><%= locals.user ? user.name : 'User' %></span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="user-dropdown-content">
+                                <a href="/profile"><i class="fas fa-id-card"></i> Profile</a>
+                                <% if (locals.user && user.role === 'admin') { %>
+                                    <a href="/admin"><i class="fas fa-cog"></i> Admin Settings</a>
+                                <% } %>
+                                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                        </div>
+                    </li>
+                <% } else { %>
+                    <!-- Show login button for non-authenticated users -->
+                    <li class="nav-item login-nav-item">
+                        <a href="/login" class="nav-link login-nav-link <%= (typeof activePage !== 'undefined' && activePage === 'login') ? 'active' : '' %>">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                 <% } %> 
+            </ul>
+            
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <%- body %>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-clock logo-icon"></i>
+                        <span>TimeManager</span>
+                    </div>
+                    <p class="footer-desc">A modern solution for time management and productivity tracking in the workplace.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3 class="footer-title">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                            <li><a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <% } %>
+                        <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                        <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
+                        <li><a href="/faq"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3 class="footer-title">Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                        <li><a href="#"><i class="fas fa-cookie"></i> Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; <%= new Date().getFullYear() %> TimeManager. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Local JS files -->
+    <script src="/js/bootstrap.bundle.js"></script>
+    <script src="/js/dynamicPageSize.js"></script>
+    <script src="/js/main.js"></script>
+    
+    <!-- Mobile Menu Toggle JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            const navList = document.querySelector('.nav-list');
+            
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    navList.classList.toggle('active');
+                    this.setAttribute('aria-expanded', 
+                        this.getAttribute('aria-expanded') === 'false' ? 'true' : 'false'
+                    );
+                });
+            }
+        });
+    </script>
+
+    <div class="theme-toggle">
+        <button id="themeToggle" aria-label="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <script>
+    // Theme toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('themeToggle');
+        const moonIcon = '<i class="fas fa-moon"></i>';
+        const sunIcon = '<i class="fas fa-sun"></i>';
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.innerHTML = sunIcon;
+        }
+        
+        // Toggle theme
+        themeToggle.addEventListener('click', function() {
+            if (document.body.classList.contains('dark-mode')) {
+                // Switch to light mode
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                themeToggle.innerHTML = moonIcon;
+            } else {
+                // Switch to dark mode
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.innerHTML = sunIcon;
+            }
+        });
+    });
+    </script>
+</body>
+</html>

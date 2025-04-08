@@ -1,0 +1,796 @@
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">My Timesheet</h1>
+        <p class="page-subtitle">Track your work hours and productivity</p>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="dashboard-cards">
+        <div class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <div class="card-content">
+                <h4>Today's Login</h4>
+                <p class="card-value"><%= timesheetData.loginTime %></p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="card-content">
+                <h4>Remaining Hours</h4>
+                <div class="countdown-container">
+                    <div id="countdown-timer" class="countdown-timer"><%= Math.floor(timesheetData.remainingHours) %>:<%= (timesheetData.remainingHours % 1 * 60).toString().padStart(2, '0') %></div>
+                    <div class="timer-progress">
+                        <div class="timer-bar" style="width: 50%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-calendar"></i>
+            </div>
+            <div class="card-content">
+                <h4>This Week</h4>
+                <p class="card-value">32.5 hrs / 40 hrs</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Tracking Panel -->
+    <div class="time-tracking-panel card">
+        <div class="panel-header">
+            <h3>Time Tracking</h3>
+            <div class="status-indicator <%= timesheetData.activeEntry ? 'active' : 'inactive' %>">
+                <span class="status-dot"></span>
+                <span class="status-text"><%= timesheetData.activeEntry ? 'Working' : 'Not Working' %></span>
+            </div>
+        </div>
+        <div class="panel-body">
+            <p>Your current status: <span id="statusText">Loading...</span></p>
+            <p>Clocked in at: <span id="clockInTime">--:--</span></p>
+            <p>Total Break Time: <span id="totalBreakTime">0 mins</span></p>
+            <div class="tracking-actions">
+                <button id="clockInBtn" class="btn btn-primary tracking-btn btn-start">Clock In</button>
+                <button id="clockOutBtn" class="btn btn-secondary tracking-btn btn-stop" disabled>Clock Out</button>
+                <button id="startBreakBtn" class="btn btn-secondary tracking-btn btn-pause" disabled>Start Break</button>
+                <button id="endBreakBtn" class="btn btn-primary tracking-btn btn-resume" disabled>End Break</button>
+                <button id="startUnavailableBtn" class="btn btn-secondary tracking-btn btn-unavailable" disabled>Go Unavailable</button>
+                <button id="endUnavailableBtn" class="btn btn-primary tracking-btn btn-resume" disabled>Go Available</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timesheet Controls -->
+    <div class="timesheet-controls">
+        <div class="control-panel card">
+            <div class="panel-header">
+                <h3>View Timesheet</h3>
+            </div>
+            <div class="panel-body">
+                <div class="period-selector">
+                    <label class="selector-label">Select Period</label>
+                    <div class="period-options">
+                        <div class="period-option btn btn-secondary active" data-period="current-week">Current Week</div>
+                        <div class="period-option btn btn-secondary" data-period="last-week">Last Week</div>
+                        <div class="period-option btn btn-secondary" data-period="current-month">Current Month</div>
+                        <div class="period-option btn btn-secondary" data-period="custom">Custom</div>
+                    </div>
+
+                    <div class="custom-dates" style="display: none;">
+                        <div class="date-input">
+                            <label class="date-label">Start Date</label>
+                            <input type="date" class="date-field" id="start-date">
+                        </div>
+                        <div class="date-input">
+                            <label class="date-label">End Date</label>
+                            <input type="date" class="date-field" id="end-date">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4 class="filter-title">Filter By</h4>
+                    <div class="filter-options">
+                        <div class="filter-chip btn btn-secondary"><i class="fas fa-check-circle"></i> Approved</div>
+                        <div class="filter-chip btn btn-secondary"><i class="fas fa-clock"></i> Pending</div>
+                        <div class="filter-chip btn btn-secondary"><i class="fas fa-times-circle"></i> Rejected</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary apply-button"><i class="fas fa-filter"></i> Apply Filters</button>
+            </div>
+        </div>
+
+        <div class="card timesheet-table-container">
+            <div class="table-header">
+                <h3>Recent Time Entries</h3>
+                <div class="table-actions">
+                    <button class="btn btn-secondary table-action-btn"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn btn-secondary table-action-btn"><i class="fas fa-print"></i> Print</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="timesheet-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Login</th>
+                            <th>Logout</th>
+                            <th>Pause</th>
+                            <th>Unavailable</th>
+                            <th>Total Available</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% timesheetData.entries.forEach(entry => { %>
+                            <tr>
+                                <td><%= entry.date %></td>
+                                <td><%= entry.login %></td>
+                                <td><%= entry.logout %></td>
+                                <td><%= entry.pause %></td>
+                                <td><%= entry.unavailable %></td>
+                                <td><%= entry.totalAvailable %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="stats-section">
+        <h3 class="section-title">Work Statistics <span class="title-highlight"></span></h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>Productivity</h4>
+                    <div class="stat-value">85%</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>Average Hours</h4>
+                    <div class="stat-value">7.5 hrs</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>On Time Rate</h4>
+                    <div class="stat-value">92%</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 92%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Animations CSS -->
+<style>
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .dashboard-card:hover .card-icon {
+        animation: pulse 1.5s ease infinite;
+    }
+
+    @keyframes fadeSlideUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animated {
+        animation: fadeSlideUp 0.6s ease-out forwards;
+    }
+
+    section {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    section.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Notification styles */
+    .notification-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .notification {
+        background-color: #333;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-width: 300px;
+        max-width: 400px;
+        animation: slide-in 0.3s ease-out forwards;
+    }
+
+    .notification.success {
+        background-color: #4CAF50;
+    }
+
+    .notification.error {
+        background-color: #F44336;
+    }
+
+    .notification.warning {
+        background-color: #FF9800;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    .notification.fade-out {
+        animation: fade-out 0.3s ease-out forwards;
+    }
+
+    @keyframes slide-in {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fade-out {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    /* Highlight effect for buttons */
+    .btn-highlight {
+        animation: pulse 1s infinite;
+        box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 165, 0, 1);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Notification system
+    function showNotification(message, type) {
+        // Create notification container if it doesn't exist
+        let notificationContainer = document.querySelector('.notification-container');
+
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.className = 'notification-container';
+            document.body.appendChild(notificationContainer);
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span>${message}</span>
+            </div>
+            <button class="notification-close">&times;</button>
+        `;
+
+        // Add notification to container
+        notificationContainer.appendChild(notification);
+
+        // Add close button functionality
+        const closeButton = notification.querySelector('.notification-close');
+        closeButton.addEventListener('click', function() {
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        });
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+    const clockInBtn = document.getElementById('clockInBtn');
+    const clockOutBtn = document.getElementById('clockOutBtn');
+    const startBreakBtn = document.getElementById('startBreakBtn');
+    const endBreakBtn = document.getElementById('endBreakBtn');
+    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
+    const endUnavailableBtn = document.getElementById('endUnavailableBtn');
+    const statusText = document.getElementById('statusText');
+    const clockInTimeText = document.getElementById('clockInTime');
+    const totalBreakTimeText = document.getElementById('totalBreakTime');
+
+    // Function to update the UI based on current timesheet status
+    function updateUI(statusData) {
+        console.log('Updating UI with status:', statusData);
+        const activeEntry = statusData.activeEntry;
+
+        // Reset all buttons to default state (mostly disabled)
+        clockInBtn.disabled = true;
+        clockOutBtn.disabled = true;
+        startBreakBtn.disabled = true;
+        endBreakBtn.disabled = true;
+        startUnavailableBtn.disabled = true;
+        endUnavailableBtn.disabled = true;
+        statusText.textContent = 'Not Clocked In';
+        clockInTimeText.textContent = '--:--';
+        totalBreakTimeText.textContent = '0 mins';
+
+        if (activeEntry) {
+            // User is clocked in
+            clockOutBtn.disabled = false;
+            statusText.textContent = `Status: ${activeEntry.status || 'Active'}`;
+            if (activeEntry.start_time) {
+                clockInTimeText.textContent = new Date(activeEntry.start_time).toLocaleTimeString();
+            }
+             if (activeEntry.total_break_duration) {
+                 totalBreakTimeText.textContent = `${activeEntry.total_break_duration} mins`;
+             }
+
+            // Determine state based on status
+            if (activeEntry) {
+                // User is clocked in - enable/disable buttons based on status
+                clockInBtn.disabled = true; // Can't clock in again
+                clockOutBtn.disabled = false; // Can clock out
+
+                if (activeEntry.status === 'active') {
+                    startBreakBtn.disabled = false;
+                    startUnavailableBtn.disabled = false;
+                    clockOutBtn.disabled = false; // Only allow clock out when active
+                    statusText.textContent = 'Active - Currently clocked in';
+                } else if (activeEntry.status === 'on_break') {
+                    endBreakBtn.disabled = false;
+                    startBreakBtn.disabled = true;
+                    startUnavailableBtn.disabled = true;
+                    clockOutBtn.disabled = true; // Disable clock out when on break
+                    statusText.textContent = 'On Break - End break before clocking out'; // More specific status with instruction
+                    // Add a visual indicator to the end break button
+                    endBreakBtn.classList.add('btn-highlight');
+                    setTimeout(() => {
+                        endBreakBtn.classList.remove('btn-highlight');
+                    }, 2000);
+                } else if (activeEntry.status === 'unavailable') {
+                    endUnavailableBtn.disabled = false;
+                    startBreakBtn.disabled = true;
+                    startUnavailableBtn.disabled = true;
+                    clockOutBtn.disabled = true; // Disable clock out when unavailable
+                    statusText.textContent = 'Unavailable - End unavailable period before clocking out'; // More specific status with instruction
+                    // Add a visual indicator to the end unavailable button
+                    endUnavailableBtn.classList.add('btn-highlight');
+                    setTimeout(() => {
+                        endUnavailableBtn.classList.remove('btn-highlight');
+                    }, 2000);
+                }
+            } else {
+                // User is not clocked in - disable all buttons except clock in
+                clockInBtn.disabled = false;
+                clockOutBtn.disabled = true;
+                startBreakBtn.disabled = true;
+                endBreakBtn.disabled = true;
+                startUnavailableBtn.disabled = true;
+                endUnavailableBtn.disabled = true;
+                statusText.textContent = 'Not clocked in';
+            }
+            // Clock In button should remain disabled if clocked in
+        } else {
+            // User is not clocked in
+            clockInBtn.disabled = false; // Enable clock-in
+        }
+    }
+
+    // Function to fetch status and update UI
+    async function fetchAndUpdateStatus() {
+        const token = localStorage.getItem('token'); // Get JWT from local storage
+        console.log('Token available:', token ? 'Yes' : 'No');
+        if (!token) {
+            console.error('No JWT found. User might not be logged in.');
+            statusText.textContent = 'Error: Not authenticated';
+            // Optionally redirect to login or disable all buttons
+            return;
+        }
+        console.log('Using token for status fetch:', token.substring(0, 20) + '...');
+
+        try {
+            const response = await fetch('/api/status', { // Corrected endpoint
+                 headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT to header
+                 }
+            });
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    // Handle unauthorized/forbidden (e.g., redirect to login)
+                    console.error('Authentication error fetching status.');
+                    statusText.textContent = 'Authentication Error';
+                    // Consider redirecting: window.location.href = '/login';
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return; // Stop further processing on error
+            }
+            const statusData = await response.json();
+            updateUI(statusData);
+        } catch (error) {
+            console.error('Error fetching timesheet status:', error);
+            statusText.textContent = 'Error loading status';
+            // Disable all buttons on error?
+            clockInBtn.disabled = true;
+            clockOutBtn.disabled = true;
+            startBreakBtn.disabled = true;
+            endBreakBtn.disabled = true;
+            startUnavailableBtn.disabled = true;
+            endUnavailableBtn.disabled = true;
+        }
+    }
+
+    // Generic function to handle API calls for other timesheet actions
+    async function handleTimesheetAction(action, successMessage, errorMessagePrefix) {
+        console.log(`${action} button clicked`);
+        const token = localStorage.getItem('token'); // Get JWT from local storage
+        if (!token) {
+            console.error('No JWT found for action.');
+            showNotification('Authentication error. Please log in again.', 'error');
+            return;
+        }
+
+        console.log(`Sending ${action} request to /api/${action}`);
+        console.log('Using token:', token ? (token.substring(0, 20) + '...') : 'No token');
+
+        try {
+            const response = await fetch(`/api/${action}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Add JWT to header
+                },
+            });
+
+            console.log(`${action} response status:`, response.status);
+
+            // Handle potential JSON parsing errors if response is not JSON (e.g., 204 No Content)
+            let result = {};
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                try {
+                    result = await response.json();
+                    console.log(`${action} response data:`, result);
+                } catch (jsonError) {
+                    console.error(`Error parsing JSON response for ${action}:`, jsonError);
+                    result = { error: 'Invalid response format' };
+                }
+            } else if (!response.ok) {
+                 // If not JSON and not OK, create a basic error message
+                 result = { error: `Request failed with status ${response.status}` };
+                 console.error(`Non-JSON error response for ${action}:`, result.error);
+            }
+
+            if (response.ok) {
+                console.log(`${action} successful:`, result);
+                showNotification(successMessage, 'success');
+                // Wait a moment before refreshing the UI to ensure the server has processed the change
+                setTimeout(() => {
+                    fetchAndUpdateStatus(); // Refresh UI
+                }, 500);
+            } else {
+                const errorMessage = result.message || result.error || 'Unknown error';
+                console.error(`${action} failed:`, errorMessage);
+                showNotification(`${errorMessagePrefix}: ${errorMessage}`, 'error');
+            }
+        } catch (error) {
+            console.error(`Error sending ${action} request:`, error);
+            showNotification(`An error occurred while trying to ${action.replace('-', ' ')}.`, 'error');
+        }
+    }
+
+    // Initial status fetch on page load
+    fetchAndUpdateStatus();
+
+    // --- Event Listeners ---
+
+    // Clock In
+    if (clockInBtn) {
+        clockInBtn.addEventListener('click', async () => {
+            console.log('Clock In button clicked');
+            try {
+                const token = localStorage.getItem('token');
+                console.log('Using token for clock-in:', token ? (token.substring(0, 20) + '...') : 'No token');
+
+                if (!token) {
+                    console.error('No JWT token found for clock-in');
+                    showNotification('Authentication error. Please log in again.', 'error');
+                    return;
+                }
+
+                console.log('Sending clock-in request to /api/clock-in');
+                const response = await fetch('/api/clock-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // Add JWT to header
+                    },
+                });
+
+                console.log('Clock-in response status:', response.status);
+                const result = await response.json();
+                console.log('Clock-in response data:', result);
+
+                if (response.ok) {
+                    console.log('Clock in successful:', result);
+                    // Use the message from the server if available, otherwise use a default message
+                    const successMessage = result.message || 'Clocked in successfully!';
+                    showNotification(successMessage, 'success');
+                    fetchAndUpdateStatus(); // Refresh UI
+                } else {
+                    const errorMessage = result.message || result.error || 'Unknown error';
+                    console.error('Clock in failed:', errorMessage);
+                    showNotification(`Clock in failed: ${errorMessage}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error sending clock in request:', error);
+                showNotification('An error occurred while trying to clock in.', 'error');
+            }
+        });
+    }
+
+    // Clock Out with debounce to prevent multiple clicks
+    if (clockOutBtn) {
+        // Add a property to track if a request is in progress
+        clockOutBtn.isProcessing = false;
+
+        clockOutBtn.addEventListener('click', async () => {
+            console.log('Clock Out button clicked');
+
+            // Prevent multiple clicks
+            if (clockOutBtn.isProcessing) {
+                console.log('Clock out request already in progress, ignoring click');
+                return;
+            }
+
+            // Disable the button immediately
+            clockOutBtn.isProcessing = true;
+            clockOutBtn.disabled = true;
+
+            try {
+                // First check if we're clocked in
+                const currentStatus = statusText.textContent.toLowerCase();
+                if (currentStatus.includes('not clocked in')) {
+                    console.log('Cannot clock out when not clocked in');
+                    showNotification('You are not currently clocked in.', 'warning');
+                    // Highlight the clock in button
+                    if (clockInBtn) {
+                        clockInBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            clockInBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                // Check if we're on break or unavailable
+                if (currentStatus.includes('on break')) {
+                    console.log('Cannot clock out while on break');
+                    showNotification('Please end your break before clocking out.', 'warning');
+                    // Highlight the end break button
+                    if (endBreakBtn) {
+                        endBreakBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            endBreakBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                if (currentStatus.includes('unavailable')) {
+                    console.log('Cannot clock out while unavailable');
+                    showNotification('Please end your unavailable period before clocking out.', 'warning');
+                    // Highlight the end unavailable button
+                    if (endUnavailableBtn) {
+                        endUnavailableBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            endUnavailableBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                const token = localStorage.getItem('token');
+                console.log('Using token for clock-out:', token ? (token.substring(0, 20) + '...') : 'No token');
+
+                if (!token) {
+                    console.error('No JWT token found for clock-out');
+                    showNotification('Authentication error. Please log in again.', 'error');
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                // Ask for confirmation before clocking out
+                if (!confirm('Are you sure you want to clock out?')) {
+                    console.log('Clock out cancelled by user');
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                console.log('Sending clock-out request to /api/clock-out');
+                const response = await fetch('/api/clock-out', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // Add JWT to header
+                    },
+                });
+
+                console.log('Clock-out response status:', response.status);
+                const result = await response.json();
+                console.log('Clock-out response data:', result);
+
+                if (response.ok) {
+                    console.log('Clock out successful:', result);
+                    showNotification('Clocked out successfully!', 'success');
+
+                    // Wait a moment before refreshing the UI to ensure the server has processed the change
+                    setTimeout(() => {
+                        fetchAndUpdateStatus(); // Refresh UI
+                    }, 500);
+                } else {
+                    const errorMessage = result.message || result.error || 'Unknown error';
+                    console.error('Clock out failed:', errorMessage);
+
+                    // Handle specific error messages
+                    if (errorMessage.includes('Not clocked in')) {
+                        showNotification('You are not currently clocked in.', 'warning');
+                    } else {
+                        showNotification(`Clock out failed: ${errorMessage}`, 'error');
+                    }
+
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error sending clock out request:', error);
+                showNotification('An error occurred while trying to clock out.', 'error');
+
+                // Re-enable the button
+                clockOutBtn.isProcessing = false;
+                clockOutBtn.disabled = false;
+            }
+        });
+    }
+
+    // Event listeners using the generic handler
+    if (startBreakBtn) {
+        startBreakBtn.addEventListener('click', () => {
+            console.log('Start Break button clicked');
+            // First check if we're already on break
+            const currentStatus = statusText.textContent.toLowerCase();
+            if (currentStatus.includes('on break')) {
+                console.log('Already on break');
+                showNotification('You are already on break.', 'warning');
+                return;
+            }
+
+            handleTimesheetAction('start-break', 'Break started successfully!', 'Failed to start break');
+        });
+    }
+
+    if (endBreakBtn) {
+        endBreakBtn.addEventListener('click', () => {
+            console.log('End Break button clicked');
+            // First check if we're actually on break
+            const currentStatus = statusText.textContent.toLowerCase();
+            if (!currentStatus.includes('on break')) {
+                console.log('Not on break');
+                showNotification('You are not currently on break.', 'warning');
+                return;
+            }
+
+            handleTimesheetAction('end-break', 'Break ended successfully!', 'Failed to end break');
+        });
+    }
+    if (startUnavailableBtn) {
+        startUnavailableBtn.addEventListener('click', () => handleTimesheetAction('start-unavailable', 'Marked as unavailable!', 'Failed to mark as unavailable'));
+    }
+    if (endUnavailableBtn) {
+        endUnavailableBtn.addEventListener('click', () => handleTimesheetAction('end-unavailable', 'Marked as available!', 'Failed to mark as available'));
+    }
+
+});
+</script>
+</body>
+</html>

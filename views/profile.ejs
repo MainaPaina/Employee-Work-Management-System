@@ -1,0 +1,836 @@
+<<<<<<< HEAD
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Your Profile</h1>
+    <p>Manage your account settings and preferences</p>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-section">
+      <h2><i class="fas fa-user-circle"></i> Account Information</h2>
+      <div class="profile-info">
+        <div class="info-group">
+          <label>Name</label>
+          <p class="info-value"><%= user.name %></p>
+        </div>
+
+        <div class="info-group">
+          <label>Username</label>
+          <p class="info-value"><%= user.username %></p>
+        </div>
+
+        <div class="info-group">
+          <label>Role</label>
+          <p><span class="role-badge <%= user.role %>"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h2><i class="fas fa-key"></i> Update Password</h2>
+      <form class="profile-form" id="passwordForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <div class="password-input-group">
+              <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+              <button type="button" class="password-toggle" data-target="currentPassword">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <div class="password-input-group">
+              <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+              <button type="button" class="password-toggle" data-target="newPassword">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="password-input-group">
+              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+              <button type="button" class="password-toggle" data-target="confirmPassword">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Update Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.profile-header {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 1rem;
+}
+
+.profile-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.profile-header p {
+  color: #495057;
+  font-size: 1.1rem;
+}
+
+.profile-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.8rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border: 1px solid #e9ecef;
+}
+
+.profile-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 0.8rem;
+}
+
+.profile-section h2 i {
+  margin-right: 0.5rem;
+  color: var(--primary-color);
+}
+
+.profile-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-group {
+  margin-bottom: 1rem;
+}
+
+.info-group label {
+  font-weight: 600;
+  color: #495057;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.info-group p {
+  font-size: 1.2rem;
+  color: #212529;
+  margin: 0;
+}
+
+.info-value {
+  font-weight: 500;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.35rem 1rem;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.role-badge.admin {
+  background-color: #7e3bcc;
+  color: white;
+}
+
+.role-badge.user {
+  background-color: #2575fc;
+  color: white;
+}
+
+.profile-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.profile-form label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.profile-form .form-control {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1.05rem;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  transition: all 0.3s;
+  color: #212529;
+}
+
+.profile-form .form-control:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+}
+
+.password-input-group {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.password-toggle:hover {
+  color: #495057;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  text-align: right;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn i {
+  margin-right: 0.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const passwordForm = document.getElementById('passwordForm');
+  const passwordToggles = document.querySelectorAll('.password-toggle');
+
+  // Password toggle functionality
+  passwordToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-target');
+      const passwordField = document.getElementById(targetId);
+
+      if (passwordField) {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+
+        // Toggle the eye icon
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
+      }
+    });
+  });
+
+  // Form submission
+  if (passwordForm) {
+    passwordForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Remove any existing alerts
+      const existingAlerts = passwordForm.querySelectorAll('.alert');
+      existingAlerts.forEach(alert => alert.remove());
+
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      // Basic client-side validation with better feedback
+      if (newPassword !== confirmPassword) {
+        // Create a more user-friendly alert
+        const alertElement = document.createElement('div');
+        alertElement.className = 'alert alert-danger';
+        alertElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> New passwords do not match!';
+
+        // Insert at the top of the form
+        passwordForm.insertBefore(alertElement, passwordForm.firstChild);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+          alertElement.remove();
+        }, 5000);
+        return;
+      }
+
+      // Show loading state
+      const submitButton = passwordForm.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.innerHTML;
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+      try {
+        // Get token from localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('Authentication token not found. Please log in again.');
+        }
+
+        // Send request to change password
+        const response = await fetch('/profile/api/change-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            currentPassword,
+            newPassword
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // Success feedback
+          const successElement = document.createElement('div');
+          successElement.className = 'alert alert-success';
+          successElement.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message || 'Password updated successfully!'}`;
+
+          // Insert at the top of the form
+          passwordForm.insertBefore(successElement, passwordForm.firstChild);
+
+          // Clear the form
+          passwordForm.reset();
+        } else {
+          // Error feedback
+          const errorElement = document.createElement('div');
+          errorElement.className = 'alert alert-danger';
+          errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Failed to update password. Please try again.'}`;
+
+          // Insert at the top of the form
+          passwordForm.insertBefore(errorElement, passwordForm.firstChild);
+        }
+      } catch (error) {
+        console.error('Error updating password:', error);
+
+        // Error feedback
+        const errorElement = document.createElement('div');
+        errorElement.className = 'alert alert-danger';
+        errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message || 'An unexpected error occurred. Please try again.'}`;
+
+        // Insert at the top of the form
+        passwordForm.insertBefore(errorElement, passwordForm.firstChild);
+      } finally {
+        // Restore button state
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+
+        // Remove alerts after 5 seconds
+        setTimeout(() => {
+          const alerts = passwordForm.querySelectorAll('.alert');
+          alerts.forEach(alert => {
+            alert.classList.add('fade-out');
+            setTimeout(() => alert.remove(), 300);
+          });
+        }, 5000);
+      }
+    });
+  }
+});
+</script>
+
+<style>
+/* Additional styles for alerts */
+.alert {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  position: relative;
+  font-weight: 500;
+}
+
+.alert i {
+  margin-right: 0.5rem;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.alert.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+=======
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Your Profile</h1>
+    <p>Manage your account settings and preferences</p>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-section">
+      <h2><i class="fas fa-user-circle"></i> Account Information</h2>
+      <div class="profile-info">
+        <div class="info-group">
+          <label>Name</label>
+          <p class="info-value"><%= user.name %></p>
+        </div>
+
+        <div class="info-group">
+          <label>Username</label>
+          <p class="info-value"><%= user.username %></p>
+        </div>
+
+        <div class="info-group">
+          <label>Role</label>
+          <p><span class="role-badge <%= user.role %>"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h2><i class="fas fa-key"></i> Update Password</h2>
+      <form class="profile-form" id="passwordForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <div class="password-input-group">
+              <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+              <button type="button" class="password-toggle" data-target="currentPassword">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <div class="password-input-group">
+              <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+              <button type="button" class="password-toggle" data-target="newPassword">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="password-input-group">
+              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+              <button type="button" class="password-toggle" data-target="confirmPassword">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Update Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.profile-header {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 1rem;
+}
+
+.profile-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.profile-header p {
+  color: #495057;
+  font-size: 1.1rem;
+}
+
+.profile-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.8rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border: 1px solid #e9ecef;
+}
+
+.profile-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 0.8rem;
+}
+
+.profile-section h2 i {
+  margin-right: 0.5rem;
+  color: var(--primary-color);
+}
+
+.profile-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-group {
+  margin-bottom: 1rem;
+}
+
+.info-group label {
+  font-weight: 600;
+  color: #495057;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.info-group p {
+  font-size: 1.2rem;
+  color: #212529;
+  margin: 0;
+}
+
+.info-value {
+  font-weight: 500;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.35rem 1rem;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.role-badge.admin {
+  background-color: #7e3bcc;
+  color: white;
+}
+
+.role-badge.user {
+  background-color: #2575fc;
+  color: white;
+}
+
+.profile-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.profile-form label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.profile-form .form-control {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1.05rem;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  transition: all 0.3s;
+  color: #212529;
+}
+
+.profile-form .form-control:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+}
+
+.password-input-group {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.password-toggle:hover {
+  color: #495057;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  text-align: right;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn i {
+  margin-right: 0.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const passwordForm = document.getElementById('passwordForm');
+  const passwordToggles = document.querySelectorAll('.password-toggle');
+
+  // Password toggle functionality
+  passwordToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-target');
+      const passwordField = document.getElementById(targetId);
+
+      if (passwordField) {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+
+        // Toggle the eye icon
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
+      }
+    });
+  });
+
+  // Form submission
+  if (passwordForm) {
+    passwordForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Remove any existing alerts
+      const existingAlerts = passwordForm.querySelectorAll('.alert');
+      existingAlerts.forEach(alert => alert.remove());
+
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      // Basic client-side validation with better feedback
+      if (newPassword !== confirmPassword) {
+        // Create a more user-friendly alert
+        const alertElement = document.createElement('div');
+        alertElement.className = 'alert alert-danger';
+        alertElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> New passwords do not match!';
+
+        // Insert at the top of the form
+        passwordForm.insertBefore(alertElement, passwordForm.firstChild);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+          alertElement.remove();
+        }, 5000);
+        return;
+      }
+
+      // Show loading state
+      const submitButton = passwordForm.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.innerHTML;
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+      try {
+        // Get token from localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('Authentication token not found. Please log in again.');
+        }
+
+        // Send request to change password
+        const response = await fetch('/profile/api/change-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            currentPassword,
+            newPassword
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // Success feedback
+          const successElement = document.createElement('div');
+          successElement.className = 'alert alert-success';
+          successElement.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message || 'Password updated successfully!'}`;
+
+          // Insert at the top of the form
+          passwordForm.insertBefore(successElement, passwordForm.firstChild);
+
+          // Clear the form
+          passwordForm.reset();
+        } else {
+          // Error feedback
+          const errorElement = document.createElement('div');
+          errorElement.className = 'alert alert-danger';
+          errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Failed to update password. Please try again.'}`;
+
+          // Insert at the top of the form
+          passwordForm.insertBefore(errorElement, passwordForm.firstChild);
+        }
+      } catch (error) {
+        console.error('Error updating password:', error);
+
+        // Error feedback
+        const errorElement = document.createElement('div');
+        errorElement.className = 'alert alert-danger';
+        errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message || 'An unexpected error occurred. Please try again.'}`;
+
+        // Insert at the top of the form
+        passwordForm.insertBefore(errorElement, passwordForm.firstChild);
+      } finally {
+        // Restore button state
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+
+        // Remove alerts after 5 seconds
+        setTimeout(() => {
+          const alerts = passwordForm.querySelectorAll('.alert');
+          alerts.forEach(alert => {
+            alert.classList.add('fade-out');
+            setTimeout(() => alert.remove(), 300);
+          });
+        }, 5000);
+      }
+    });
+  }
+});
+</script>
+
+<style>
+/* Additional styles for alerts */
+.alert {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  position: relative;
+  font-weight: 500;
+}
+
+.alert i {
+  margin-right: 0.5rem;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.alert.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+>>>>>>> 7207cd219d9320d32ec66b6c71e6d724974510f9
+</style>
