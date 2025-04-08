@@ -217,8 +217,9 @@ class TimeEntry {
         console.log('[TimeEntry] Updating entry ID:', id);
         console.log('[TimeEntry] Update data:', updateData);
 
-        // Create an update object with the standard fields
-        const updateObject = {
+        const { data, error } = await client
+            .from('timesheets')
+            .update({
                 employee_id,
                 date,
                 hours_worked,
@@ -226,24 +227,10 @@ class TimeEntry {
                 start_time,
                 end_time,
                 total_break_duration,
-                total_unavailable_duration
-        };
-
-        // Only include the break time fields if they're being set
-        // This prevents errors if the columns don't exist in the database yet
-        if (updateData.last_break_start_time !== undefined) {
-            updateObject.last_break_start_time = updateData.last_break_start_time;
-        }
-
-        if (updateData.last_unavailable_start_time !== undefined) {
-            updateObject.last_unavailable_start_time = updateData.last_unavailable_start_time;
-        }
-
-        console.log('[TimeEntry] Final update object:', updateObject);
-
-        const { data, error } = await client
-            .from('timesheets')
-            .update(updateObject)
+                total_unavailable_duration,
+                last_break_start_time: updateData.last_break_start_time,
+                last_unavailable_start_time: updateData.last_unavailable_start_time
+            })
             .eq('id', id)
             .select() // Return the updated record
             .single(); // Expecting a single record to be updated
