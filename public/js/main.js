@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile Menu Toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const navList = document.querySelector('.nav-list');
-    
+
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', function() {
             navList.classList.toggle('active');
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.setAttribute('aria-expanded', !expanded);
         });
     }
-    
+
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Period selector for timesheet
     const periodOptions = document.querySelectorAll('.period-option');
     if (periodOptions.length > 0) {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
             option.addEventListener('click', function() {
                 periodOptions.forEach(opt => opt.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 // Check if custom date option is selected
                 const isCustom = this.getAttribute('data-period') === 'custom';
                 const customDates = document.querySelector('.custom-dates');
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Filter chips for timesheet
     const filterChips = document.querySelectorAll('.filter-chip');
     if (filterChips.length > 0) {
@@ -55,56 +55,56 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
-    // Countdown timer functionality
-    function updateCountdown() {
+
+    // Countdown timer functionality - Make it globally accessible
+    window.updateCountdown = function() {
         const countdownElement = document.getElementById('countdown-timer');
         if (!countdownElement) return;
-        
+
         const timerBar = document.querySelector('.timer-bar');
         const initialTime = parseTimeString(countdownElement.textContent);
         let remainingSeconds = initialTime.hours * 3600 + initialTime.minutes * 60;
-        
+
         if (remainingSeconds <= 0) return;
-        
+
         // Calculate initial percentage
         const workDaySeconds = 8 * 3600; // 8 hours in seconds
         let initialPercentage = 100 - (remainingSeconds / workDaySeconds * 100);
-        
+
         // Start timer immediately
         startTimer();
 
         function startTimer() {
             const timer = setInterval(() => {
                 remainingSeconds -= 60; // Decrease by 1 minute (60 seconds)
-                
+
                 if (remainingSeconds <= 0) {
                     clearInterval(timer);
                     countdownElement.textContent = '0:00';
                     timerBar.style.width = '100%';
                     return;
                 }
-                
+
                 const hours = Math.floor(remainingSeconds / 3600);
                 const minutes = Math.floor((remainingSeconds % 3600) / 60);
                 countdownElement.textContent = `${hours}:${minutes.toString().padStart(2, '0')}`;
-                
+
                 // Update progress bar
                 const percentage = 100 - (remainingSeconds / workDaySeconds * 100);
                 timerBar.style.width = `${percentage}%`;
-                
+
             }, 60000); // Update every minute
         }
-        
+
         // Parse time string in format "H:MM"
         function parseTimeString(timeStr) {
             const [hours, minutes] = timeStr.split(':').map(part => parseInt(part, 10));
             return { hours, minutes };
         }
     }
-    
+
     updateCountdown();
-    
+
     // Add animation for cards
     const cards = document.querySelectorAll('.dashboard-card, .feature-card');
     if (cards.length > 0) {
@@ -116,12 +116,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }, { threshold: 0.1 });
-        
+
         cards.forEach(card => {
             observer.observe(card);
         });
     }
-    
+
     // Add hover effect for table rows
     const tableRows = document.querySelectorAll('.timesheet-table tbody tr');
     if (tableRows.length > 0) {
@@ -130,13 +130,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.style.transition = 'background-color 0.3s ease';
                 row.style.backgroundColor = 'rgba(74, 108, 253, 0.1)';
             });
-            
+
             row.addEventListener('mouseleave', () => {
                 row.style.backgroundColor = '';
             });
         });
     }
-    
+
     // Add scroll animation for sections
     window.addEventListener('scroll', () => {
         const sections = document.querySelectorAll('section');
@@ -148,17 +148,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
+    // FAQ accordion functionality
+    const faqQuestions = document.querySelectorAll('.faq-question');
+
+    if (faqQuestions) {
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const isActive = answer.classList.contains('active');
+
+                // Close all other answers
+                document.querySelectorAll('.faq-answer').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Toggle current answer
+                if (!isActive) {
+                    answer.classList.add('active');
+                }
+
+                // Toggle the indicator
+                document.querySelectorAll('.faq-question').forEach(q => {
+                    q.querySelector('.indicator').textContent = '+';
+                });
+
+                if (!isActive) {
+                    question.querySelector('.indicator').textContent = '-';
+                }
+            });
+        });
+    }
+
     // Contact form option selection
     const contactOptions = document.querySelectorAll('.contact-option');
     const contactForm = document.querySelector('.contact-form');
     const immediateContact = document.querySelector('.immediate-contact');
-    
+
     if (contactOptions && contactForm && immediateContact) {
         contactOptions.forEach(option => {
             option.addEventListener('click', function() {
                 const optionType = this.getAttribute('data-type');
-                
+
                 if (optionType === 'form') {
                     contactForm.style.display = 'block';
                     immediateContact.style.display = 'none';
@@ -169,20 +200,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Apply Leave validation
     const applyLeaveBtn = document.getElementById('apply-leave-btn');
     const leavesRemaining = document.getElementById('leaves-remaining');
-    
+
     if (applyLeaveBtn && leavesRemaining) {
         const remainingLeaves = parseInt(leavesRemaining.textContent);
-        
+
         if (remainingLeaves <= 0) {
             applyLeaveBtn.classList.add('btn-disabled');
             applyLeaveBtn.disabled = true;
         }
     }
-    
+
     // Timesheet page functionality
     const timesheetContainer = document.querySelector('.timesheet-table-container');
     if (!timesheetContainer) return;
@@ -190,55 +221,55 @@ document.addEventListener('DOMContentLoaded', function() {
     // Timer functionality
     const countdownTimer = document.getElementById('countdown-timer');
     const timerBar = document.querySelector('.timer-bar');
-  
+
     if (countdownTimer) {
         // Update timer every second
         function updateTimer() {
             const timeString = countdownTimer.textContent;
             const timeParts = timeString.split(':');
-            
+
             let hours = parseInt(timeParts[0]);
             let minutes = parseInt(timeParts[1]);
-            
+
             // Decrease minute
             minutes -= 1;
-            
+
             // Handle minute rollover
             if (minutes < 0) {
                 minutes = 59;
                 hours -= 1;
             }
-            
+
             // Update display
             countdownTimer.textContent = `${hours}:${minutes.toString().padStart(2, '0')}`;
-            
+
             // Update progress bar - assuming 8-hour workday
             const totalSeconds = hours * 3600 + minutes * 60;
             const totalWorkSeconds = 8 * 3600;
             const percentComplete = 100 - ((totalSeconds / totalWorkSeconds) * 100);
-            
+
             if (timerBar) {
                 timerBar.style.width = `${percentComplete}%`;
             }
-            
+
             // Change color based on remaining time
             if (hours === 0 && minutes < 30) {
                 countdownTimer.style.color = 'var(--danger-color)';
             } else if (hours === 0 && minutes < 60) {
                 countdownTimer.style.color = 'var(--warning-color)';
             }
-            
+
             // Stop if time reaches 0
             if (hours === 0 && minutes === 0) {
                 clearInterval(timerInterval);
                 countdownTimer.textContent = 'Time\'s up!';
             }
         }
-        
+
         // Only start timer if not at 0 already
         const timeString = countdownTimer.textContent;
         const timeParts = timeString.split(':');
-        
+
         let timerInterval;
         if (parseInt(timeParts[0]) > 0 || parseInt(timeParts[1]) > 0) {
             timerInterval = setInterval(updateTimer, 60000); // Update every minute
@@ -246,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTimer();
         }
     }
-    
+
     // Quick filter buttons
     const filterButtons = document.querySelectorAll('.filter-btn');
     if (filterButtons.length) {
@@ -254,14 +285,14 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', function() {
                 // Remove active class from all buttons
                 filterButtons.forEach(b => b.classList.remove('active'));
-                
+
                 // Add active class to clicked button
                 this.classList.add('active');
-                
+
                 // Show loading state
                 const tableBody = document.querySelector('.timesheet-table tbody');
                 tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
-                
+
                 // In a real implementation, this would fetch data from the server
                 // For demo, simulate loading
                 setTimeout(() => {
@@ -271,18 +302,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Action buttons
     const actionButtons = document.querySelectorAll('.action-btn');
     if (actionButtons.length) {
         actionButtons.forEach(btn => {
             btn.addEventListener('click', function() {
                 const action = this.textContent.trim().toLowerCase();
-                
+
                 // Show feedback
                 const feedbackMsg = document.createElement('div');
                 feedbackMsg.classList.add('action-feedback');
-                
+
                 if (action.includes('start')) {
                     feedbackMsg.textContent = 'Work session started!';
                     feedbackMsg.classList.add('success-feedback');
@@ -293,11 +324,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     feedbackMsg.textContent = 'Workday ended! See you tomorrow.';
                     feedbackMsg.classList.add('info-feedback');
                 }
-                
+
                 // Append feedback to actions panel
                 const actionsPanel = document.querySelector('.action-panel .panel-body');
                 actionsPanel.appendChild(feedbackMsg);
-                
+
                 // Remove feedback after 3 seconds
                 setTimeout(() => {
                     feedbackMsg.classList.add('fade-out');
@@ -308,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Row action buttons
     const rowActionButtons = document.querySelectorAll('.row-action-btn');
     if (rowActionButtons.length) {
@@ -316,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', function() {
                 const action = this.getAttribute('title').toLowerCase();
                 const row = this.closest('tr');
-                
+
                 if (action === 'edit') {
                     // In a real app, this would open an edit form
                     row.classList.add('highlight-row');
@@ -327,13 +358,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     // In a real app, this would open a details modal
                     // For demo, toggle a details row
                     const nextRow = row.nextElementSibling;
-                    
+
                     if (nextRow && nextRow.classList.contains('details-row')) {
                         nextRow.remove();
                     } else {
                         const detailsRow = document.createElement('tr');
                         detailsRow.classList.add('details-row');
-                        
+
                         const detailsCell = document.createElement('td');
                         detailsCell.setAttribute('colspan', '7');
                         detailsCell.innerHTML = `
@@ -355,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                         `;
-                        
+
                         detailsRow.appendChild(detailsCell);
                         row.after(detailsRow);
                     }
@@ -363,12 +394,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Helper function to populate table with dummy data
     function populateDummyData(filter) {
         const tableBody = document.querySelector('.timesheet-table tbody');
         let dummyData = [];
-        
+
         // Generate different dummy data based on filter
         if (filter === 'daily' || filter === 'this week') {
             dummyData = [
@@ -391,13 +422,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 { date: 'Week 26', login: '-', logout: '-', pause: '-', unavailable: '-', totalAvailable: '32.5 hrs' }
             ];
         }
-        
+
         // Clear table and add new rows
         tableBody.innerHTML = '';
-        
+
         dummyData.forEach(entry => {
             const row = document.createElement('tr');
-            
+
             row.innerHTML = `
                 <td>${entry.date}</td>
                 <td>${entry.login}</td>
@@ -410,10 +441,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button class="row-action-btn" title="View Details"><i class="fas fa-eye"></i></button>
                 </td>
             `;
-            
+
             tableBody.appendChild(row);
         });
-        
+
         // Reattach event listeners to new row action buttons
         const newRowActionButtons = document.querySelectorAll('.row-action-btn');
         if (newRowActionButtons.length) {
@@ -421,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.addEventListener('click', function() {
                     const action = this.getAttribute('title').toLowerCase();
                     const row = this.closest('tr');
-                    
+
                     if (action === 'edit') {
                         row.classList.add('highlight-row');
                         setTimeout(() => {
@@ -429,13 +460,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         }, 2000);
                     } else if (action === 'view details') {
                         const nextRow = row.nextElementSibling;
-                        
+
                         if (nextRow && nextRow.classList.contains('details-row')) {
                             nextRow.remove();
                         } else {
                             const detailsRow = document.createElement('tr');
                             detailsRow.classList.add('details-row');
-                            
+
                             const detailsCell = document.createElement('td');
                             detailsCell.setAttribute('colspan', '7');
                             detailsCell.innerHTML = `
@@ -457,7 +488,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                             `;
-                            
+
                             detailsRow.appendChild(detailsCell);
                             row.after(detailsRow);
                         }
@@ -490,26 +521,10 @@ function setupTimeTracking() {
                 });
         });
     }
-    
-    // Clock Out button
-    const clockOutBtn = document.getElementById('clockOutBtn');
-    if (clockOutBtn) {
-        clockOutBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clock out?')) {
-                sendTimeTrackingRequest('/api/clock-out')
-                    .then(data => {
-                        if (data.success) {
-                            showNotification('Clocked out successfully!', 'success');
-                            reloadPage();
-                        }
-                    })
-                    .catch(error => {
-                        showNotification(error, 'error');
-                    });
-            }
-        });
-    }
-    
+
+    // Clock Out button is handled in timesheet.ejs
+    // We don't add an event listener here to avoid duplicate requests
+
     // Start Break button
     const startBreakBtn = document.getElementById('startBreakBtn');
     if (startBreakBtn) {
@@ -526,7 +541,7 @@ function setupTimeTracking() {
                 });
         });
     }
-    
+
     // End Break button
     const endBreakBtn = document.getElementById('endBreakBtn');
     if (endBreakBtn) {
@@ -543,7 +558,7 @@ function setupTimeTracking() {
                 });
         });
     }
-    
+
     // Start Unavailable button
     const startUnavailableBtn = document.getElementById('startUnavailableBtn');
     if (startUnavailableBtn) {
@@ -560,7 +575,7 @@ function setupTimeTracking() {
                 });
         });
     }
-    
+
     // End Unavailable button
     const endUnavailableBtn = document.getElementById('endUnavailableBtn');
     if (endUnavailableBtn) {
@@ -577,7 +592,7 @@ function setupTimeTracking() {
                 });
         });
     }
-    
+
     // Auto-refresh timesheet status
     if (document.querySelector('.time-tracking-panel')) {
         setInterval(updateTimesheetStatus, 60000); // Update every minute
@@ -600,7 +615,7 @@ async function updateTimesheetStatus() {
                  'Authorization': `Bearer ${token}` // Add the Authorization header
              }
         });
-        
+
         // Check for non-OK responses (like 401, 403)
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({})); // Attempt to get error details
@@ -615,13 +630,18 @@ async function updateTimesheetStatus() {
         }
 
         const data = await response.json();
-        
+
         // Update countdown timer
         const countdownElement = document.getElementById('countdown-timer');
         if (countdownElement && data.activeEntry) {
-            updateCountdown(); // Assuming updateCountdown exists elsewhere
+            // Check if window.updateCountdown exists, otherwise don't try to call it
+            if (typeof window.updateCountdown === 'function') {
+                window.updateCountdown();
+            } else {
+                console.warn('updateCountdown function not found');
+            }
         }
-        
+
     } catch (error) {
         // Catch fetch network errors or errors from response.json() if response wasn't JSON
         console.error('Network or processing error in updateTimesheetStatus:', error);
@@ -639,13 +659,13 @@ function reloadPage() {
 function showNotification(message, type) {
     // Create notification container if it doesn't exist
     let notificationContainer = document.querySelector('.notification-container');
-    
+
     if (!notificationContainer) {
         notificationContainer = document.createElement('div');
         notificationContainer.className = 'notification-container';
         document.body.appendChild(notificationContainer);
     }
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
@@ -655,10 +675,10 @@ function showNotification(message, type) {
         </div>
         <button class="notification-close">&times;</button>
     `;
-    
+
     // Add to container
     notificationContainer.appendChild(notification);
-    
+
     // Add close functionality
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.addEventListener('click', () => {
@@ -667,7 +687,7 @@ function showNotification(message, type) {
             notification.remove();
         }, 300);
     });
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         notification.classList.add('hiding');
@@ -689,7 +709,7 @@ notificationStyles.textContent = `
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .notification {
         min-width: 300px;
         padding: 15px;
@@ -701,30 +721,30 @@ notificationStyles.textContent = `
         animation: slideIn 0.3s ease;
         transition: all 0.3s ease;
     }
-    
+
     .notification.hiding {
         opacity: 0;
         transform: translateX(100%);
     }
-    
+
     .notification.success {
         background-color: rgba(46, 213, 115, 0.2);
         border-left: 4px solid var(--success);
         color: var(--success);
     }
-    
+
     .notification.error {
         background-color: rgba(246, 71, 71, 0.2);
         border-left: 4px solid var(--danger);
         color: var(--danger);
     }
-    
+
     .notification.warning {
         background-color: rgba(245, 171, 53, 0.2);
         border-left: 4px solid var(--warning);
         color: var(--warning);
     }
-    
+
     .notification-close {
         background: none;
         border: none;
@@ -734,11 +754,11 @@ notificationStyles.textContent = `
         opacity: 0.7;
         transition: opacity 0.3s ease;
     }
-    
+
     .notification-close:hover {
         opacity: 1;
     }
-    
+
     @keyframes slideIn {
         from {
             opacity: 0;

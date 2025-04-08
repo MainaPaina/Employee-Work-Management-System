@@ -10,7 +10,6 @@ const ejs = require('ejs');
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash'); // Needed for flash messages
 
-
 // Import models if used directly in server.js
 const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
@@ -22,6 +21,7 @@ const timesheetRoutes = require('./routes/timesheet');
 const leaveRoutes = require('./routes/leave');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
+const profileRoutes = require('./routes/profile'); // New profile routes
 
 // Initialize Supabase Admin Client (if needed for specific operations)
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -40,11 +40,6 @@ if (supabaseUrl && supabaseServiceKey) {
 const app = express(); // *** CRITICAL: Initialize app *** <-- Around line 34
 const PORT = process.env.PORT || 3001;
 
-// Parse JSON body
-app.use(express.json());
-// Parse URL-encoded form bodies
-app.use(express.urlencoded({ extended: true }));
-
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
@@ -59,6 +54,13 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 app.use(express.json()); // Parse JSON body
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form bodies
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  console.log('Headers:', JSON.stringify(req.headers));
+  next();
+});
 
 // Session configuration
 app.use(session({
@@ -150,16 +152,9 @@ const checkAdmin = (req, res, next) => {
 };
 
 
-// Register routes
-app.use('/api/auth', authRoutes); // For API authentication (JWT tokens)
-app.use('/api/employees', employeeRoutes);
-app.use('/api/timesheets', timesheetRoutes);
-app.use('/api/leaves', leaveRoutes); // Change from '/' to '/api/leaves'
-
-// Login and registration page routes only, not all auth routes
-app.get('/login', (req, res) => {
-  res.render('login', { activePage: 'login', error: req.query.error });
-});
+// ============================================================================
+// ROUTE REGISTRATION
+// ============================================================================
 
 // Note: Order matters. More specific routes might need to come before general ones
 // if paths overlap, but here the prefixes are distinct.
@@ -182,6 +177,9 @@ app.use('/timesheet', checkAuth, timesheetRoutes);
 // Leave related routes - Require login
 app.use('/leave', checkAuth, leaveRoutes);
 
+// Profile related routes - Require JWT authentication
+app.use('/profile/api', profileRoutes);
+
 
 // ============================================================================
 // SPECIFIC PAGE ROUTES (defined directly in server.js)
@@ -199,6 +197,70 @@ app.get('/login', (req, res) => {
         return res.redirect('/dashboard');
     }
     res.render('login', { activePage: 'login' }); // Pass activePage
+});
+
+// Direct logout route for backward compatibility
+app.get('/logout', (req, res) => {
+    console.log('Direct logout route called');
+    try {
+        // Clear Supabase session
+        supabase.auth.signOut().catch(err => console.error("Supabase Sign Out Error:", err));
+
+        // Destroy express session
+        if (req.session) {
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error("Session destruction error:", err);
+                }
+                // Clear the cookie explicitly
+                res.clearCookie('connect.sid');
+                console.log('User logged out directly.');
+                // Redirect to login page after logout
+                return res.redirect('/login');
+            });
+        } else {
+            // If no session exists, just clear the cookie and redirect
+            res.clearCookie('connect.sid');
+            console.log('No session to destroy, user logged out directly.');
+            return res.redirect('/login');
+        }
+    } catch (error) {
+        console.error('Error during logout:', error);
+        res.clearCookie('connect.sid');
+        return res.redirect('/login');
+    }
+});
+
+// Add a POST route for logout as well
+app.post('/logout', (req, res) => {
+    console.log('Direct logout POST route called');
+    try {
+        // Clear Supabase session
+        supabase.auth.signOut().catch(err => console.error("Supabase Sign Out Error:", err));
+
+        // Destroy express session
+        if (req.session) {
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error("Session destruction error:", err);
+                }
+                // Clear the cookie explicitly
+                res.clearCookie('connect.sid');
+                console.log('User logged out directly (POST).');
+                // Redirect to login page after logout
+                return res.redirect('/login');
+            });
+        } else {
+            // If no session exists, just clear the cookie and redirect
+            res.clearCookie('connect.sid');
+            console.log('No session to destroy, user logged out directly (POST).');
+            return res.redirect('/login');
+        }
+    } catch (error) {
+        console.error('Error during logout (POST):', error);
+        res.clearCookie('connect.sid');
+        return res.redirect('/login');
+    }
 });
 
 // Contact us page - Accessible to all
