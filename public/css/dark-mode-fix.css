@@ -271,3 +271,81 @@ body.dark-mode .form-check-input:checked {
     background-color: #0d6efd !important;
     border-color: #0d6efd !important;
 }
+
+/* ============================================================ */
+/* Dashboard Recent Time Entries Table Dark Mode Fixes */
+/* ============================================================ */
+
+/* Force dark background on the entire table in dark mode */
+body.dark-mode .recent-entries-section .table,
+body.dark-mode .recent-entries-section table.table {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
+}
+
+/* Force dark background on the table header in dark mode */
+body.dark-mode .recent-entries-section .table thead,
+body.dark-mode .recent-entries-section .table thead tr,
+body.dark-mode .recent-entries-section .table thead th {
+    background-color: #1a202c !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
+    border-bottom: 2px solid #2d3748 !important;
+}
+
+/* Force dark background on the table body in dark mode */
+body.dark-mode .recent-entries-section .table tbody {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+/* Force alternating dark backgrounds on table rows in dark mode */
+body.dark-mode .recent-entries-section .table tbody tr {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
+}
+
+body.dark-mode .recent-entries-section .table tbody tr:nth-child(odd) {
+    background-color: #1a1a1a !important;
+}
+
+body.dark-mode .recent-entries-section .table tbody tr:nth-child(even) {
+    background-color: #121220 !important;
+}
+
+/* Force hover effect in dark mode */
+body.dark-mode .recent-entries-section .table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Force dark background on table cells in dark mode */
+body.dark-mode .recent-entries-section .table td {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
+}
+
+/* Target each individual cell to ensure no white backgrounds */
+body.dark-mode .recent-entries-section .table tr td:nth-child(1),
+body.dark-mode .recent-entries-section .table tr td:nth-child(2),
+body.dark-mode .recent-entries-section .table tr td:nth-child(3),
+body.dark-mode .recent-entries-section .table tr td:nth-child(4),
+body.dark-mode .recent-entries-section .table tr td:nth-child(5) {
+    background-color: transparent !important;
+}
+
+/* Ensure the table container is dark */
+body.dark-mode .recent-entries-section .table-responsive {
+    background-color: #121212 !important;
+    border-color: #2d3748 !important;
+}
+
+/* Ensure the section containing the table is dark */
+body.dark-mode .recent-entries-section {
+    background-color: #1e1e2d !important;
+    border-color: #2d3748 !important;
+    color: #ffffff !important;
+}
