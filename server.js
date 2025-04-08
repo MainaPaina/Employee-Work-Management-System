@@ -268,11 +268,6 @@ app.get('/contact', (req, res) => {
   res.render('contact', { activePage: 'contact' });
 });
 
-// FAQ page - Accessible to all
-app.get('/faq', (req, res) => {
-  res.render('faq', { activePage: 'faq' });
-});
-
 // Profile route (protected)
 app.get('/profile', checkAuth, (req, res) => {
   // User data is available via res.locals.user or req.session.user
