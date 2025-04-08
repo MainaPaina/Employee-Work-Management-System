@@ -28,9 +28,9 @@ body.dark-mode {
     /* Dark mode variables */
     --bg-body: #121212;
     --bg-card: #1e1e2d;
-    --text-primary: #e2e8f0;
-    --text-secondary: #a0aec0;
-    --text-muted: #718096;
+    --text-primary: #ffffff; /* Brighter text for better contrast */
+    --text-secondary: #d1d5db; /* Brighter secondary text */
+    --text-muted: #9ca3af; /* Brighter muted text */
     --border-color: #2d3748;
     --primary-color: #667eea;
     --secondary-color: #a0aec0;
@@ -40,12 +40,14 @@ body.dark-mode {
     --info-color: #4299e1;
     --light-color: #2d3748;
     --dark-color: #e2e8f0;
-    --table-header: #2d3748;
-    --table-hover: #2a3042;
+    --table-header: #1a202c; /* Darker header for better contrast */
+    --table-hover: #2d3748; /* Brighter hover for better visibility */
     --input-bg: #2d3748;
     --input-border: #4a5568;
     --shadow-color: rgba(0, 0, 0, 0.25);
     --modal-bg: #1e1e2d;
+    --table-odd-row: #1a1a1a; /* New variable for odd rows */
+    --table-even-row: #121220; /* New variable for even rows */
 }
 
 body {
@@ -225,7 +227,16 @@ h1, h2, h3, h4, h5, h6 {
     background-color: #343a40;
 }
 
-.table-dark th, 
+/* Override table-dark in dark mode */
+body.dark-mode .table-dark,
+body.dark-mode thead.table-dark,
+body.dark-mode .table-dark th {
+    background-color: #1a202c !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
+}
+
+.table-dark th,
 .table-dark td {
     border-color: #454d55;
 }
@@ -238,8 +249,150 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Table hover effect */
 .table-hover tbody tr:hover {
-    background-color: var(--table-hover);
+    background-color: var(--table-hover) !important;
     color: var(--text-primary);
+}
+
+/* Override Bootstrap table-hover styles */
+body.dark-mode .table-hover tbody tr {
+    background-color: transparent !important;
+}
+
+body.dark-mode .table-hover tbody tr:nth-child(odd) {
+    background-color: var(--table-odd-row) !important;
+}
+
+body.dark-mode .table-hover tbody tr:nth-child(even) {
+    background-color: var(--table-even-row) !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover,
+body.dark-mode #usersTable tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+/* Ensure the table background in dark mode is also dark */
+body.dark-mode #usersTable,
+body.dark-mode .table-responsive {
+    background-color: #121212 !important;
+}
+
+/* Override any Bootstrap background colors for the table */
+body.dark-mode .table,
+body.dark-mode table.table,
+body.dark-mode .table-hover,
+body.dark-mode .table-striped,
+body.dark-mode table.table.table-hover {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+/* Force dark background on the table */
+body.dark-mode #usersTable.table.table-hover {
+    background-color: #121212 !important;
+}
+
+/* Ensure Bootstrap doesn't override our row colors */
+body.dark-mode .table tr,
+body.dark-mode .table-hover tr,
+body.dark-mode .table-striped tr {
+    background-color: transparent !important;
+}
+
+/* Make sure the card containing the table is also dark */
+body.dark-mode .card {
+    background-color: #1e1e2d !important;
+    border-color: #2d3748 !important;
+}
+
+/* User management table specific styles */
+#usersTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#usersTable td, #usersTable th {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+/* Ensure text in all cells has good contrast */
+body.dark-mode #usersTable td {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+body:not(.dark-mode) #usersTable td {
+    color: #212529;
+}
+
+/* Light mode alternating rows */
+body:not(.dark-mode) #usersTable tbody tr:nth-child(odd) {
+    background-color: #f8f9fa;
+}
+
+body:not(.dark-mode) #usersTable tbody tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+/* Dark mode alternating rows - with higher specificity */
+body.dark-mode #usersTable tbody tr:nth-child(odd) {
+    background-color: var(--table-odd-row) !important;
+}
+
+body.dark-mode #usersTable tbody tr:nth-child(even) {
+    background-color: var(--table-even-row) !important;
+}
+
+/* Override any Bootstrap or other framework styles */
+body.dark-mode .table-hover tbody tr,
+body.dark-mode .table tbody tr,
+body.dark-mode .table-striped tbody tr {
+    background-color: transparent !important;
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--table-odd-row) !important;
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(even) {
+    background-color: var(--table-even-row) !important;
+}
+
+/* Enhanced table header for user management */
+body:not(.dark-mode) #usersTable thead th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    border-bottom: none;
+}
+
+body.dark-mode #usersTable thead th {
+    background-color: #2c3e50;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    border-bottom: none;
+}
+
+/* Style for the table header checkbox */
+#usersTable thead th .form-check-input {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+#usersTable thead th .form-check-input:checked {
+    background-color: white;
+    border-color: white;
 }
 
 /* Striped tables */
@@ -251,10 +404,66 @@ body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+/* Final override to ensure dark mode rows */
+body.dark-mode #usersTable tr {
+    background-color: transparent !important;
+}
+
+body.dark-mode #usersTable tbody {
+    background-color: #121212 !important;
+}
+
+body.dark-mode #usersTable tbody tr:nth-child(odd) {
+    background-color: var(--table-odd-row) !important;
+}
+
+body.dark-mode #usersTable tbody tr:nth-child(even) {
+    background-color: var(--table-even-row) !important;
+}
+
+/* Ensure the entire table has dark background */
+body.dark-mode #usersTable,
+body.dark-mode table.table.table-hover#usersTable {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+/* Direct targeting of table-hover rows */
+body.dark-mode table.table.table-hover#usersTable > tbody > tr {
+    background-color: transparent !important;
+}
+
+body.dark-mode table.table.table-hover#usersTable > tbody > tr:nth-child(odd) {
+    background-color: var(--table-odd-row) !important;
+}
+
+body.dark-mode table.table.table-hover#usersTable > tbody > tr:nth-child(even) {
+    background-color: var(--table-even-row) !important;
+}
+
 /* Row statuses */
 body.dark-mode .table-danger {
     background-color: rgba(220, 53, 69, 0.2);
     color: var(--text-primary);
+}
+
+/* Final override for Bootstrap table-hover */
+body.dark-mode table.table.table-hover tbody tr,
+body.dark-mode .table-hover tbody tr,
+body.dark-mode #usersTable.table-hover tbody tr {
+    background-color: transparent !important;
+}
+
+body.dark-mode table.table.table-hover tbody tr:nth-child(odd),
+body.dark-mode .table-hover tbody tr:nth-child(odd),
+body.dark-mode #usersTable.table-hover tbody tr:nth-child(odd) {
+    background-color: var(--table-odd-row) !important;
+}
+
+body.dark-mode table.table.table-hover tbody tr:nth-child(even),
+body.dark-mode .table-hover tbody tr:nth-child(even),
+body.dark-mode #usersTable.table-hover tbody tr:nth-child(even) {
+    background-color: var(--table-even-row) !important;
 }
 
 body.dark-mode .table-info {
@@ -294,8 +503,118 @@ body.dark-mode .table-secondary {
 
 /* Ensure action buttons are visible in dark mode */
 body.dark-mode .table .btn-info {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: #212529;
+}
+
+/* Improve badge contrast in both modes */
+/* Role badges */
+body:not(.dark-mode) .badge.bg-danger {
+    background-color: #dc3545 !important; /* Admin badge - brighter red */
+    color: white !important;
+    font-weight: 600;
+}
+
+body:not(.dark-mode) .badge.bg-info {
+    background-color: #0dcaf0 !important; /* Employee badge - brighter blue */
+    color: #212529 !important; /* Dark text on light background */
+    font-weight: 600;
+}
+
+body.dark-mode .badge.bg-danger {
+    background-color: #ff4d5e !important; /* Admin badge - brighter red */
+    color: white !important;
+    font-weight: 600;
+}
+
+body.dark-mode .badge.bg-info {
+    background-color: #0dcaf0 !important; /* Employee badge - brighter blue */
+    color: #212529 !important; /* Dark text on light background */
+    font-weight: 600;
+}
+
+/* Status badges */
+body:not(.dark-mode) .badge.bg-success {
+    background-color: #198754 !important; /* Active badge - brighter green */
+    color: white !important;
+    font-weight: 600;
+}
+
+body:not(.dark-mode) .badge.bg-secondary {
+    background-color: #6c757d !important; /* Inactive badge - brighter gray */
+    color: white !important;
+    font-weight: 600;
+}
+
+body.dark-mode .badge.bg-success {
+    background-color: #20c997 !important; /* Active badge - brighter green */
+    color: #212529 !important; /* Dark text on light background */
+    font-weight: 600;
+}
+
+body.dark-mode .badge.bg-secondary {
+    background-color: #adb5bd !important; /* Inactive badge - lighter gray */
+    color: #212529 !important; /* Dark text on light background */
+    font-weight: 600;
+}
+
+/* Improve action buttons contrast */
+/* Edit button */
+body:not(.dark-mode) .btn-info {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: #212529;
+}
+
+body.dark-mode .btn-info {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: #212529;
+}
+
+/* Reset password button */
+body:not(.dark-mode) .btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+body.dark-mode .btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+/* Delete button */
+body:not(.dark-mode) .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+body.dark-mode .btn-danger {
+    background-color: #ff4d5e;
+    border-color: #ff4d5e;
+    color: white;
+}
+
+/* Improve hover states for all buttons */
+.btn-info:hover, .btn-info:focus {
+    background-color: #31d2f2;
+    border-color: #25cff2;
+    color: #212529;
+}
+
+.btn-warning:hover, .btn-warning:focus {
+    background-color: #ffca2c;
+    border-color: #ffc720;
+    color: #212529;
+}
+
+.btn-danger:hover, .btn-danger:focus {
+    background-color: #ff6b76;
+    border-color: #ff5c69;
     color: white;
 }
 
@@ -667,17 +986,17 @@ body.dark-mode .table-success {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .filter-controls select,
     .filter-controls input,
     .date-range-inputs {
         width: 100%;
     }
-    
+
     #applyFilters {
         width: 100%;
     }
-    
+
     .summary-container {
         grid-template-columns: 1fr;
     }
@@ -687,4 +1006,74 @@ body.dark-mode .table-success {
     .table-responsive {
         border-radius: 0;
     }
+}
+
+/* ============================================================ */
+/* FINAL OVERRIDES - DO NOT MODIFY OR ADD STYLES BELOW THIS LINE */
+/* ============================================================ */
+
+/* These styles ensure dark mode works correctly for the user management table */
+/* They use !important and high specificity to override any other styles */
+
+/* Force dark background on the entire table in dark mode */
+body.dark-mode #usersTable,
+body.dark-mode #usersTable.table,
+body.dark-mode #usersTable.table.table-hover {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
+}
+
+/* Force dark background on the table header in dark mode */
+body.dark-mode #usersTable thead,
+body.dark-mode #usersTable thead.table-dark,
+body.dark-mode #usersTable thead tr,
+body.dark-mode #usersTable thead th {
+    background-color: #1a202c !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
+}
+
+/* Force dark background on the table body in dark mode */
+body.dark-mode #usersTable tbody {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+/* Force alternating dark backgrounds on table rows in dark mode */
+body.dark-mode #usersTable tbody tr,
+body.dark-mode #usersTable.table tbody tr,
+body.dark-mode #usersTable.table.table-hover tbody tr {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
+}
+
+body.dark-mode #usersTable tbody tr:nth-child(odd),
+body.dark-mode #usersTable.table tbody tr:nth-child(odd),
+body.dark-mode #usersTable.table.table-hover tbody tr:nth-child(odd) {
+    background-color: #1a1a1a !important;
+}
+
+body.dark-mode #usersTable tbody tr:nth-child(even),
+body.dark-mode #usersTable.table tbody tr:nth-child(even),
+body.dark-mode #usersTable.table.table-hover tbody tr:nth-child(even) {
+    background-color: #121220 !important;
+}
+
+/* Force hover effect in dark mode */
+body.dark-mode #usersTable tbody tr:hover,
+body.dark-mode #usersTable.table tbody tr:hover,
+body.dark-mode #usersTable.table.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Force dark background on table cells in dark mode */
+body.dark-mode #usersTable td,
+body.dark-mode #usersTable.table td,
+body.dark-mode #usersTable.table.table-hover td {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-color: #2d3748 !important;
 }
