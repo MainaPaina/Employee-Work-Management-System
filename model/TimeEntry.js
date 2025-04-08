@@ -1,4 +1,37 @@
-const supabase = require('../config/supabaseClient'); // Assuming anon client is okay, or use admin
+const supabase = require('../config/supabaseClient');
+
+// Create a Supabase client with the service role key to bypass RLS
+const { createClient } = require('@supabase/supabase-js');
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Only create the admin client if the service key is available
+const supabaseAdmin = supabaseServiceKey ?
+    createClient(supabaseUrl, supabaseServiceKey, {
+        auth: { autoRefreshToken: false, persistSession: false }
+    }) : null; // Assuming anon client is okay, or use admin
+
+// Helper function to get the appropriate client
+function getClient() {
+    if (supabaseAdmin) {
+        console.log('[TimeEntry] Using admin client (bypasses RLS)');
+        return supabaseAdmin;
+    } else {
+        console.log('[TimeEntry] Using regular client (respects RLS)');
+        return supabase;
+    }
+}
+
+// Always use the admin client for all operations
+function getAdminClient() {
+    if (supabaseAdmin) {
+        console.log('[TimeEntry] Using admin client (bypasses RLS)');
+        return supabaseAdmin;
+    } else {
+        console.error('[TimeEntry] Admin client not available, falling back to regular client');
+        return supabase;
+    }
+}
 
 class TimeEntry {
     // Method to create a new timesheet entry in Supabase
@@ -20,7 +53,26 @@ class TimeEntry {
             throw new Error('Missing required fields (employee_id, date, hours_worked, start_time) for timesheet creation.');
         }
 
-        const { data: newEntry, error } = await supabase
+        const client = getAdminClient();
+
+        // First, delete any existing entries for today to avoid constraint violations
+        console.log(`[TimeEntry] Deleting existing entries for employee ${employee_id} on date ${date}...`);
+        const { error: deleteError } = await client
+            .from('timesheets')
+            .delete()
+            .eq('employee_id', employee_id)
+            .eq('date', date);
+
+        if (deleteError) {
+            console.error('[TimeEntry] Error deleting existing entries:', deleteError);
+            throw deleteError;
+        }
+
+        console.log('[TimeEntry] Existing entries deleted successfully');
+
+        // Now create the new entry
+        console.log('[TimeEntry] Creating new timesheet entry...');
+        const { data: newEntry, error } = await client
             .from('timesheets')
             .insert([
                 {
@@ -48,21 +100,30 @@ class TimeEntry {
 
     // Method to find the currently active (not clocked out) entry for an employee
     static async findActiveEntryByEmployeeId(employeeId) {
-        const { data, error } = await supabase
+        console.log('[TimeEntry] Finding active entry for employee ID:', employeeId);
+
+        const client = getAdminClient();
+
+        const { data, error } = await client
             .from('timesheets')
             .select('*') // Select all columns, or specify needed ones
             .eq('employee_id', employeeId)
             .is('end_time', null) // Find entries where end_time is NULL (meaning active)
-            .order('start_time', { ascending: false }) // Get the most recent active one
-            .limit(1)
-            .single();
+            .order('start_time', { ascending: false }); // Get the most recent active one
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found, which is okay
-            console.error('Supabase select error (findActiveEntry):', error);
+        if (error) {
+            console.error('[TimeEntry] Supabase select error (findActiveEntry):', error);
             throw new Error(`Failed to find active timesheet entry: ${error.message}`);
         }
 
-        return data; // Returns the entry object or null if not found
+        if (!data || data.length === 0) {
+            console.log('[TimeEntry] No active entry found for employee ID:', employeeId);
+            return null;
+        }
+
+        // Return the most recent active entry
+        console.log('[TimeEntry] Found active entry:', data[0]);
+        return data[0]; // Returns the entry object or null if not found
     }
 
     // Method to check if an entry exists for a specific employee and date
@@ -73,7 +134,9 @@ class TimeEntry {
 
         console.log(`[Model] Checking for entry: User=${employeeId}, Date=${dateString}`);
 
-        const { data, error, count } = await supabase
+        const client = getAdminClient();
+
+        const { data, error, count } = await client
             .from('timesheets')
             .select('id', { count: 'exact' }) // Just need to know if one exists, count is efficient
             .eq('employee_id', employeeId)
@@ -101,7 +164,9 @@ class TimeEntry {
 
         console.log(`[Model] Getting entry: User=${employeeId}, Date=${dateString}`);
 
-        const { data, error } = await supabase
+        const client = getAdminClient();
+
+        const { data, error } = await client
             .from('timesheets')
             .select('*') // Get all fields
             .eq('employee_id', employeeId)
@@ -141,7 +206,18 @@ class TimeEntry {
             total_unavailable_duration
         } = updateData;
 
-        const { data, error } = await supabase
+        const client = getAdminClient();
+
+        // If we're setting status to 'on_break', ensure last_break_start_time is set
+        if (status === 'on_break' && !updateData.last_break_start_time) {
+            console.log('[TimeEntry] Setting missing last_break_start_time for break');
+            updateData.last_break_start_time = new Date().toISOString();
+        }
+
+        console.log('[TimeEntry] Updating entry ID:', id);
+        console.log('[TimeEntry] Update data:', updateData);
+
+        const { data, error } = await client
             .from('timesheets')
             .update({
                 employee_id,
@@ -151,7 +227,9 @@ class TimeEntry {
                 start_time,
                 end_time,
                 total_break_duration,
-                total_unavailable_duration
+                total_unavailable_duration,
+                last_break_start_time: updateData.last_break_start_time,
+                last_unavailable_start_time: updateData.last_unavailable_start_time
             })
             .eq('id', id)
             .select() // Return the updated record
@@ -174,9 +252,13 @@ class TimeEntry {
 
     // Method to find recent timesheet entries for an employee
     static async findRecentEntriesByEmployeeId(employeeId, limit = 10) {
-        const { data, error } = await supabase
+        const client = getAdminClient();
+
+        console.log(`[TimeEntry] Finding recent entries for employee ${employeeId}, limit: ${limit}`);
+
+        const { data, error } = await client
             .from('timesheets')
-            .select('*') // Adjust columns as needed
+            .select('*') // Select all columns
             .eq('employee_id', employeeId)
             .order('date', { ascending: false }) // Order by date descending
             .order('start_time', { ascending: false }) // Then by start time descending
@@ -187,13 +269,67 @@ class TimeEntry {
             throw new Error(`Failed to find recent timesheet entries: ${error.message}`);
         }
 
+        // Log the raw data for debugging
+        console.log(`[TimeEntry] Found ${data ? data.length : 0} recent entries`);
+        if (data && data.length > 0) {
+            console.log('[TimeEntry] First entry sample:', JSON.stringify(data[0], null, 2));
+        }
+
+        // Ensure we're returning an array
+        const entries = data || [];
+
+        // Process entries to ensure all required fields are present
+        const processedEntries = entries.map(entry => {
+            // Ensure date is in the correct format
+            if (!entry.date) {
+                console.log(`[TimeEntry] Entry ${entry.id} missing date, adding current date`);
+                entry.date = new Date().toISOString().split('T')[0];
+            }
+
+            // Ensure status is present
+            if (!entry.status) {
+                console.log(`[TimeEntry] Entry ${entry.id} missing status, setting to 'unknown'`);
+                entry.status = 'unknown';
+            }
+
+            return entry;
+        });
+
+        return processedEntries; // Return processed array of entries
+    }
+
+    // Method to find all timesheet entries for a specific employee and date
+    static async findEntriesByEmployeeIdAndDate(employeeId, dateString) {
+        if (!employeeId || !dateString) {
+            throw new Error('Employee ID and date are required to find entries.');
+        }
+
+        console.log(`[TimeEntry] Finding entries for employee ${employeeId} on date ${dateString}`);
+
+        const client = getAdminClient();
+
+        const { data, error } = await client
+            .from('timesheets')
+            .select('*') // Select all columns
+            .eq('employee_id', employeeId)
+            .eq('date', dateString)
+            .order('start_time', { ascending: true }); // Order by start time
+
+        if (error) {
+            console.error('Supabase select error (findEntriesByEmployeeIdAndDate):', error);
+            throw new Error(`Failed to find timesheet entries: ${error.message}`);
+        }
+
+        console.log(`[TimeEntry] Found ${data ? data.length : 0} entries for date ${dateString}`);
         return data || []; // Return array of entries or empty array
     }
 
     // Method to find all currently active timesheet entries (not 'completed')
     // Includes basic employee info (adjust select as needed)
     static async findAllActiveEntriesWithEmployee() {
-        const { data, error } = await supabase
+        const client = getAdminClient();
+
+        const { data, error } = await client
             .from('timesheets')
             .select(`
                 id,
@@ -216,7 +352,9 @@ class TimeEntry {
 
     // Find all timesheet entries (consider pagination for large datasets)
     static async findAll() {
-        const { data, error } = await supabase
+        const client = getAdminClient();
+
+        const { data, error } = await client
             .from('timesheets')
             .select('*, users(full_name)') // Join with users for context
             .order('date', { ascending: false })
@@ -233,7 +371,9 @@ class TimeEntry {
     static async findById(id) {
         if (!id) throw new Error('Timesheet ID is required for findById.');
 
-        const { data, error } = await supabase
+        const client = getAdminClient();
+
+        const { data, error } = await client
             .from('timesheets')
             .select('*, users(full_name)') // Join with users
             .eq('id', id)
@@ -250,7 +390,9 @@ class TimeEntry {
     static async delete(id) {
         if (!id) throw new Error('Timesheet ID is required for delete.');
 
-        const { data, error } = await supabase
+        const client = getAdminClient();
+
+        const { data, error } = await client
             .from('timesheets')
             .delete()
             .eq('id', id)

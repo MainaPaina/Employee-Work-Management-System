@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile Menu Toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const navList = document.querySelector('.nav-list');
-    
+
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', function() {
             navList.classList.toggle('active');
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.setAttribute('aria-expanded', !expanded);
         });
     }
-    
+
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Period selector for timesheet
     const periodOptions = document.querySelectorAll('.period-option');
     if (periodOptions.length > 0) {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
             option.addEventListener('click', function() {
                 periodOptions.forEach(opt => opt.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 // Check if custom date option is selected
                 const isCustom = this.getAttribute('data-period') === 'custom';
                 const customDates = document.querySelector('.custom-dates');
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Filter chips for timesheet
     const filterChips = document.querySelectorAll('.filter-chip');
     if (filterChips.length > 0) {
@@ -55,73 +55,354 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
-    // Countdown timer functionality
-    function updateCountdown() {
+
+    // Countdown timer functionality - Make it globally accessible
+    // Global variable to track if a timer is already running
+    window.timerRunning = false;
+
+    window.updateCountdown = function() {
+        // If a timer is already running, don't start another one
+        if (window.timerRunning) {
+            console.log('Timer already running, not starting a new one');
+            return;
+        }
+
         const countdownElement = document.getElementById('countdown-timer');
+        const hoursWorkedElement = document.getElementById('hours-worked');
         if (!countdownElement) return;
-        
+
+        console.log('Initial countdown element text:', countdownElement.textContent);
+        if (hoursWorkedElement) {
+            console.log('Initial hours worked element text:', hoursWorkedElement.textContent);
+        }
+
         const timerBar = document.querySelector('.timer-bar');
-        const initialTime = parseTimeString(countdownElement.textContent);
-        let remainingSeconds = initialTime.hours * 3600 + initialTime.minutes * 60;
-        
-        if (remainingSeconds <= 0) return;
-        
-        // Calculate initial percentage
+
+        // Force valid values for remaining time
+        let remainingTime;
+        try {
+            remainingTime = parseTimeString(countdownElement.textContent);
+            console.log('Parsed remaining time:', remainingTime);
+        } catch (error) {
+            console.error('Error parsing remaining time:', error);
+            remainingTime = { hours: 8, minutes: 0 };
+        }
+
+        // Ensure remaining seconds is not negative
+        let remainingSeconds = Math.max(0, remainingTime.hours * 3600 + remainingTime.minutes * 60);
+        console.log('Remaining seconds:', remainingSeconds);
+
+        // Get the clock-in time if available
+        const clockInTimeText = document.getElementById('clockInTime');
+        let clockInTime = null;
+        let workedSeconds = 0;
+
+        if (clockInTimeText && clockInTimeText.textContent !== '--:--') {
+            try {
+                // Parse the clock-in time
+                const timeString = clockInTimeText.textContent;
+                const [hours, minutes] = timeString.split(':').map(Number);
+
+                // Create a date object for today with the clock-in time
+                clockInTime = new Date();
+                clockInTime.setHours(hours, minutes, 0, 0);
+
+                // If the clock-in time is in the future (after current time), it must be from yesterday
+                const now = new Date();
+                if (clockInTime > now) {
+                    clockInTime.setDate(clockInTime.getDate() - 1);
+                }
+
+                console.log('Parsed clock-in time:', clockInTime.toLocaleTimeString());
+
+                // Calculate elapsed time in seconds
+                const elapsedMs = now - clockInTime;
+                const elapsedSeconds = elapsedMs / 1000;
+
+                // Get break and unavailable time from the status text if available
+                const totalBreakTimeText = document.getElementById('totalBreakTime');
+                let breakMinutes = 0;
+                if (totalBreakTimeText && totalBreakTimeText.textContent !== '0 mins') {
+                    const breakMatch = totalBreakTimeText.textContent.match(/(\d+)\s*mins/);
+                    if (breakMatch && breakMatch[1]) {
+                        breakMinutes = parseInt(breakMatch[1], 10);
+                        console.log('Break minutes:', breakMinutes);
+                    }
+                }
+
+                // Calculate worked seconds (elapsed time minus breaks)
+                workedSeconds = elapsedSeconds - (breakMinutes * 60);
+                console.log('Elapsed seconds:', elapsedSeconds, 'Break seconds:', breakMinutes * 60);
+                console.log('Calculated worked seconds from clock-in time:', workedSeconds);
+            } catch (error) {
+                console.error('Error calculating worked time from clock-in time:', error);
+                // Fall back to using the hours worked element
+                if (hoursWorkedElement) {
+                    try {
+                        const workedTime = parseTimeString(hoursWorkedElement.textContent);
+                        console.log('Falling back to parsed worked time:', workedTime);
+                        workedSeconds = Math.max(0, workedTime.hours * 3600 + workedTime.minutes * 60);
+                        console.log('Fallback worked seconds calculated as:', workedSeconds);
+                    } catch (fallbackError) {
+                        console.error('Error parsing worked time as fallback:', fallbackError);
+                        workedSeconds = 0;
+                    }
+                }
+            }
+        } else if (hoursWorkedElement) {
+            // No clock-in time available, use the hours worked element
+            try {
+                const workedTime = parseTimeString(hoursWorkedElement.textContent);
+                console.log('Parsed worked time from display:', workedTime);
+                workedSeconds = Math.max(0, workedTime.hours * 3600 + workedTime.minutes * 60);
+                console.log('Initial worked seconds calculated as:', workedSeconds);
+
+                // Double-check the calculation
+                const calculatedHours = Math.floor(workedSeconds / 3600);
+                const calculatedMinutes = Math.floor((workedSeconds % 3600) / 60);
+                console.log(`This should display as: ${calculatedHours}:${calculatedMinutes.toString().padStart(2, '0')}`);
+            } catch (error) {
+                console.error('Error parsing worked time:', error);
+                workedSeconds = 0;
+            }
+        }
+        console.log('Final initial worked seconds:', workedSeconds);
+
+        // Calculate initial percentage based on worked time
         const workDaySeconds = 8 * 3600; // 8 hours in seconds
-        let initialPercentage = 100 - (remainingSeconds / workDaySeconds * 100);
-        
-        // Start timer immediately
-        startTimer();
+        let initialPercentage = Math.min(100, Math.max(0, (workedSeconds / workDaySeconds) * 100));
+
+        // Update progress bar with initial percentage
+        if (timerBar) {
+            timerBar.style.width = `${initialPercentage}%`;
+        }
+
+        // Check if the user is clocked in
+        const statusText = document.getElementById('statusText');
+        // Check for any indication that the user is actively working
+        const isActivelyWorking = statusText && (
+            statusText.textContent.includes('Active') ||
+            statusText.textContent.includes('Currently clocked in') ||
+            statusText.textContent.includes('Status: active') ||
+            statusText.textContent.includes('Status: Active') ||
+            !statusText.textContent.includes('Not clocked in')
+        );
+
+        console.log('Status text:', statusText ? statusText.textContent : 'Not found');
+        console.log('Is actively working:', isActivelyWorking);
+
+        // Force start the timer if we have an active entry (debug)
+        const clockInTimeText = document.getElementById('clockInTime');
+        const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
+        if (hasActiveEntry && !isActivelyWorking) {
+            console.log('Found active entry but status text does not indicate active. Forcing timer start.');
+            console.log('Clock in time:', clockInTimeText.textContent);
+        }
+
+        // Start the timer if the user has an active entry, regardless of status
+        // This ensures the timer runs even if the user is on break or unavailable
+        if (hasActiveEntry) {
+            // Start timer immediately
+            startTimer();
+            console.log('Starting timer. User has an active entry. Clock in time:', clockInTimeText ? clockInTimeText.textContent : 'Not found');
+        } else if (isActivelyWorking) {
+            // Fallback for cases where the active entry might not be detected correctly
+            startTimer();
+            console.log('Starting timer based on active status. isActivelyWorking:', isActivelyWorking);
+        } else {
+            console.log('User is not clocked in. Timer not started.');
+        }
 
         function startTimer() {
+            // Set the global flag to indicate a timer is running
+            window.timerRunning = true;
+
+            console.log('Starting timer with worked seconds:', workedSeconds);
             const timer = setInterval(() => {
-                remainingSeconds -= 60; // Decrease by 1 minute (60 seconds)
-                
+                // Check if the user still has an active entry (clocked in)
+                const clockInTimeText = document.getElementById('clockInTime');
+                const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
+
+                // Only stop the timer if the user has clocked out
+                if (!hasActiveEntry) {
+                    console.log('User has clocked out. Clock in time:', clockInTimeText ? clockInTimeText.textContent : 'Not found');
+                    console.log('Stopping timer.');
+                    clearInterval(timer);
+                    window.timerRunning = false; // Reset the flag when the timer stops
+                    return;
+                }
+
+                // Check the current status for logging purposes
+                const statusText = document.getElementById('statusText');
+                console.log('Current status:', statusText ? statusText.textContent : 'Not found');
+                console.log('Continuing timer as user is still clocked in.');
+
+                // Increase worked time by 60 seconds (1 minute)
+                workedSeconds += 60;
+                console.log('Incremented worked seconds to:', workedSeconds);
+
+                // Decrease remaining time by 60 seconds (1 minute)
+                remainingSeconds -= 60;
+                console.log('Decremented remaining seconds to:', remainingSeconds);
+
+                // Update the display
                 if (remainingSeconds <= 0) {
                     clearInterval(timer);
                     countdownElement.textContent = '0:00';
-                    timerBar.style.width = '100%';
+                    if (hoursWorkedElement) {
+                        // Ensure worked seconds is not negative
+                        const safeWorkedSeconds = Math.max(0, workedSeconds);
+                        console.log('Safe worked seconds for display (time complete):', safeWorkedSeconds);
+
+                        // Calculate hours and minutes
+                        const workedHours = Math.min(8, safeWorkedSeconds / 3600);
+                        let workedMinutes = Math.round((workedHours % 1) * 60);
+                        console.log('Calculated worked hours (time complete):', workedHours, 'minutes:', workedMinutes);
+
+                        // Handle case where minutes might be 60 due to rounding
+                        let displayHours = Math.floor(workedHours);
+                        if (workedMinutes === 60) {
+                            displayHours += 1;
+                            workedMinutes = 0;
+                        }
+
+                        // Force update the display
+                        const newWorkedTimeText = `${displayHours}:${workedMinutes.toString().padStart(2, '0')}`;
+                        hoursWorkedElement.textContent = newWorkedTimeText;
+                        console.log(`Updated worked hours display (time complete) to: ${newWorkedTimeText}`);
+                    }
+                    if (timerBar) {
+                        timerBar.style.width = '100%';
+                    }
                     return;
                 }
-                
-                const hours = Math.floor(remainingSeconds / 3600);
-                const minutes = Math.floor((remainingSeconds % 3600) / 60);
-                countdownElement.textContent = `${hours}:${minutes.toString().padStart(2, '0')}`;
-                
+
+                // Update remaining hours display
+                // Ensure remaining seconds is not negative
+                const safeRemainingSeconds = Math.max(0, remainingSeconds);
+                const remainingHours = Math.floor(safeRemainingSeconds / 3600);
+                let remainingMinutes = Math.round((safeRemainingSeconds % 3600) / 60);
+
+                // Handle case where minutes might be 60 due to rounding
+                let displayRemainingHours = remainingHours;
+                if (remainingMinutes === 60) {
+                    displayRemainingHours += 1;
+                    remainingMinutes = 0;
+                }
+
+                countdownElement.textContent = `${displayRemainingHours}:${remainingMinutes.toString().padStart(2, '0')}`;
+                console.log(`Updated remaining hours display: ${displayRemainingHours}:${remainingMinutes.toString().padStart(2, '0')}`);
+
+                // Update worked hours display
+                if (hoursWorkedElement) {
+                    // Ensure worked seconds is not negative
+                    const safeWorkedSeconds = Math.max(0, workedSeconds);
+                    console.log('Safe worked seconds for display:', safeWorkedSeconds);
+
+                    // Calculate hours and minutes
+                    const workedHours = Math.min(8, safeWorkedSeconds / 3600);
+                    let workedMinutes = Math.round((workedHours % 1) * 60);
+                    console.log('Calculated worked hours:', workedHours, 'minutes:', workedMinutes);
+
+                    // Handle case where minutes might be 60 due to rounding
+                    let displayHours = Math.floor(workedHours);
+                    if (workedMinutes === 60) {
+                        displayHours += 1;
+                        workedMinutes = 0;
+                    }
+
+                    // Force update the display
+                    const newWorkedTimeText = `${displayHours}:${workedMinutes.toString().padStart(2, '0')}`;
+                    hoursWorkedElement.textContent = newWorkedTimeText;
+                    console.log(`Updated worked hours display to: ${newWorkedTimeText}`);
+                }
+
                 // Update progress bar
-                const percentage = 100 - (remainingSeconds / workDaySeconds * 100);
-                timerBar.style.width = `${percentage}%`;
-                
-            }, 60000); // Update every minute
+                if (timerBar) {
+                    const percentage = Math.min(100, Math.max(0, (workedSeconds / workDaySeconds) * 100));
+                    timerBar.style.width = `${percentage}%`;
+                }
+
+                // Log the current time to help debug timing issues
+                const now = new Date();
+                console.log(`Timer update at: ${now.toLocaleTimeString()}`);
+            }, 60000); // Update every 60 seconds (1 minute) for more stable display
         }
-        
+
         // Parse time string in format "H:MM"
         function parseTimeString(timeStr) {
-            const [hours, minutes] = timeStr.split(':').map(part => parseInt(part, 10));
-            return { hours, minutes };
+            try {
+                if (!timeStr) {
+                    console.warn('Empty time string');
+                    return { hours: 0, minutes: 0 };
+                }
+
+                // Clean up the input string
+                const cleanTimeStr = timeStr.toString().trim();
+                console.log('Parsing time string:', cleanTimeStr);
+
+                // Special case for negative values
+                if (cleanTimeStr.includes('-')) {
+                    console.warn('Negative time detected:', cleanTimeStr);
+                    return { hours: 0, minutes: 0 };
+                }
+
+                // Check if the string is in the expected format
+                if (!/^\d+:\d{2}$/.test(cleanTimeStr)) {
+                    console.warn('Invalid time format:', cleanTimeStr);
+
+                    // Try to extract numbers if possible
+                    const numbers = cleanTimeStr.match(/\d+/g);
+                    if (numbers && numbers.length >= 2) {
+                        const hours = parseInt(numbers[0], 10);
+                        const minutes = parseInt(numbers[1], 10);
+                        if (!isNaN(hours) && !isNaN(minutes)) {
+                            return {
+                                hours: Math.max(0, hours),
+                                minutes: Math.min(59, Math.max(0, minutes))
+                            };
+                        }
+                    }
+
+                    return { hours: 0, minutes: 0 };
+                }
+
+                const [hours, minutes] = cleanTimeStr.split(':').map(part => parseInt(part, 10));
+
+                // Check if the parsed values are valid numbers
+                if (isNaN(hours) || isNaN(minutes)) {
+                    console.warn('Invalid time values:', cleanTimeStr);
+                    return { hours: 0, minutes: 0 };
+                }
+
+                // Ensure values are in valid ranges
+                return {
+                    hours: Math.max(0, hours),
+                    minutes: Math.min(59, Math.max(0, minutes))
+                };
+            } catch (error) {
+                console.error('Error parsing time string:', error);
+                return { hours: 0, minutes: 0 };
+            }
         }
     }
-    
+
     updateCountdown();
-    
-    // Add animation for cards
+
+    // Add animation for cards - but only once to avoid conflicts with the timer
     const cards = document.querySelectorAll('.dashboard-card, .feature-card');
     if (cards.length > 0) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animated');
-                    observer.unobserve(entry.target);
+        // Add animated class directly without using IntersectionObserver
+        // This avoids potential conflicts with the timer
+        setTimeout(() => {
+            cards.forEach(card => {
+                if (!card.classList.contains('animated')) {
+                    card.classList.add('animated');
                 }
             });
-        }, { threshold: 0.1 });
-        
-        cards.forEach(card => {
-            observer.observe(card);
-        });
+        }, 100); // Short delay to ensure DOM is ready
     }
-    
+
     // Add hover effect for table rows
     const tableRows = document.querySelectorAll('.timesheet-table tbody tr');
     if (tableRows.length > 0) {
@@ -130,13 +411,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.style.transition = 'background-color 0.3s ease';
                 row.style.backgroundColor = 'rgba(74, 108, 253, 0.1)';
             });
-            
+
             row.addEventListener('mouseleave', () => {
                 row.style.backgroundColor = '';
             });
         });
     }
-    
+
     // Add scroll animation for sections
     window.addEventListener('scroll', () => {
         const sections = document.querySelectorAll('section');
@@ -148,17 +429,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
+    // FAQ accordion functionality
+    const faqQuestions = document.querySelectorAll('.faq-question');
+
+    if (faqQuestions) {
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const isActive = answer.classList.contains('active');
+
+                // Close all other answers
+                document.querySelectorAll('.faq-answer').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Toggle current answer
+                if (!isActive) {
+                    answer.classList.add('active');
+                }
+
+                // Toggle the indicator
+                document.querySelectorAll('.faq-question').forEach(q => {
+                    q.querySelector('.indicator').textContent = '+';
+                });
+
+                if (!isActive) {
+                    question.querySelector('.indicator').textContent = '-';
+                }
+            });
+        });
+    }
+
     // Contact form option selection
     const contactOptions = document.querySelectorAll('.contact-option');
     const contactForm = document.querySelector('.contact-form');
     const immediateContact = document.querySelector('.immediate-contact');
-    
+
     if (contactOptions && contactForm && immediateContact) {
         contactOptions.forEach(option => {
             option.addEventListener('click', function() {
                 const optionType = this.getAttribute('data-type');
-                
+
                 if (optionType === 'form') {
                     contactForm.style.display = 'block';
                     immediateContact.style.display = 'none';
@@ -169,20 +481,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Apply Leave validation
     const applyLeaveBtn = document.getElementById('apply-leave-btn');
     const leavesRemaining = document.getElementById('leaves-remaining');
-    
+
     if (applyLeaveBtn && leavesRemaining) {
         const remainingLeaves = parseInt(leavesRemaining.textContent);
-        
+
         if (remainingLeaves <= 0) {
             applyLeaveBtn.classList.add('btn-disabled');
             applyLeaveBtn.disabled = true;
         }
     }
-    
+
     // Timesheet page functionality
     const timesheetContainer = document.querySelector('.timesheet-table-container');
     if (!timesheetContainer) return;
@@ -190,55 +502,55 @@ document.addEventListener('DOMContentLoaded', function() {
     // Timer functionality
     const countdownTimer = document.getElementById('countdown-timer');
     const timerBar = document.querySelector('.timer-bar');
-  
+
     if (countdownTimer) {
         // Update timer every second
         function updateTimer() {
             const timeString = countdownTimer.textContent;
             const timeParts = timeString.split(':');
-            
+
             let hours = parseInt(timeParts[0]);
             let minutes = parseInt(timeParts[1]);
-            
+
             // Decrease minute
             minutes -= 1;
-            
+
             // Handle minute rollover
             if (minutes < 0) {
                 minutes = 59;
                 hours -= 1;
             }
-            
+
             // Update display
             countdownTimer.textContent = `${hours}:${minutes.toString().padStart(2, '0')}`;
-            
+
             // Update progress bar - assuming 8-hour workday
             const totalSeconds = hours * 3600 + minutes * 60;
             const totalWorkSeconds = 8 * 3600;
             const percentComplete = 100 - ((totalSeconds / totalWorkSeconds) * 100);
-            
+
             if (timerBar) {
                 timerBar.style.width = `${percentComplete}%`;
             }
-            
+
             // Change color based on remaining time
             if (hours === 0 && minutes < 30) {
                 countdownTimer.style.color = 'var(--danger-color)';
             } else if (hours === 0 && minutes < 60) {
                 countdownTimer.style.color = 'var(--warning-color)';
             }
-            
+
             // Stop if time reaches 0
             if (hours === 0 && minutes === 0) {
                 clearInterval(timerInterval);
                 countdownTimer.textContent = 'Time\'s up!';
             }
         }
-        
+
         // Only start timer if not at 0 already
         const timeString = countdownTimer.textContent;
         const timeParts = timeString.split(':');
-        
+
         let timerInterval;
         if (parseInt(timeParts[0]) > 0 || parseInt(timeParts[1]) > 0) {
             timerInterval = setInterval(updateTimer, 60000); // Update every minute
@@ -246,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTimer();
         }
     }
-    
+
     // Quick filter buttons
     const filterButtons = document.querySelectorAll('.filter-btn');
     if (filterButtons.length) {
@@ -254,14 +566,14 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', function() {
                 // Remove active class from all buttons
                 filterButtons.forEach(b => b.classList.remove('active'));
-                
+
                 // Add active class to clicked button
                 this.classList.add('active');
-                
+
                 // Show loading state
                 const tableBody = document.querySelector('.timesheet-table tbody');
                 tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
-                
+
                 // In a real implementation, this would fetch data from the server
                 // For demo, simulate loading
                 setTimeout(() => {
@@ -271,18 +583,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Action buttons
     const actionButtons = document.querySelectorAll('.action-btn');
     if (actionButtons.length) {
         actionButtons.forEach(btn => {
             btn.addEventListener('click', function() {
                 const action = this.textContent.trim().toLowerCase();
-                
+
                 // Show feedback
                 const feedbackMsg = document.createElement('div');
                 feedbackMsg.classList.add('action-feedback');
-                
+
                 if (action.includes('start')) {
                     feedbackMsg.textContent = 'Work session started!';
                     feedbackMsg.classList.add('success-feedback');
@@ -293,11 +605,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     feedbackMsg.textContent = 'Workday ended! See you tomorrow.';
                     feedbackMsg.classList.add('info-feedback');
                 }
-                
+
                 // Append feedback to actions panel
                 const actionsPanel = document.querySelector('.action-panel .panel-body');
                 actionsPanel.appendChild(feedbackMsg);
-                
+
                 // Remove feedback after 3 seconds
                 setTimeout(() => {
                     feedbackMsg.classList.add('fade-out');
@@ -308,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Row action buttons
     const rowActionButtons = document.querySelectorAll('.row-action-btn');
     if (rowActionButtons.length) {
@@ -316,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', function() {
                 const action = this.getAttribute('title').toLowerCase();
                 const row = this.closest('tr');
-                
+
                 if (action === 'edit') {
                     // In a real app, this would open an edit form
                     row.classList.add('highlight-row');
@@ -327,13 +639,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     // In a real app, this would open a details modal
                     // For demo, toggle a details row
                     const nextRow = row.nextElementSibling;
-                    
+
                     if (nextRow && nextRow.classList.contains('details-row')) {
                         nextRow.remove();
                     } else {
                         const detailsRow = document.createElement('tr');
                         detailsRow.classList.add('details-row');
-                        
+
                         const detailsCell = document.createElement('td');
                         detailsCell.setAttribute('colspan', '7');
                         detailsCell.innerHTML = `
@@ -355,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                         `;
-                        
+
                         detailsRow.appendChild(detailsCell);
                         row.after(detailsRow);
                     }
@@ -363,12 +675,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Helper function to populate table with dummy data
     function populateDummyData(filter) {
         const tableBody = document.querySelector('.timesheet-table tbody');
         let dummyData = [];
-        
+
         // Generate different dummy data based on filter
         if (filter === 'daily' || filter === 'this week') {
             dummyData = [
@@ -391,13 +703,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 { date: 'Week 26', login: '-', logout: '-', pause: '-', unavailable: '-', totalAvailable: '32.5 hrs' }
             ];
         }
-        
+
         // Clear table and add new rows
         tableBody.innerHTML = '';
-        
+
         dummyData.forEach(entry => {
             const row = document.createElement('tr');
-            
+
             row.innerHTML = `
                 <td>${entry.date}</td>
                 <td>${entry.login}</td>
@@ -410,10 +722,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button class="row-action-btn" title="View Details"><i class="fas fa-eye"></i></button>
                 </td>
             `;
-            
+
             tableBody.appendChild(row);
         });
-        
+
         // Reattach event listeners to new row action buttons
         const newRowActionButtons = document.querySelectorAll('.row-action-btn');
         if (newRowActionButtons.length) {
@@ -421,7 +733,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.addEventListener('click', function() {
                     const action = this.getAttribute('title').toLowerCase();
                     const row = this.closest('tr');
-                    
+
                     if (action === 'edit') {
                         row.classList.add('highlight-row');
                         setTimeout(() => {
@@ -429,13 +741,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         }, 2000);
                     } else if (action === 'view details') {
                         const nextRow = row.nextElementSibling;
-                        
+
                         if (nextRow && nextRow.classList.contains('details-row')) {
                             nextRow.remove();
                         } else {
                             const detailsRow = document.createElement('tr');
                             detailsRow.classList.add('details-row');
-                            
+
                             const detailsCell = document.createElement('td');
                             detailsCell.setAttribute('colspan', '7');
                             detailsCell.innerHTML = `
@@ -457,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                             `;
-                            
+
                             detailsRow.appendChild(detailsCell);
                             row.after(detailsRow);
                         }
@@ -490,26 +802,10 @@ function setupTimeTracking() {
                 });
         });
     }
-    
-    // Clock Out button
-    const clockOutBtn = document.getElementById('clockOutBtn');
-    if (clockOutBtn) {
-        clockOutBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clock out?')) {
-                sendTimeTrackingRequest('/api/clock-out')
-                    .then(data => {
-                        if (data.success) {
-                            showNotification('Clocked out successfully!', 'success');
-                            reloadPage();
-                        }
-                    })
-                    .catch(error => {
-                        showNotification(error, 'error');
-                    });
-            }
-        });
-    }
-    
+
+    // Clock Out button is handled in timesheet.ejs
+    // We don't add an event listener here to avoid duplicate requests
+
     // Start Break button
     const startBreakBtn = document.getElementById('startBreakBtn');
     if (startBreakBtn) {
@@ -526,7 +822,7 @@ function setupTimeTracking() {
                 });
         });
     }
-    
+
     // End Break button
     const endBreakBtn = document.getElementById('endBreakBtn');
     if (endBreakBtn) {
@@ -543,7 +839,7 @@ function setupTimeTracking() {
                 });
         });
     }
-    
+
     // Start Unavailable button
     const startUnavailableBtn = document.getElementById('startUnavailableBtn');
     if (startUnavailableBtn) {
@@ -560,7 +856,7 @@ function setupTimeTracking() {
                 });
         });
     }
-    
+
     // End Unavailable button
     const endUnavailableBtn = document.getElementById('endUnavailableBtn');
     if (endUnavailableBtn) {
@@ -577,10 +873,18 @@ function setupTimeTracking() {
                 });
         });
     }
-    
-    // Auto-refresh timesheet status
+
+    // Auto-refresh timesheet status - but only if no timer is running
     if (document.querySelector('.time-tracking-panel')) {
-        setInterval(updateTimesheetStatus, 60000); // Update every minute
+        setInterval(() => {
+            // Only update if no timer is running to avoid conflicts
+            if (!window.timerRunning) {
+                console.log('No timer running, safe to update timesheet status');
+                updateTimesheetStatus();
+            } else {
+                console.log('Timer is running, skipping timesheet status update to avoid conflicts');
+            }
+        }, 120000); // Update every 2 minutes
     }
 }
 
@@ -600,7 +904,7 @@ async function updateTimesheetStatus() {
                  'Authorization': `Bearer ${token}` // Add the Authorization header
              }
         });
-        
+
         // Check for non-OK responses (like 401, 403)
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({})); // Attempt to get error details
@@ -615,13 +919,92 @@ async function updateTimesheetStatus() {
         }
 
         const data = await response.json();
-        
-        // Update countdown timer
+
+        // Update UI directly without starting a new timer
+        // This avoids conflicts with the existing timer
+        const hoursWorkedElement = document.getElementById('hours-worked');
         const countdownElement = document.getElementById('countdown-timer');
-        if (countdownElement && data.activeEntry) {
-            updateCountdown(); // Assuming updateCountdown exists elsewhere
+        const timerBar = document.querySelector('.timer-bar');
+
+        // Update hours worked display - but only if the user is clocked in or the display is empty
+        if (hoursWorkedElement && data.hoursWorked !== undefined) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !data.activeEntry;
+            const currentDisplay = hoursWorkedElement.textContent;
+
+            // Only update if the user is clocked in or the display is empty/invalid
+            if (!isUserClockedOut || currentDisplay === '--:--' || !currentDisplay.match(/^\d+:\d{2}$/)) {
+                const hoursWorked = Math.floor(data.hoursWorked);
+                const minutesWorked = Math.round((data.hoursWorked % 1) * 60);
+
+                // Handle case where minutes might be 60 due to rounding
+                let displayHours = hoursWorked;
+                let displayMinutes = minutesWorked;
+                if (displayMinutes === 60) {
+                    displayHours += 1;
+                    displayMinutes = 0;
+                }
+
+                const newDisplay = `${displayHours}:${displayMinutes.toString().padStart(2, '0')}`;
+                hoursWorkedElement.textContent = newDisplay;
+                console.log(`Updated hours worked display: ${newDisplay}`);
+
+                // Start the timer if the user is actively working and the timer is not already running
+                if (!isUserClockedOut &&
+                    typeof window.updateCountdown === 'function' && !window.timerRunning) {
+                    // Always start the timer if the user is clocked in, regardless of status
+                    // This ensures the timer runs even if the user is on break or unavailable
+                    console.log('Starting timer from updateTimesheetStatus function');
+                    console.log('User status:', data.activeEntry.status);
+                    window.updateCountdown();
+                }
+            } else {
+                console.log('User is clocked out. Preserving current hours worked display:', currentDisplay);
+            }
         }
-        
+
+        // Update remaining hours display - but only if the user is clocked in or the display is empty
+        if (countdownElement && data.remainingHours !== undefined) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !data.activeEntry;
+            const currentDisplay = countdownElement.textContent;
+
+            // Only update if the user is clocked in or the display is empty/invalid
+            if (!isUserClockedOut || currentDisplay === '--:--' || !currentDisplay.match(/^\d+:\d{2}$/)) {
+                const hoursRemaining = Math.floor(data.remainingHours);
+                const minutesRemaining = Math.round((data.remainingHours % 1) * 60);
+
+                // Handle case where minutes might be 60 due to rounding
+                let displayHours = hoursRemaining;
+                let displayMinutes = minutesRemaining;
+                if (displayMinutes === 60) {
+                    displayHours += 1;
+                    displayMinutes = 0;
+                }
+
+                const newDisplay = `${displayHours}:${displayMinutes.toString().padStart(2, '0')}`;
+                countdownElement.textContent = newDisplay;
+                console.log(`Updated remaining hours display: ${newDisplay}`);
+            } else {
+                console.log('User is clocked out. Preserving current remaining hours display:', currentDisplay);
+            }
+        }
+
+        // Update progress bar - but only if the user is clocked in
+        if (timerBar && data.hoursWorked !== undefined) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !data.activeEntry;
+
+            // Only update if the user is clocked in
+            if (!isUserClockedOut) {
+                const percentage = Math.min(100, Math.max(0, (data.hoursWorked / 8) * 100));
+                timerBar.style.width = `${percentage}%`;
+                console.log(`Updated progress bar: ${percentage}%`);
+            } else {
+                console.log('User is clocked out. Preserving current progress bar width:', timerBar.style.width);
+            }
+        }
+
     } catch (error) {
         // Catch fetch network errors or errors from response.json() if response wasn't JSON
         console.error('Network or processing error in updateTimesheetStatus:', error);
@@ -639,13 +1022,13 @@ function reloadPage() {
 function showNotification(message, type) {
     // Create notification container if it doesn't exist
     let notificationContainer = document.querySelector('.notification-container');
-    
+
     if (!notificationContainer) {
         notificationContainer = document.createElement('div');
         notificationContainer.className = 'notification-container';
         document.body.appendChild(notificationContainer);
     }
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
@@ -655,10 +1038,10 @@ function showNotification(message, type) {
         </div>
         <button class="notification-close">&times;</button>
     `;
-    
+
     // Add to container
     notificationContainer.appendChild(notification);
-    
+
     // Add close functionality
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.addEventListener('click', () => {
@@ -667,7 +1050,7 @@ function showNotification(message, type) {
             notification.remove();
         }, 300);
     });
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         notification.classList.add('hiding');
@@ -689,7 +1072,7 @@ notificationStyles.textContent = `
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .notification {
         min-width: 300px;
         padding: 15px;
@@ -701,30 +1084,30 @@ notificationStyles.textContent = `
         animation: slideIn 0.3s ease;
         transition: all 0.3s ease;
     }
-    
+
     .notification.hiding {
         opacity: 0;
         transform: translateX(100%);
     }
-    
+
     .notification.success {
         background-color: rgba(46, 213, 115, 0.2);
         border-left: 4px solid var(--success);
         color: var(--success);
     }
-    
+
     .notification.error {
         background-color: rgba(246, 71, 71, 0.2);
         border-left: 4px solid var(--danger);
         color: var(--danger);
     }
-    
+
     .notification.warning {
         background-color: rgba(245, 171, 53, 0.2);
         border-left: 4px solid var(--warning);
         color: var(--warning);
     }
-    
+
     .notification-close {
         background: none;
         border: none;
@@ -734,11 +1117,11 @@ notificationStyles.textContent = `
         opacity: 0.7;
         transition: opacity 0.3s ease;
     }
-    
+
     .notification-close:hover {
         opacity: 1;
     }
-    
+
     @keyframes slideIn {
         from {
             opacity: 0;

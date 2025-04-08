@@ -14,11 +14,11 @@
         <% if (locals.success) { %>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i> <%= success %>
-        </div> 
+        </div>
         <% } %>
 
-        <form class="login-form" action="/auth/login<%=  (typeof locals.return !== 'undefined') ? '?return=' + locals.return :  '' %>" method="POST">
-			<div class="form-group">
+        <form id="login-form" class="login-form" action="/auth/login<%= '?return=' + locals.return %>" method="POST">
+            <div class="form-group">
                 <label for="username">
                     <i class="fas fa-user"></i> Username
                 </label>
@@ -27,7 +27,7 @@
                     id="username"
                     name="username"
                     class="form-control"
-                    placeholder="Enter your username (not email)"
+                    placeholder="Username"
                     required
                     autocomplete="username"
                 >

@@ -263,7 +263,7 @@ router.post('/api/users', checkAdmin, async (req, res) => {
                 role: role,
                 active: true // Default to active
             })
-            .select() 
+            .select()
             .single();
 
         if (insertError) {
@@ -282,11 +282,86 @@ router.post('/api/users', checkAdmin, async (req, res) => {
 
         res.status(201).json({
             message: 'User created successfully',
-            userId: userId 
+            userId: userId
         });
     } catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ message: `Server error creating user: ${error.message}` });
+    }
+});
+
+// Update user route
+router.put('/api/users/:id', checkAdmin, async (req, res) => {
+    // Ensure admin client is available
+    if (!supabaseAdmin) {
+        return res.status(500).json({ message: 'Admin client not configured.' });
+    }
+
+    try {
+        const { id } = req.params;
+        const { username, email, role, active, password } = req.body;
+        console.log('PUT /admin/api/users/:id called for ID:', id);
+
+        if (!id || typeof id !== 'string' || id.length !== 36) {
+            return res.status(400).json({ message: 'Invalid user ID format.' });
+        }
+
+        // Update user data in the users table
+        const updateData = {};
+        if (username) updateData.username = username;
+        if (email) updateData.email = email;
+        if (role) updateData.role = role;
+        if (active !== undefined) updateData.active = active;
+
+        console.log('Updating user profile in public.users using Admin Client...');
+        const { data: profileData, error: updateError } = await supabaseAdmin
+            .from('users')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (updateError) {
+            console.error('Supabase error updating user profile:', updateError);
+            return res.status(500).json({ message: 'Failed to update user profile.', details: updateError.message });
+        }
+
+        // If password is provided, update it in Supabase Auth
+        if (password) {
+            console.log('Updating user password in Supabase Auth via Admin Client...');
+            const { data: authUpdateData, error: authUpdateError } = await supabaseAdmin.auth.admin.updateUserById(
+                id,
+                { password: password }
+            );
+
+            if (authUpdateError) {
+                console.error(`Supabase Auth error updating user ${id}:`, authUpdateError);
+                return res.status(500).json({ message: 'Failed to update user password.', details: authUpdateError.message });
+            }
+
+            console.log('User password updated successfully for ID:', id);
+        }
+
+        // If email is updated, also update it in Supabase Auth
+        if (email) {
+            console.log('Updating user email in Supabase Auth via Admin Client...');
+            const { data: authUpdateData, error: authUpdateError } = await supabaseAdmin.auth.admin.updateUserById(
+                id,
+                { email: email, email_confirm: true }
+            );
+
+            if (authUpdateError) {
+                console.error(`Supabase Auth error updating user email ${id}:`, authUpdateError);
+                return res.status(500).json({ message: 'Failed to update user email.', details: authUpdateError.message });
+            }
+
+            console.log('User email updated successfully for ID:', id);
+        }
+
+        res.json({ message: 'User updated successfully', user: profileData });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ message: `Server error updating user: ${error.message}` });
     }
 });
 
@@ -295,7 +370,7 @@ router.delete('/api/users/:id', checkAdmin, async (req, res) => {
     if (!supabaseAdmin) {
         return res.status(500).json({ message: 'Admin client not configured.' });
     }
-    
+
     try {
         const { id } = req.params;
         console.log('DELETE /admin/api/users/:id called for ID:', id);

@@ -21,11 +21,113 @@
                 <i class="fas fa-clock"></i>
             </div>
             <div class="card-content">
-                <h4>Remaining Hours</h4>
+                <h4>Hours Today <i class="fas fa-info-circle" title="Shows hours worked today and remaining time in your 8-hour shift"></i></h4>
                 <div class="countdown-container">
-                    <div id="countdown-timer" class="countdown-timer"><%= Math.floor(timesheetData.remainingHours) %>:<%= (timesheetData.remainingHours % 1 * 60).toString().padStart(2, '0') %></div>
+                    <div class="hours-display">
+                        <%
+                        // Force default values to ensure no negative display
+                        let hoursWorked = 0;
+                        let minutesWorked = 0;
+                        let hoursRemaining = 8;
+                        let minutesRemaining = 0;
+
+                        try {
+                            // Debug logging
+                            console.log('Raw values from server:');
+                            console.log(`timesheetData.hoursWorked: ${timesheetData.hoursWorked}`);
+                            console.log(`timesheetData.remainingHours: ${timesheetData.remainingHours}`);
+
+                            // Process hours worked
+                            if (timesheetData.hoursWorked !== undefined) {
+                                // Force to number and ensure it's not negative
+                                const rawHoursWorked = Number(timesheetData.hoursWorked);
+                                const safeHoursWorked = isNaN(rawHoursWorked) ? 0 : Math.max(0, rawHoursWorked);
+
+                                console.log(`safeHoursWorked: ${safeHoursWorked}`);
+
+                                hoursWorked = Math.floor(safeHoursWorked);
+                                minutesWorked = Math.round((safeHoursWorked % 1) * 60);
+
+                                // Handle case where minutes might be 60 due to rounding
+                                if (minutesWorked === 60) {
+                                    hoursWorked += 1;
+                                    minutesWorked = 0;
+                                }
+
+                                console.log(`Final hoursWorked: ${hoursWorked}`);
+                                console.log(`Final minutesWorked: ${minutesWorked}`);
+                            }
+
+                            // Process remaining hours
+                            if (timesheetData.remainingHours !== undefined) {
+                                // Force to number and ensure it's not negative
+                                const rawRemainingHours = Number(timesheetData.remainingHours);
+                                const safeRemainingHours = isNaN(rawRemainingHours) ? 8 : Math.max(0, rawRemainingHours);
+
+                                console.log(`safeRemainingHours: ${safeRemainingHours}`);
+
+                                hoursRemaining = Math.floor(safeRemainingHours);
+                                minutesRemaining = Math.round((safeRemainingHours % 1) * 60);
+
+                                // Handle case where minutes might be 60 due to rounding
+                                if (minutesRemaining === 60) {
+                                    hoursRemaining += 1;
+                                    minutesRemaining = 0;
+                                }
+
+                                console.log(`Final hoursRemaining: ${hoursRemaining}`);
+                                console.log(`Final minutesRemaining: ${minutesRemaining}`);
+                            }
+                        } catch (error) {
+                            console.error('Error processing time values:', error);
+                            // Keep default values in case of error
+                        }
+                        %>
+                        <div class="hours-row">
+                            <span class="hours-label">Worked:</span>
+                            <span id="hours-worked" class="hours-value">
+                                <%
+                                // Final safety check - never show negative values
+                                let displayHoursWorked = hoursWorked;
+                                let displayMinutesWorked = minutesWorked;
+
+                                if (displayHoursWorked < 0 || displayMinutesWorked < 0) {
+                                    console.error('Negative values still detected after processing!');
+                                    displayHoursWorked = 0;
+                                    displayMinutesWorked = 0;
+                                }
+                                %>
+                                <%= displayHoursWorked %>:<%= displayMinutesWorked.toString().padStart(2, '0') %>
+                            </span>
+                        </div>
+                        <div class="hours-row">
+                            <span class="hours-label">Remaining:</span>
+                            <span id="countdown-timer" class="hours-value">
+                                <%
+                                // Final safety check - never show negative values
+                                let displayHoursRemaining = hoursRemaining;
+                                let displayMinutesRemaining = minutesRemaining;
+
+                                if (displayHoursRemaining < 0 || displayMinutesRemaining < 0) {
+                                    console.error('Negative remaining values still detected after processing!');
+                                    displayHoursRemaining = 8;
+                                    displayMinutesRemaining = 0;
+                                }
+                                %>
+                                <%= displayHoursRemaining %>:<%= displayMinutesRemaining.toString().padStart(2, '0') %>
+                            </span>
+                        </div>
+                    </div>
                     <div class="timer-progress">
-                        <div class="timer-bar" style="width: 50%;"></div>
+                        <%
+                        // Calculate progress percentage based on hours worked
+                        let progressPercentage = 0;
+                        if (timesheetData.hoursWorked !== undefined && !isNaN(timesheetData.hoursWorked)) {
+                            // Calculate percentage based on 8-hour workday
+                            progressPercentage = Math.min(100, Math.max(0, (timesheetData.hoursWorked / 8) * 100));
+                        }
+                        %>
+                        <div class="timer-bar" style="width: <%= progressPercentage %>%;"></div>
                     </div>
                 </div>
             </div>
@@ -117,28 +219,65 @@
             </div>
 
             <div class="table-responsive">
+                <!-- Debug info to check if entries exist -->
+                <div style="margin-bottom: 10px; color: #666; font-size: 0.9rem;">
+                    <% if (timesheetData.entries && timesheetData.entries.length > 0) { %>
+                        Found <%= timesheetData.entries.length %> recent entries.
+                    <% } else { %>
+                        No recent entries found.
+                    <% } %>
+                </div>
+
                 <table class="timesheet-table">
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Login</th>
-                            <th>Logout</th>
-                            <th>Pause</th>
-                            <th>Unavailable</th>
-                            <th>Total Available</th>
+                            <th>Clock In</th>
+                            <th>Clock Out</th>
+                            <th>Break Time</th>
+                            <th>Unavailable Time</th>
+                            <th>Total Hours</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% timesheetData.entries.forEach(entry => { %>
+                        <%
+                        // Debug logging to see what entries are available
+                        console.log('Entries in view:', timesheetData.entries);
+
+                        if (timesheetData.entries && timesheetData.entries.length > 0) {
+                        %>
+                            <% timesheetData.entries.forEach((entry, index) => { %>
+                                <%
+                                // Debug logging for each entry
+                                console.log(`Rendering entry ${index}:`, entry);
+                                %>
+                                <tr>
+                                    <td><%= entry.date || 'N/A' %></td>
+                                    <td><%= entry.login || 'N/A' %></td>
+                                    <td><%= entry.logout || 'N/A' %></td>
+                                    <td><%= entry.pause || '0 mins' %></td>
+                                    <td><%= entry.unavailable || '0 mins' %></td>
+                                    <td><%= entry.totalAvailable || 'N/A' %></td>
+                                    <td>
+                                        <%
+                                        let status = 'Unknown';
+                                        let statusClass = '';
+
+                                        if (entry.rawEntry && entry.rawEntry.status) {
+                                            status = entry.rawEntry.status.charAt(0).toUpperCase() + entry.rawEntry.status.slice(1);
+                                            statusClass = entry.rawEntry.status;
+                                        }
+                                        %>
+                                        <span class="status-badge <%= statusClass %>"><%= status %></span>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
                             <tr>
-                                <td><%= entry.date %></td>
-                                <td><%= entry.login %></td>
-                                <td><%= entry.logout %></td>
-                                <td><%= entry.pause %></td>
-                                <td><%= entry.unavailable %></td>
-                                <td><%= entry.totalAvailable %></td>
+                                <td colspan="7" style="text-align: center; padding: 20px; color: #777; font-style: italic;">No recent time entries found.</td>
                             </tr>
-                        <% }); %>
+                        <% } %>
                     </tbody>
                 </table>
             </div>
@@ -304,6 +443,27 @@
             opacity: 0;
         }
     }
+
+    /* Highlight effect for buttons */
+    .btn-highlight {
+        animation: pulse 1s infinite;
+        box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 165, 0, 1);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+        }
+    }
 </style>
 
 <script>
@@ -368,6 +528,91 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Updating UI with status:', statusData);
         const activeEntry = statusData.activeEntry;
 
+        // Get references to the hours display elements
+        const hoursWorkedElement = document.getElementById('hours-worked');
+        const countdownTimerElement = document.getElementById('countdown-timer');
+
+        // Update hours worked and remaining hours display
+        if (statusData.hoursWorked !== undefined && !isNaN(statusData.hoursWorked)) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !activeEntry;
+            const currentDisplay = hoursWorkedElement ? hoursWorkedElement.textContent : '';
+
+            // Only update if the user is clocked in or the display is empty/invalid
+            if (!isUserClockedOut || currentDisplay === '--:--' || !currentDisplay.match(/^\d+:\d{2}$/)) {
+                // Ensure hours worked is not negative
+                const safeHoursWorked = Math.max(0, statusData.hoursWorked);
+                let hoursWorked = Math.floor(safeHoursWorked);
+                let minutesWorked = Math.round((safeHoursWorked % 1) * 60);
+
+                // Handle case where minutes might be 60 due to rounding
+                if (minutesWorked === 60) {
+                    hoursWorked += 1;
+                    minutesWorked = 0;
+                }
+
+                if (hoursWorkedElement) {
+                    const newWorkedTimeText = `${hoursWorked}:${minutesWorked.toString().padStart(2, '0')}`;
+                    hoursWorkedElement.textContent = newWorkedTimeText;
+                    console.log(`Updated hours worked display to: ${newWorkedTimeText}`);
+
+                    // Log the raw and calculated values for debugging
+                    console.log('Raw hoursWorked from server:', statusData.hoursWorked);
+                    console.log('Calculated hoursWorked:', hoursWorked, 'minutesWorked:', minutesWorked);
+                }
+            } else {
+                console.log('User is clocked out. Preserving current hours worked display:', currentDisplay);
+            }
+        }
+
+        if (statusData.remainingHours !== undefined && !isNaN(statusData.remainingHours)) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !activeEntry;
+            const currentDisplay = countdownTimerElement ? countdownTimerElement.textContent : '';
+
+            // Only update if the user is clocked in or the display is empty/invalid
+            if (!isUserClockedOut || currentDisplay === '--:--' || !currentDisplay.match(/^\d+:\d{2}$/)) {
+                // Ensure remaining hours is not negative
+                const safeRemainingHours = Math.max(0, statusData.remainingHours);
+                let hoursRemaining = Math.floor(safeRemainingHours);
+                let minutesRemaining = Math.round((safeRemainingHours % 1) * 60);
+
+                // Handle case where minutes might be 60 due to rounding
+                if (minutesRemaining === 60) {
+                    hoursRemaining += 1;
+                    minutesRemaining = 0;
+                }
+
+                if (countdownTimerElement) {
+                    const newRemainingTimeText = `${hoursRemaining}:${minutesRemaining.toString().padStart(2, '0')}`;
+                    countdownTimerElement.textContent = newRemainingTimeText;
+                    console.log(`Updated remaining hours display to: ${newRemainingTimeText}`);
+
+                    // Log the raw and calculated values for debugging
+                    console.log('Raw remainingHours from server:', statusData.remainingHours);
+                    console.log('Calculated hoursRemaining:', hoursRemaining, 'minutesRemaining:', minutesRemaining);
+                }
+            } else {
+                console.log('User is clocked out. Preserving current remaining hours display:', currentDisplay);
+            }
+        }
+
+        // Update progress bar - but only if the user is clocked in
+        const timerBar = document.querySelector('.timer-bar');
+        if (timerBar && statusData.hoursWorked !== undefined) {
+            // Check if the user is clocked out
+            const isUserClockedOut = !activeEntry;
+
+            // Only update if the user is clocked in
+            if (!isUserClockedOut) {
+                const percentage = Math.min(100, Math.max(0, (statusData.hoursWorked / 8) * 100));
+                timerBar.style.width = `${percentage}%`;
+                console.log(`Updated progress bar: ${percentage}%`);
+            } else {
+                console.log('User is clocked out. Preserving current progress bar width:', timerBar.style.width);
+            }
+        }
+
         // Reset all buttons to default state (mostly disabled)
         clockInBtn.disabled = true;
         clockOutBtn.disabled = true;
@@ -391,15 +636,54 @@ document.addEventListener('DOMContentLoaded', () => {
              }
 
             // Determine state based on status
-            if (activeEntry.status === 'active') {
-                startBreakBtn.disabled = false;
-                startUnavailableBtn.disabled = false;
-            } else if (activeEntry.status === 'on_break') {
-                endBreakBtn.disabled = false;
-                statusText.textContent = 'On Break'; // More specific status
-            } else if (activeEntry.status === 'unavailable') {
-                endUnavailableBtn.disabled = false;
-                 statusText.textContent = 'Unavailable'; // More specific status
+            if (activeEntry) {
+                // User is clocked in - enable/disable buttons based on status
+                clockInBtn.disabled = true; // Can't clock in again
+                clockOutBtn.disabled = false; // Can clock out
+
+                if (activeEntry.status === 'active') {
+                    startBreakBtn.disabled = false;
+                    startUnavailableBtn.disabled = false;
+                    clockOutBtn.disabled = false; // Only allow clock out when active
+                    statusText.textContent = 'Active - Currently clocked in';
+
+                    // Start the timer if it's not already running
+                    if (typeof window.updateCountdown === 'function' && !window.timerRunning) {
+                        console.log('Starting timer from updateUI function');
+                        window.updateCountdown();
+                    }
+                } else if (activeEntry.status === 'on_break') {
+                    endBreakBtn.disabled = false;
+                    startBreakBtn.disabled = true;
+                    startUnavailableBtn.disabled = true;
+                    clockOutBtn.disabled = true; // Disable clock out when on break
+                    statusText.textContent = 'On Break - End break before clocking out'; // More specific status with instruction
+                    // Add a visual indicator to the end break button
+                    endBreakBtn.classList.add('btn-highlight');
+                    setTimeout(() => {
+                        endBreakBtn.classList.remove('btn-highlight');
+                    }, 2000);
+                } else if (activeEntry.status === 'unavailable') {
+                    endUnavailableBtn.disabled = false;
+                    startBreakBtn.disabled = true;
+                    startUnavailableBtn.disabled = true;
+                    clockOutBtn.disabled = true; // Disable clock out when unavailable
+                    statusText.textContent = 'Unavailable - End unavailable period before clocking out'; // More specific status with instruction
+                    // Add a visual indicator to the end unavailable button
+                    endUnavailableBtn.classList.add('btn-highlight');
+                    setTimeout(() => {
+                        endUnavailableBtn.classList.remove('btn-highlight');
+                    }, 2000);
+                }
+            } else {
+                // User is not clocked in - disable all buttons except clock in
+                clockInBtn.disabled = false;
+                clockOutBtn.disabled = true;
+                startBreakBtn.disabled = true;
+                endBreakBtn.disabled = true;
+                startUnavailableBtn.disabled = true;
+                endUnavailableBtn.disabled = true;
+                statusText.textContent = 'Not clocked in';
             }
             // Clock In button should remain disabled if clocked in
         } else {
@@ -411,12 +695,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch status and update UI
     async function fetchAndUpdateStatus() {
         const token = localStorage.getItem('token'); // Get JWT from local storage
+        console.log('Token available:', token ? 'Yes' : 'No');
         if (!token) {
             console.error('No JWT found. User might not be logged in.');
             statusText.textContent = 'Error: Not authenticated';
             // Optionally redirect to login or disable all buttons
             return;
         }
+        console.log('Using token for status fetch:', token.substring(0, 20) + '...');
 
         try {
             const response = await fetch('/api/status', { // Corrected endpoint
@@ -437,6 +723,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const statusData = await response.json();
             updateUI(statusData);
+
+            // Start the timer if the user is actively working and the timer is not already running
+            if (statusData.activeEntry && statusData.activeEntry.status === 'active' &&
+                typeof window.updateCountdown === 'function' && !window.timerRunning) {
+                console.log('Starting timer from fetchAndUpdateStatus function');
+                window.updateCountdown();
+            }
         } catch (error) {
             console.error('Error fetching timesheet status:', error);
             statusText.textContent = 'Error loading status';
@@ -460,28 +753,44 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        console.log(`Sending ${action} request to /api/${action}`);
+        console.log('Using token:', token ? (token.substring(0, 20) + '...') : 'No token');
+
         try {
             const response = await fetch(`/api/${action}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT to header
+                    'Authorization': `Bearer ${token}` // Add JWT to header
                 },
             });
+
+            console.log(`${action} response status:`, response.status);
+
             // Handle potential JSON parsing errors if response is not JSON (e.g., 204 No Content)
             let result = {};
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.indexOf("application/json") !== -1) {
-                result = await response.json();
+                try {
+                    result = await response.json();
+                    console.log(`${action} response data:`, result);
+                } catch (jsonError) {
+                    console.error(`Error parsing JSON response for ${action}:`, jsonError);
+                    result = { error: 'Invalid response format' };
+                }
             } else if (!response.ok) {
                  // If not JSON and not OK, create a basic error message
                  result = { error: `Request failed with status ${response.status}` };
+                 console.error(`Non-JSON error response for ${action}:`, result.error);
             }
 
             if (response.ok) {
                 console.log(`${action} successful:`, result);
                 showNotification(successMessage, 'success');
-                fetchAndUpdateStatus(); // Refresh UI
+                // Wait a moment before refreshing the UI to ensure the server has processed the change
+                setTimeout(() => {
+                    fetchAndUpdateStatus(); // Refresh UI
+                }, 500);
             } else {
                 const errorMessage = result.message || result.error || 'Unknown error';
                 console.error(`${action} failed:`, errorMessage);
@@ -496,6 +805,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial status fetch on page load
     fetchAndUpdateStatus();
 
+    // Set up periodic refresh every 3 minutes to avoid conflicts with the timer
+    const statusRefreshInterval = setInterval(() => {
+        console.log('Performing periodic status refresh');
+        // Only refresh if no timer is running
+        if (!window.timerRunning) {
+            console.log('No timer running, safe to refresh status');
+            fetchAndUpdateStatus();
+        } else {
+            console.log('Timer is running, skipping status refresh to avoid conflicts');
+        }
+    }, 180000); // 3 minutes
+
+    // Clean up interval when page is unloaded
+    window.addEventListener('beforeunload', () => {
+        clearInterval(statusRefreshInterval);
+    });
+
     // --- Event Listeners ---
 
     // Clock In
@@ -503,14 +829,28 @@ document.addEventListener('DOMContentLoaded', () => {
         clockInBtn.addEventListener('click', async () => {
             console.log('Clock In button clicked');
             try {
+                const token = localStorage.getItem('token');
+                console.log('Using token for clock-in:', token ? (token.substring(0, 20) + '...') : 'No token');
+
+                if (!token) {
+                    console.error('No JWT token found for clock-in');
+                    showNotification('Authentication error. Please log in again.', 'error');
+                    return;
+                }
+
+                console.log('Sending clock-in request to /api/clock-in');
                 const response = await fetch('/api/clock-in', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT to header
+                        'Authorization': `Bearer ${token}` // Add JWT to header
                     },
                 });
+
+                console.log('Clock-in response status:', response.status);
                 const result = await response.json();
+                console.log('Clock-in response data:', result);
+
                 if (response.ok) {
                     console.log('Clock in successful:', result);
                     // Use the message from the server if available, otherwise use a default message
@@ -529,41 +869,173 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Clock Out
+    // Clock Out with debounce to prevent multiple clicks
     if (clockOutBtn) {
+        // Add a property to track if a request is in progress
+        clockOutBtn.isProcessing = false;
+
         clockOutBtn.addEventListener('click', async () => {
             console.log('Clock Out button clicked');
-             try {
+
+            // Prevent multiple clicks
+            if (clockOutBtn.isProcessing) {
+                console.log('Clock out request already in progress, ignoring click');
+                return;
+            }
+
+            // Disable the button immediately
+            clockOutBtn.isProcessing = true;
+            clockOutBtn.disabled = true;
+
+            try {
+                // First check if we're clocked in
+                const currentStatus = statusText.textContent.toLowerCase();
+                if (currentStatus.includes('not clocked in')) {
+                    console.log('Cannot clock out when not clocked in');
+                    showNotification('You are not currently clocked in.', 'warning');
+                    // Highlight the clock in button
+                    if (clockInBtn) {
+                        clockInBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            clockInBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                // Check if we're on break or unavailable
+                if (currentStatus.includes('on break')) {
+                    console.log('Cannot clock out while on break');
+                    showNotification('Please end your break before clocking out.', 'warning');
+                    // Highlight the end break button
+                    if (endBreakBtn) {
+                        endBreakBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            endBreakBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                if (currentStatus.includes('unavailable')) {
+                    console.log('Cannot clock out while unavailable');
+                    showNotification('Please end your unavailable period before clocking out.', 'warning');
+                    // Highlight the end unavailable button
+                    if (endUnavailableBtn) {
+                        endUnavailableBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            endUnavailableBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                const token = localStorage.getItem('token');
+                console.log('Using token for clock-out:', token ? (token.substring(0, 20) + '...') : 'No token');
+
+                if (!token) {
+                    console.error('No JWT token found for clock-out');
+                    showNotification('Authentication error. Please log in again.', 'error');
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                // Ask for confirmation before clocking out
+                if (!confirm('Are you sure you want to clock out?')) {
+                    console.log('Clock out cancelled by user');
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                console.log('Sending clock-out request to /api/clock-out');
                 const response = await fetch('/api/clock-out', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT to header
+                        'Authorization': `Bearer ${token}` // Add JWT to header
                     },
                 });
+
+                console.log('Clock-out response status:', response.status);
                 const result = await response.json();
+                console.log('Clock-out response data:', result);
+
                 if (response.ok) {
                     console.log('Clock out successful:', result);
                     showNotification('Clocked out successfully!', 'success');
-                    fetchAndUpdateStatus(); // Refresh UI
+
+                    // Wait a moment before refreshing the UI to ensure the server has processed the change
+                    setTimeout(() => {
+                        fetchAndUpdateStatus(); // Refresh UI
+                    }, 500);
                 } else {
                     const errorMessage = result.message || result.error || 'Unknown error';
                     console.error('Clock out failed:', errorMessage);
-                    showNotification(`Clock out failed: ${errorMessage}`, 'error');
+
+                    // Handle specific error messages
+                    if (errorMessage.includes('Not clocked in')) {
+                        showNotification('You are not currently clocked in.', 'warning');
+                    } else {
+                        showNotification(`Clock out failed: ${errorMessage}`, 'error');
+                    }
+
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
                 }
             } catch (error) {
                 console.error('Error sending clock out request:', error);
                 showNotification('An error occurred while trying to clock out.', 'error');
+
+                // Re-enable the button
+                clockOutBtn.isProcessing = false;
+                clockOutBtn.disabled = false;
             }
         });
     }
 
     // Event listeners using the generic handler
     if (startBreakBtn) {
-        startBreakBtn.addEventListener('click', () => handleTimesheetAction('start-break', 'Break started!', 'Failed to start break'));
+        startBreakBtn.addEventListener('click', () => {
+            console.log('Start Break button clicked');
+            // First check if we're already on break
+            const currentStatus = statusText.textContent.toLowerCase();
+            if (currentStatus.includes('on break')) {
+                console.log('Already on break');
+                showNotification('You are already on break.', 'warning');
+                return;
+            }
+
+            handleTimesheetAction('start-break', 'Break started successfully!', 'Failed to start break');
+        });
     }
+
     if (endBreakBtn) {
-        endBreakBtn.addEventListener('click', () => handleTimesheetAction('end-break', 'Break ended!', 'Failed to end break'));
+        endBreakBtn.addEventListener('click', () => {
+            console.log('End Break button clicked');
+            // First check if we're actually on break
+            const currentStatus = statusText.textContent.toLowerCase();
+            if (!currentStatus.includes('on break')) {
+                console.log('Not on break');
+                showNotification('You are not currently on break.', 'warning');
+                return;
+            }
+
+            handleTimesheetAction('end-break', 'Break ended successfully!', 'Failed to end break');
+        });
     }
     if (startUnavailableBtn) {
         startUnavailableBtn.addEventListener('click', () => handleTimesheetAction('start-unavailable', 'Marked as unavailable!', 'Failed to mark as unavailable'));
@@ -574,5 +1046,147 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 </script>
+
+<!-- Additional styles for tooltips and hours display -->
+<style>
+    /* Info icon tooltip */
+    .fa-info-circle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8rem;
+        margin-left: 5px;
+        cursor: help;
+        transition: color 0.2s ease;
+    }
+
+    .fa-info-circle:hover {
+        color: var(--accent-color);
+    }
+
+    /* Hours display styles */
+    .hours-display {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .hours-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .hours-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .hours-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    /* Status badge styles */
+    .status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: capitalize;
+        background-color: #ccc;
+        color: #333;
+    }
+
+    .status-badge.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .status-badge.submitted {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .status-badge.on_break {
+        background-color: #FF9800;
+        color: white;
+    }
+
+    .status-badge.unavailable {
+        background-color: #F44336;
+        color: white;
+    }
+
+    .status-badge.completed {
+        background-color: #9C27B0;
+        color: white;
+    }
+
+    /* No entries message */
+    .no-entries {
+        text-align: center;
+        padding: 20px;
+        color: #777;
+        font-style: italic;
+    }
+
+    /* Timesheet table styles */
+    .timesheet-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        background-color: var(--card-bg-color);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .timesheet-table th {
+        background-color: var(--header-bg-color, #f5f5f5);
+        color: var(--header-text-color, #333);
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-color, #ddd);
+    }
+
+    .timesheet-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border-color, #eee);
+        color: var(--text-color, #333);
+    }
+
+    .timesheet-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .timesheet-table tr:hover {
+        background-color: var(--row-hover-color, rgba(0, 0, 0, 0.02));
+    }
+
+    /* Dark mode adjustments */
+    @media (prefers-color-scheme: dark) {
+        .timesheet-table {
+            background-color: var(--card-bg-color, #2a2a2a);
+        }
+
+        .timesheet-table th {
+            background-color: var(--header-bg-color, #333);
+            color: var(--header-text-color, #fff);
+            border-bottom: 1px solid var(--border-color, #444);
+        }
+
+        .timesheet-table td {
+            border-bottom: 1px solid var(--border-color, #333);
+            color: var(--text-color, #eee);
+        }
+
+        .timesheet-table tr:hover {
+            background-color: var(--row-hover-color, rgba(255, 255, 255, 0.05));
+        }
+    }
+</style>
 </body>
 </html>

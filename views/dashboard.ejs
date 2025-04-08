@@ -1,6 +1,7 @@
 <head>
-    <title>Dashboard - TimeManager</title>  
+    <title>Dashboard - TimeManager</title>
     <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dark-mode-fix.css">
 </head>
 
 <div class="dashboard-container">
@@ -9,7 +10,7 @@
         <h1>Welcome to Your Dashboard</h1>
         <p class="current-date"><%= new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %></p>
     </div>
-    
+
     <!-- Status Summary Row with improved spacing -->
     <div class="summary-section">
         <!-- Today's Status Card -->
@@ -49,7 +50,7 @@
                 <% } %>
             </div>
         </div>
-        
+
         <!-- Leave Balance Card -->
         <div class="summary-card leave-card">
             <h3><i class="fas fa-calendar-alt"></i> Leave Balance</h3>
@@ -57,15 +58,15 @@
                 <div class="progress-bar" style="width: 60%"></div>
             </div>
             <p class="leave-balance-text">15 days used out of 25</p>
-            <a href="/leave/apply" class="btn btn-outline">View Details</a>
+            <a href="/apply-leave" class="btn btn-outline">View Details</a>
         </div>
     </div>
-    
+
     <!-- Recent Time Entries with improved margin -->
     <div class="recent-entries-section">
         <h2><i class="fas fa-history"></i> Recent Time Entries</h2>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table" style="background-color: inherit;">
                 <thead>
                     <tr>
                         <th>Date</th>
@@ -95,7 +96,7 @@
             </table>
         </div>
     </div>
-    
+
     <!-- Quick Actions -->
     <div class="quick-actions">
         <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
@@ -106,14 +107,14 @@
                 <p>Manage your work hours and breaks</p>
                 <a href="/timesheet" class="btn btn-primary">Go to Timesheet</a>
             </div>
-            
+
             <div class="action-card">
                 <div class="card-icon"><i class="fas fa-calendar"></i></div>
                 <h3>Leave Management</h3>
                 <p>Apply for leaves and check your balance</p>
-                <a href="/apply-leave" class="btn btn-secondary">Apply Leave</a>
+                <a href="/leave/apply" class="btn btn-secondary">Apply Leave</a>
             </div>
-            
+
             <div class="action-card">
                 <div class="card-icon"><i class="fas fa-chart-line"></i></div>
                 <h3>Reports</h3>
@@ -129,14 +130,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     const clockInBtn = document.getElementById('clockInBtn');
     const messageContainer = document.getElementById('clock-in-message');
-    
+
     if (clockInBtn) {
         clockInBtn.addEventListener('click', async function() {
             try {
                 // Disable button and show loading state
                 clockInBtn.disabled = true;
                 clockInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-                
+
                 const response = await fetch('/api/clock-in', {
                     method: 'POST',
                     headers: {
@@ -144,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT Auth header
                     }
                 });
-                
+
                 if (response.ok) {
                     showMessage('success', 'Successfully clocked in! Redirecting to timesheet...');
                     setTimeout(() => {
@@ -166,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Helper function to show messages
     function showMessage(type, message) {
         if (messageContainer) {
@@ -180,6 +181,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+    // Function to apply dark mode styles to Recent Time Entries table
+    function applyDarkModeToRecentEntriesTable() {
+        if (document.body.classList.contains('dark-mode')) {
+            // Get all rows in the table body
+            const rows = document.querySelectorAll('.recent-entries-section .table tbody tr');
+
+            // Apply dark background to each row
+            rows.forEach((row, index) => {
+                // Clear any existing background
+                row.style.backgroundColor = 'transparent';
+
+                // Apply alternating row colors
+                if (index % 2 === 0) {
+                    row.style.backgroundColor = '#1a1a1a';
+                } else {
+                    row.style.backgroundColor = '#121220';
+                }
+
+                // Make sure text is white
+                row.style.color = '#ffffff';
+
+                // Apply styles to all cells in the row
+                const cells = row.querySelectorAll('td');
+                cells.forEach(cell => {
+                    cell.style.backgroundColor = 'transparent';
+                    cell.style.color = '#ffffff';
+                });
+            });
+
+            // Style the table header
+            const headerCells = document.querySelectorAll('.recent-entries-section .table thead th');
+            headerCells.forEach(cell => {
+                cell.style.backgroundColor = '#1a202c';
+                cell.style.color = '#ffffff';
+                cell.style.borderColor = '#2d3748';
+            });
+        }
+    }
+
+    // Apply dark mode styles if dark mode is active
+    applyDarkModeToRecentEntriesTable();
+
+    // Watch for theme changes
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            // Wait a moment for the dark-mode class to be applied/removed
+            setTimeout(applyDarkModeToRecentEntriesTable, 100);
+        });
+    }
 </script>
 
 <!-- Add this to your CSS file or in a style tag -->

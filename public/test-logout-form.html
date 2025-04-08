@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Logout Form</title>
+</head>
+<body>
+    <h1>Test Logout Form</h1>
+    <p>Click on the buttons below to test different logout routes:</p>
+    
+    <form action="/logout" method="POST">
+        <button type="submit">Logout (Root POST)</button>
+    </form>
+    
+    <form action="/auth/logout" method="POST">
+        <button type="submit">Logout (Auth POST)</button>
+    </form>
+    
+    <form action="/logout" method="GET">
+        <button type="submit">Logout (Root GET)</button>
+    </form>
+    
+    <form action="/auth/logout" method="GET">
+        <button type="submit">Logout (Auth GET)</button>
+    </form>
+</body>
+</html>

@@ -1,5 +1,35 @@
+# Dependencies
 package-lock.json
 node_modules/*
+.vs/*
+
+
+# Environment variables and configuration
 .env
 .qodo
-.vs/*
+
+# Test and development files
+scripts/*
+test-auth-routes.js
+test-routes.js
+run-migration.js
+requirements.txt
+migrations/*
+data/*
+
+# Large files
+*.zip
+*.gz
+*.tar
+*.rar
+*.7z
+*.iso
+*.dmg
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.pdf
+*.psd
+*.ai
+*.sketch
