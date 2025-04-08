@@ -23,7 +23,19 @@
             <div class="card-content">
                 <h4>Remaining Hours</h4>
                 <div class="countdown-container">
-                    <div id="countdown-timer" class="countdown-timer"><%= Math.floor(timesheetData.remainingHours) %>:<%= (timesheetData.remainingHours % 1 * 60).toString().padStart(2, '0') %></div>
+                    <div id="countdown-timer" class="countdown-timer">
+                        <%
+                        // Handle the case where remainingHours might be undefined or NaN
+                        let hours = 8;
+                        let minutes = 0;
+
+                        if (timesheetData.remainingHours !== undefined && !isNaN(timesheetData.remainingHours)) {
+                            hours = Math.floor(timesheetData.remainingHours);
+                            minutes = Math.round((timesheetData.remainingHours % 1) * 60);
+                        }
+                        %>
+                        <%= hours %>:<%= minutes.toString().padStart(2, '0') %>
+                    </div>
                     <div class="timer-progress">
                         <div class="timer-bar" style="width: 50%;"></div>
                     </div>

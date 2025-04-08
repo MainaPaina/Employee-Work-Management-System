@@ -98,8 +98,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Parse time string in format "H:MM"
         function parseTimeString(timeStr) {
-            const [hours, minutes] = timeStr.split(':').map(part => parseInt(part, 10));
-            return { hours, minutes };
+            try {
+                // Clean up the input string
+                const cleanTimeStr = timeStr.trim();
+
+                // Check if the string is in the expected format
+                if (!/^\d+:\d{2}$/.test(cleanTimeStr)) {
+                    console.warn('Invalid time format:', timeStr);
+                    return { hours: 8, minutes: 0 }; // Default to 8 hours
+                }
+
+                const [hours, minutes] = cleanTimeStr.split(':').map(part => parseInt(part, 10));
+
+                // Check if the parsed values are valid numbers
+                if (isNaN(hours) || isNaN(minutes)) {
+                    console.warn('Invalid time values:', timeStr);
+                    return { hours: 8, minutes: 0 }; // Default to 8 hours
+                }
+
+                return { hours, minutes };
+            } catch (error) {
+                console.error('Error parsing time string:', error);
+                return { hours: 8, minutes: 0 }; // Default to 8 hours
+            }
         }
     }
 

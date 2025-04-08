@@ -49,6 +49,39 @@ class TimesheetController {
             // Fetch data using the helper method
             const timesheetData = await this._fetchTimesheetStatusData(userId);
 
+            // Calculate remaining hours (default to 8 hours if not clocked in)
+            let remainingHours = 8.0; // Default to 8-hour workday
+
+            if (timesheetData.activeEntry) {
+                const activeEntry = timesheetData.activeEntry;
+                const startTime = new Date(activeEntry.start_time);
+                const now = new Date();
+
+                // Calculate elapsed time in minutes
+                const elapsedMillis = now - startTime;
+                const elapsedMinutes = elapsedMillis / (1000 * 60);
+
+                // Subtract break time if any
+                const breakMinutes = activeEntry.total_break_duration || 0;
+
+                // Calculate worked minutes
+                const workedMinutes = elapsedMinutes - breakMinutes;
+
+                // Calculate remaining hours (8-hour workday)
+                remainingHours = Math.max(0, (480 - workedMinutes) / 60); // 480 minutes = 8 hours
+            }
+
+            // Add remaining hours to the timesheet data
+            timesheetData.remainingHours = remainingHours;
+
+            // Format login time if available
+            if (timesheetData.activeEntry && timesheetData.activeEntry.start_time) {
+                const startTime = new Date(timesheetData.activeEntry.start_time);
+                timesheetData.loginTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } else {
+                timesheetData.loginTime = 'Not logged in';
+            }
+
             // Render the EJS template, passing the fetched data
             res.render('timesheet', {
                 activePage: 'timesheet',
@@ -184,6 +217,40 @@ class TimesheetController {
         try {
             // Use the helper method to get data
             const data = await this._fetchTimesheetStatusData(userId);
+
+            // Calculate remaining hours (default to 8 hours if not clocked in)
+            let remainingHours = 8.0; // Default to 8-hour workday
+
+            if (data.activeEntry) {
+                const activeEntry = data.activeEntry;
+                const startTime = new Date(activeEntry.start_time);
+                const now = new Date();
+
+                // Calculate elapsed time in minutes
+                const elapsedMillis = now - startTime;
+                const elapsedMinutes = elapsedMillis / (1000 * 60);
+
+                // Subtract break time if any
+                const breakMinutes = activeEntry.total_break_duration || 0;
+
+                // Calculate worked minutes
+                const workedMinutes = elapsedMinutes - breakMinutes;
+
+                // Calculate remaining hours (8-hour workday)
+                remainingHours = Math.max(0, (480 - workedMinutes) / 60); // 480 minutes = 8 hours
+            }
+
+            // Add remaining hours to the data
+            data.remainingHours = remainingHours;
+
+            // Format login time if available
+            if (data.activeEntry && data.activeEntry.start_time) {
+                const startTime = new Date(data.activeEntry.start_time);
+                data.loginTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } else {
+                data.loginTime = 'Not logged in';
+            }
+
             // Send JSON response
             res.json(data);
 
