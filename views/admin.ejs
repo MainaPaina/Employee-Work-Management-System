@@ -116,7 +116,7 @@
                     <!-- Table View -->
                     <div class="tab-pane fade show active" id="tableView">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover" id="employeeActivityTable">
+                            <table class="table table-bordered table-hover" id="employeeActivityTable" style="background-color: inherit;">
                                 <thead class="table-dark">
                                     <tr>
                                         <th><i class="fas fa-user"></i> Employee</th>
@@ -493,8 +493,8 @@
 
         <!-- Script to fix dark mode table rows -->
         <script>
-            // Function to apply dark mode styles to table rows
-            function applyDarkModeToTable() {
+            // Function to apply dark mode styles to user management table
+            function applyDarkModeToUserTable() {
                 if (document.body.classList.contains('dark-mode')) {
                     // Get all rows in the table body
                     const rows = document.querySelectorAll('#usersTable tbody tr');
@@ -524,17 +524,70 @@
                 }
             }
 
+            // Function to apply dark mode styles to employee activity table
+            function applyDarkModeToActivityTable() {
+                if (document.body.classList.contains('dark-mode')) {
+                    // Get all rows in the table body
+                    const rows = document.querySelectorAll('#employeeActivityTable tbody tr');
+
+                    // Apply dark background to each row
+                    rows.forEach((row, index) => {
+                        // Skip rows with special status classes
+                        if (row.classList.contains('table-danger') ||
+                            row.classList.contains('table-secondary') ||
+                            row.classList.contains('table-success') ||
+                            row.classList.contains('table-info')) {
+                            // Just ensure text is white
+                            row.style.color = '#ffffff';
+
+                            // Apply styles to all cells in the row
+                            const cells = row.querySelectorAll('td');
+                            cells.forEach(cell => {
+                                cell.style.color = '#ffffff';
+                            });
+                            return;
+                        }
+
+                        // Clear any existing background
+                        row.style.backgroundColor = 'transparent';
+
+                        // Apply alternating row colors
+                        if (index % 2 === 0) {
+                            row.style.backgroundColor = '#1a1a1a';
+                        } else {
+                            row.style.backgroundColor = '#121220';
+                        }
+
+                        // Make sure text is white
+                        row.style.color = '#ffffff';
+
+                        // Apply styles to all cells in the row
+                        const cells = row.querySelectorAll('td');
+                        cells.forEach(cell => {
+                            cell.style.backgroundColor = 'transparent';
+                            cell.style.color = '#ffffff';
+                        });
+                    });
+                }
+            }
+
+            // Function to apply dark mode to all tables
+            function applyDarkModeToTables() {
+                applyDarkModeToUserTable();
+                applyDarkModeToActivityTable();
+            }
+
             // Run when the page loads
             document.addEventListener('DOMContentLoaded', function() {
                 // Apply dark mode styles if dark mode is active
-                applyDarkModeToTable();
+                applyDarkModeToTables();
 
                 // Watch for theme changes
                 const themeToggle = document.getElementById('themeToggle');
                 if (themeToggle) {
                     themeToggle.addEventListener('click', function() {
                         // Wait a moment for the dark-mode class to be applied/removed
-                        setTimeout(applyDarkModeToTable, 100);
+                        setTimeout(applyDarkModeToTables, 100);
                     });
                 }
             });
