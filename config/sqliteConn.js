@@ -35,7 +35,7 @@ const db = {
             });
         });
     },
-    
+
     get: function(sql, params = []) {
         return new Promise((resolve, reject) => {
             dbInstance.get(sql, params, function(err, row) {
@@ -47,7 +47,7 @@ const db = {
             });
         });
     },
-    
+
     run: function(sql, params = []) {
         return new Promise((resolve, reject) => {
             dbInstance.run(sql, params, function(err) {
@@ -62,7 +62,7 @@ const db = {
             });
         });
     },
-    
+
     close: function() {
         return new Promise((resolve, reject) => {
             dbInstance.close(err => {
@@ -129,6 +129,12 @@ dbInstance.serialize(() => {
       notes TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_break_start_time DATETIME,
+      last_unavailable_start_time DATETIME,
+      total_break_duration REAL DEFAULT 0,
+      total_unavailable_duration REAL DEFAULT 0,
+      start_time DATETIME,
+      end_time DATETIME,
       FOREIGN KEY (employee_id) REFERENCES users(id),
       UNIQUE(employee_id, date)
     )
@@ -217,13 +223,13 @@ dbInstance.serialize(() => {
       console.error("Error checking for admin user:", err);
       return;
     }
-    
+
     // If no admin user exists, create one with hashed password
     if (!row) {
       try {
         // Hash password with bcrypt (10 rounds)
         const hashedPassword = await bcrypt.hash('admin123', 10);
-        
+
         dbInstance.run(`
           INSERT INTO users (username, name, email, role, password)
           VALUES (?, ?, ?, ?, ?)

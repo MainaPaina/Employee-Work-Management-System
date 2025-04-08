@@ -43,7 +43,6 @@ const Utils = {
     // Handle API responses and errors consistently
     async fetchAPI(url, options = {}) {
         try {
-            console.log('Sending request to:', url);
             const response = await fetch(url, {
                 ...options,
                 headers: {
@@ -52,9 +51,7 @@ const Utils = {
                 }
             });
             
-            console.log('Response status:', response.status);
             const data = await response.json();
-            console.log('Response data:', data);
             
             if (!response.ok) {
                 throw new Error(data.message || 'API request failed');
@@ -125,8 +122,6 @@ const UserManagement = {
                 password: document.getElementById('password').value
             };
             
-            console.log('Form submission data:', formData);
-            
             // Validate form data
             if (!formData.username || !formData.fullName || !formData.email || 
                 !formData.role || !formData.password) {
@@ -136,22 +131,10 @@ const UserManagement = {
             
             try {
                 // Submit data to server
-                console.log('Sending request to:', '/admin/api/users');
-                const response = await fetch('/admin/api/users', {
+                await Utils.fetchAPI('/admin/api/users', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify(formData)
                 });
-                
-                console.log('Response status:', response.status);
-                const data = await response.json();
-                console.log('Response data:', data);
-                
-                if (!response.ok) {
-                    throw new Error(data.message || 'API request failed');
-                }
                 
                 // Properly hide the modal
                 modal.hide();

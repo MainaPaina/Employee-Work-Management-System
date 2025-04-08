@@ -22,7 +22,18 @@
 </ul>
 <div class="auth-buttons">
     <% if (locals.isAuthenticated) { %>
-        <a href="/logout" class="logout-btn">Logout</a>
+        <a href="#" id="logoutBtn" class="logout-btn">Logout</a>
+        <script>
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Create a form and submit it to the logout endpoint
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/logout';
+                document.body.appendChild(form);
+                form.submit();
+            });
+        </script>
     <% } else { %>
         <a href="/login" class="login-btn">Login</a>
     <% } %>

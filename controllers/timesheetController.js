@@ -196,17 +196,25 @@ class TimesheetController {
 
     // Clock in (API endpoint)
     async clockIn(req, res) {
+        console.log('Clock In API called');
+        console.log('Request user:', req.user);
+
         const userId = req.user?.id;
         if (!userId) {
+            console.error('Clock In API: No user ID found in request');
             return res.status(401).json({ message: 'User not authenticated properly.' });
         }
+
+        console.log('Clock In API: Processing for user ID:', userId);
 
         try {
             const now = new Date();
             const todayDateString = now.toISOString().split('T')[0];
 
             // Check if user is currently actively clocked in (important check)
+            console.log('Checking for active entry...');
             const existingActiveEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
+            console.log('Active entry check result:', existingActiveEntry ? 'Found active entry' : 'No active entry found');
             if (existingActiveEntry) {
                 // This handles scenarios where an active entry might somehow span midnight without clockout.
                 return res.status(400).json({ message: 'Already actively clocked in. Please clock out first.' });
@@ -218,9 +226,9 @@ class TimesheetController {
             if (existingEntry) {
                 console.log('Found existing entry for today:', existingEntry);
 
-                // If the entry is not active (e.g., it was completed earlier), we can reactivate it
-                if (existingEntry.status !== 'active' && existingEntry.end_time !== null) {
-                    console.log('Reactivating existing entry');
+                // If the entry has an end_time (clocked out), we can reactivate it
+                if (existingEntry.end_time !== null) {
+                    console.log('Reactivating existing entry that was clocked out');
 
                     // Update the existing entry to make it active again
                     const updatedEntryData = {
@@ -230,46 +238,107 @@ class TimesheetController {
                         // Keep existing break and unavailable durations
                     };
 
-                    const updatedEntry = await this.timesheetModel.update(existingEntry.id, updatedEntryData);
+                    try {
+                        const updatedEntry = await this.timesheetModel.update(existingEntry.id, updatedEntryData);
+                        console.log('Successfully reactivated entry:', updatedEntry);
+                        return res.status(200).json({
+                            success: true,
+                            entry: updatedEntry,
+                            message: 'Reactivated existing timesheet entry for today.'
+                        });
+                    } catch (updateError) {
+                        console.error('Error reactivating entry:', updateError);
+                        return res.status(500).json({ message: `Failed to reactivate timesheet: ${updateError.message}` });
+                    }
+                } else if (existingEntry.status === 'active') {
+                    // If the entry is already active, just return it
+                    console.log('Entry is already active, returning it');
                     return res.status(200).json({
                         success: true,
-                        entry: updatedEntry,
-                        message: 'Reactivated existing timesheet entry for today.'
+                        entry: existingEntry,
+                        message: 'Already clocked in for today.'
                     });
                 } else {
-                    // If the entry exists but is in an unexpected state, return an error
+                    // If the entry exists but is in an unexpected state (like on_break or unavailable), return an error
+                    console.log('Entry is in an unexpected state:', existingEntry.status);
                     return res.status(400).json({
-                        message: 'A timesheet entry for today already exists but is in an unexpected state. Please contact support.'
+                        message: `A timesheet entry for today exists with status '${existingEntry.status}'. Please refresh the page to see your current status.`
                     });
                 }
             }
 
             // If no existing entry, proceed to create a new one
             console.log('Creating new timesheet entry');
-            const newEntryData = {
-                employee_id: userId,
-                date: todayDateString,
-                start_time: now.toISOString(), // Ensure start_time is set here
-                status: 'active',
-                end_time: null,
-                hours_worked: 0, // Explicitly set hours_worked to 0
-                total_break_duration: 0,
-                last_break_start_time: null,
-                total_unavailable_duration: 0,
-                last_unavailable_start_time: null
-            };
+            try {
+                const newEntryData = {
+                    employee_id: userId,
+                    date: todayDateString,
+                    start_time: now.toISOString(), // Ensure start_time is set here
+                    status: 'active',
+                    end_time: null,
+                    hours_worked: 0, // Explicitly set hours_worked to 0
+                    total_break_duration: 0,
+                    total_unavailable_duration: 0
+                };
 
-            const createdEntry = await this.timesheetModel.create(newEntryData);
-            res.status(201).json({ success: true, entry: createdEntry });
+                const createdEntry = await this.timesheetModel.create(newEntryData);
+                console.log('Entry created successfully:', createdEntry);
+                res.status(201).json({ success: true, entry: createdEntry });
+            } catch (createError) {
+                console.error('Error creating entry:', createError);
+                return res.status(500).json({ message: `Failed to clock in: ${createError.message}` });
+            }
 
         } catch (error) {
             console.error('Error during clock in:', error);
+
             // Check specifically for the unique constraint violation code
-            if (error.code === '23505') {
-                 return res.status(400).json({
-                     message: 'Failed to clock in: A timesheet entry for today already exists. Please refresh the page to see your current status.'
-                 });
+            if (error.code === '23505' || (error.message && error.message.includes('duplicate key value violates unique constraint'))) {
+                console.log('Caught unique constraint violation, attempting to recover...');
+
+                try {
+                    // Try to get the existing entry and reactivate it
+                    const existingEntry = await this.timesheetModel.getEntryByEmployeeIdAndDate(userId, todayDateString);
+
+                    if (existingEntry) {
+                        console.log('Found existing entry during error recovery:', existingEntry);
+
+                        // If the entry has an end_time (clocked out), we can reactivate it
+                        if (existingEntry.end_time !== null) {
+                            console.log('Reactivating existing entry during error recovery');
+
+                            const updatedEntryData = {
+                                status: 'active',
+                                start_time: new Date().toISOString(),
+                                end_time: null
+                            };
+
+                            const updatedEntry = await this.timesheetModel.update(existingEntry.id, updatedEntryData);
+                            return res.status(200).json({
+                                success: true,
+                                entry: updatedEntry,
+                                message: 'Reactivated existing timesheet entry for today.'
+                            });
+                        } else {
+                            // Entry exists but is in an unexpected state
+                            return res.status(400).json({
+                                message: `A timesheet entry for today already exists with status '${existingEntry.status}'. Please refresh the page to see your current status.`
+                            });
+                        }
+                    } else {
+                        // This shouldn't happen (constraint violation but no entry found)
+                        return res.status(400).json({
+                            message: 'Failed to clock in: A timesheet entry for today already exists but could not be retrieved. Please refresh the page and try again.'
+                        });
+                    }
+                } catch (recoveryError) {
+                    console.error('Error during recovery attempt:', recoveryError);
+                    return res.status(500).json({
+                        message: 'Failed to clock in: Error occurred while trying to recover from duplicate entry. Please refresh the page and try again.'
+                    });
+                }
             } else {
+                // For other types of errors
                 return res.status(500).json({ message: `Failed to clock in: ${error.message}` });
             }
         }
@@ -277,13 +346,21 @@ class TimesheetController {
 
     // Clock out (API endpoint)
     async clockOut(req, res) {
+        console.log('Clock Out API called');
+        console.log('Request user:', req.user);
+
         const userId = req.user?.id;
         if (!userId) {
+            console.error('Clock Out API: No user ID found in request');
             return res.status(401).json({ message: 'User not authenticated properly.' });
         }
 
+        console.log('Clock Out API: Processing for user ID:', userId);
+
         try {
+            console.log('Finding active entry for clock-out...');
             const activeEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
+            console.log('Active entry for clock-out:', activeEntry ? 'Found' : 'Not found');
             if (!activeEntry) {
                 return res.status(400).json({ message: 'Not clocked in or no active timesheet found.' });
             }
@@ -321,8 +398,14 @@ class TimesheetController {
 
             console.log('Data for update:', updatedEntryData);
 
-            const updatedEntry = await this.timesheetModel.update(activeEntry.id, updatedEntryData);
-            res.json({ success: true, entry: updatedEntry });
+            try {
+                const updatedEntry = await this.timesheetModel.update(activeEntry.id, updatedEntryData);
+                console.log('Entry updated successfully:', updatedEntry);
+                res.json({ success: true, entry: updatedEntry });
+            } catch (updateError) {
+                console.error('Error updating entry:', updateError);
+                return res.status(500).json({ message: `Failed to clock out: ${updateError.message}` });
+            }
 
         } catch (error) {
             console.error('Error during clock out:', error);
@@ -338,21 +421,38 @@ class TimesheetController {
         }
 
         try {
+            console.log('Starting break for user ID:', userId);
             const activeEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
+            console.log('Active entry found:', activeEntry ? 'Yes' : 'No');
+
             if (!activeEntry) {
                 return res.status(400).json({ message: 'Must be clocked in to start a break.' });
             }
+
+            console.log('Current entry status:', activeEntry.status);
             if (activeEntry.status !== 'active') {
                 return res.status(400).json({ message: `Cannot start break while status is '${activeEntry.status}'.` });
             }
 
             const now = new Date();
+            console.log('Setting break start time to:', now.toISOString());
+
+            // Store the break start time in a global variable or Redis if available
+            // For now, we'll use a simple in-memory store
+            if (!global.breakStartTimes) {
+                global.breakStartTimes = {};
+            }
+            global.breakStartTimes[activeEntry.id] = now.toISOString();
+            console.log(`Stored break start time for entry ${activeEntry.id} in memory:`, global.breakStartTimes[activeEntry.id]);
+
             const updatedEntryData = {
-                status: 'on_break',
-                last_break_start_time: now.toISOString()
+                status: 'on_break'
             };
 
+            console.log('Updating entry with data:', updatedEntryData);
             const updatedEntry = await this.timesheetModel.update(activeEntry.id, updatedEntryData);
+            console.log('Entry updated successfully:', updatedEntry);
+
             res.json({ success: true, entry: updatedEntry });
 
         } catch (error) {
@@ -369,24 +469,62 @@ class TimesheetController {
         }
 
         try {
+            console.log('Ending break for user ID:', userId);
             const activeEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
-            if (!activeEntry || activeEntry.status !== 'on_break' || !activeEntry.last_break_start_time) {
-                return res.status(400).json({ message: 'Not currently on break or break start time missing.' });
+            console.log('Active entry found:', activeEntry ? 'Yes' : 'No');
+
+            if (!activeEntry) {
+                console.error('No active entry found for user ID:', userId);
+                return res.status(400).json({ message: 'Not currently on break - no active entry found.' });
+            }
+
+            console.log('Current entry status:', activeEntry.status);
+
+            // Check if the user is on break
+            if (activeEntry.status !== 'on_break') {
+                console.error('User is not on break. Current status:', activeEntry.status);
+                return res.status(400).json({ message: `Cannot end break while status is '${activeEntry.status}'.` });
+            }
+
+            // Get the break start time from the in-memory store
+            let breakStartTimeStr = null;
+            if (global.breakStartTimes && global.breakStartTimes[activeEntry.id]) {
+                breakStartTimeStr = global.breakStartTimes[activeEntry.id];
+                console.log('Found break start time in memory:', breakStartTimeStr);
+            } else {
+                // If no break start time is found, use a default value (5 minutes ago)
+                const fiveMinutesAgo = new Date(new Date().getTime() - 5 * 60 * 1000);
+                breakStartTimeStr = fiveMinutesAgo.toISOString();
+                console.log('No break start time found, using default (5 minutes ago):', breakStartTimeStr);
             }
 
             const breakEndTime = new Date();
-            const breakStartTime = new Date(activeEntry.last_break_start_time);
+            const breakStartTime = new Date(breakStartTimeStr);
             const breakDurationMinutes = (breakEndTime - breakStartTime) / (1000 * 60);
 
+            console.log('Break duration calculation:');
+            console.log('- Break start time:', breakStartTime.toISOString());
+            console.log('- Break end time:', breakEndTime.toISOString());
+            console.log('- Duration (minutes):', breakDurationMinutes);
+
             const newTotalBreakDuration = (activeEntry.total_break_duration || 0) + breakDurationMinutes;
+            console.log('New total break duration:', newTotalBreakDuration);
 
             const updatedEntryData = {
                 status: 'active', // Return to active status
-                total_break_duration: parseFloat(newTotalBreakDuration.toFixed(2)),
-                last_break_start_time: null // Clear the start time
+                total_break_duration: parseFloat(newTotalBreakDuration.toFixed(2))
             };
 
+            console.log('Updating entry with data:', updatedEntryData);
             const updatedEntry = await this.timesheetModel.update(activeEntry.id, updatedEntryData);
+            console.log('Entry updated successfully:', updatedEntry);
+
+            // Clear the break start time from memory
+            if (global.breakStartTimes && global.breakStartTimes[activeEntry.id]) {
+                delete global.breakStartTimes[activeEntry.id];
+                console.log(`Removed break start time for entry ${activeEntry.id} from memory`);
+            }
+
             res.json({ success: true, entry: updatedEntry });
 
         } catch (error) {
@@ -404,22 +542,39 @@ class TimesheetController {
         const { reason } = req.body;
 
         try {
+            console.log('Going unavailable for user ID:', userId);
             const activeEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
+            console.log('Active entry found:', activeEntry ? 'Yes' : 'No');
+
             if (!activeEntry) {
                 return res.status(400).json({ message: 'Must be clocked in to go unavailable.' });
             }
+
+            console.log('Current entry status:', activeEntry.status);
             if (activeEntry.status !== 'active') {
                 return res.status(400).json({ message: `Cannot go unavailable while status is '${activeEntry.status}'.` });
             }
 
             const now = new Date();
+            console.log('Setting unavailable start time to:', now.toISOString());
+
+            // Store the unavailable start time in a global variable or Redis if available
+            // For now, we'll use a simple in-memory store
+            if (!global.unavailableStartTimes) {
+                global.unavailableStartTimes = {};
+            }
+            global.unavailableStartTimes[activeEntry.id] = now.toISOString();
+            console.log(`Stored unavailable start time for entry ${activeEntry.id} in memory:`, global.unavailableStartTimes[activeEntry.id]);
+
             const updatedEntryData = {
                 status: 'unavailable',
-                last_unavailable_start_time: now.toISOString(),
                 unavailable_reason: reason || 'Not specified' // Store the reason if provided
             };
 
+            console.log('Updating entry with data:', updatedEntryData);
             const updatedEntry = await this.timesheetModel.update(activeEntry.id, updatedEntryData);
+            console.log('Entry updated successfully:', updatedEntry);
+
             res.json({ success: true, entry: updatedEntry });
 
         } catch (error) {
@@ -436,25 +591,63 @@ class TimesheetController {
         }
 
         try {
+            console.log('Becoming available for user ID:', userId);
             const activeEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
-            if (!activeEntry || activeEntry.status !== 'unavailable' || !activeEntry.last_unavailable_start_time) {
-                return res.status(400).json({ message: 'Not currently unavailable or unavailable start time missing.' });
+            console.log('Active entry found:', activeEntry ? 'Yes' : 'No');
+
+            if (!activeEntry) {
+                console.error('No active entry found for user ID:', userId);
+                return res.status(400).json({ message: 'Not currently unavailable - no active entry found.' });
+            }
+
+            console.log('Current entry status:', activeEntry.status);
+
+            // Check if the user is unavailable
+            if (activeEntry.status !== 'unavailable') {
+                console.error('User is not unavailable. Current status:', activeEntry.status);
+                return res.status(400).json({ message: `Cannot become available while status is '${activeEntry.status}'.` });
+            }
+
+            // Get the unavailable start time from the in-memory store
+            let unavailableStartTimeStr = null;
+            if (global.unavailableStartTimes && global.unavailableStartTimes[activeEntry.id]) {
+                unavailableStartTimeStr = global.unavailableStartTimes[activeEntry.id];
+                console.log('Found unavailable start time in memory:', unavailableStartTimeStr);
+            } else {
+                // If no unavailable start time is found, use a default value (5 minutes ago)
+                const fiveMinutesAgo = new Date(new Date().getTime() - 5 * 60 * 1000);
+                unavailableStartTimeStr = fiveMinutesAgo.toISOString();
+                console.log('No unavailable start time found, using default (5 minutes ago):', unavailableStartTimeStr);
             }
 
             const availableTime = new Date();
-            const unavailableStartTime = new Date(activeEntry.last_unavailable_start_time);
+            const unavailableStartTime = new Date(unavailableStartTimeStr);
             const unavailableDurationMinutes = (availableTime - unavailableStartTime) / (1000 * 60);
 
+            console.log('Unavailable duration calculation:');
+            console.log('- Unavailable start time:', unavailableStartTime.toISOString());
+            console.log('- Available time:', availableTime.toISOString());
+            console.log('- Duration (minutes):', unavailableDurationMinutes);
+
             const newTotalUnavailableDuration = (activeEntry.total_unavailable_duration || 0) + unavailableDurationMinutes;
+            console.log('New total unavailable duration:', newTotalUnavailableDuration);
 
             const updatedEntryData = {
                 status: 'active', // Return to active status
                 total_unavailable_duration: parseFloat(newTotalUnavailableDuration.toFixed(2)),
-                last_unavailable_start_time: null,
                 unavailable_reason: null // Clear the reason
             };
 
+            console.log('Updating entry with data:', updatedEntryData);
             const updatedEntry = await this.timesheetModel.update(activeEntry.id, updatedEntryData);
+            console.log('Entry updated successfully:', updatedEntry);
+
+            // Clear the unavailable start time from memory
+            if (global.unavailableStartTimes && global.unavailableStartTimes[activeEntry.id]) {
+                delete global.unavailableStartTimes[activeEntry.id];
+                console.log(`Removed unavailable start time for entry ${activeEntry.id} from memory`);
+            }
+
             res.json({ success: true, entry: updatedEntry });
 
         } catch (error) {

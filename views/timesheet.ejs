@@ -304,6 +304,27 @@
             opacity: 0;
         }
     }
+
+    /* Highlight effect for buttons */
+    .btn-highlight {
+        animation: pulse 1s infinite;
+        box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 165, 0, 1);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+        }
+    }
 </style>
 
 <script>
@@ -391,15 +412,48 @@ document.addEventListener('DOMContentLoaded', () => {
              }
 
             // Determine state based on status
-            if (activeEntry.status === 'active') {
-                startBreakBtn.disabled = false;
-                startUnavailableBtn.disabled = false;
-            } else if (activeEntry.status === 'on_break') {
-                endBreakBtn.disabled = false;
-                statusText.textContent = 'On Break'; // More specific status
-            } else if (activeEntry.status === 'unavailable') {
-                endUnavailableBtn.disabled = false;
-                 statusText.textContent = 'Unavailable'; // More specific status
+            if (activeEntry) {
+                // User is clocked in - enable/disable buttons based on status
+                clockInBtn.disabled = true; // Can't clock in again
+                clockOutBtn.disabled = false; // Can clock out
+
+                if (activeEntry.status === 'active') {
+                    startBreakBtn.disabled = false;
+                    startUnavailableBtn.disabled = false;
+                    clockOutBtn.disabled = false; // Only allow clock out when active
+                    statusText.textContent = 'Active - Currently clocked in';
+                } else if (activeEntry.status === 'on_break') {
+                    endBreakBtn.disabled = false;
+                    startBreakBtn.disabled = true;
+                    startUnavailableBtn.disabled = true;
+                    clockOutBtn.disabled = true; // Disable clock out when on break
+                    statusText.textContent = 'On Break - End break before clocking out'; // More specific status with instruction
+                    // Add a visual indicator to the end break button
+                    endBreakBtn.classList.add('btn-highlight');
+                    setTimeout(() => {
+                        endBreakBtn.classList.remove('btn-highlight');
+                    }, 2000);
+                } else if (activeEntry.status === 'unavailable') {
+                    endUnavailableBtn.disabled = false;
+                    startBreakBtn.disabled = true;
+                    startUnavailableBtn.disabled = true;
+                    clockOutBtn.disabled = true; // Disable clock out when unavailable
+                    statusText.textContent = 'Unavailable - End unavailable period before clocking out'; // More specific status with instruction
+                    // Add a visual indicator to the end unavailable button
+                    endUnavailableBtn.classList.add('btn-highlight');
+                    setTimeout(() => {
+                        endUnavailableBtn.classList.remove('btn-highlight');
+                    }, 2000);
+                }
+            } else {
+                // User is not clocked in - disable all buttons except clock in
+                clockInBtn.disabled = false;
+                clockOutBtn.disabled = true;
+                startBreakBtn.disabled = true;
+                endBreakBtn.disabled = true;
+                startUnavailableBtn.disabled = true;
+                endUnavailableBtn.disabled = true;
+                statusText.textContent = 'Not clocked in';
             }
             // Clock In button should remain disabled if clocked in
         } else {
@@ -411,12 +465,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch status and update UI
     async function fetchAndUpdateStatus() {
         const token = localStorage.getItem('token'); // Get JWT from local storage
+        console.log('Token available:', token ? 'Yes' : 'No');
         if (!token) {
             console.error('No JWT found. User might not be logged in.');
             statusText.textContent = 'Error: Not authenticated';
             // Optionally redirect to login or disable all buttons
             return;
         }
+        console.log('Using token for status fetch:', token.substring(0, 20) + '...');
 
         try {
             const response = await fetch('/api/status', { // Corrected endpoint
@@ -460,28 +516,44 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        console.log(`Sending ${action} request to /api/${action}`);
+        console.log('Using token:', token ? (token.substring(0, 20) + '...') : 'No token');
+
         try {
             const response = await fetch(`/api/${action}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT to header
+                    'Authorization': `Bearer ${token}` // Add JWT to header
                 },
             });
+
+            console.log(`${action} response status:`, response.status);
+
             // Handle potential JSON parsing errors if response is not JSON (e.g., 204 No Content)
             let result = {};
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.indexOf("application/json") !== -1) {
-                result = await response.json();
+                try {
+                    result = await response.json();
+                    console.log(`${action} response data:`, result);
+                } catch (jsonError) {
+                    console.error(`Error parsing JSON response for ${action}:`, jsonError);
+                    result = { error: 'Invalid response format' };
+                }
             } else if (!response.ok) {
                  // If not JSON and not OK, create a basic error message
                  result = { error: `Request failed with status ${response.status}` };
+                 console.error(`Non-JSON error response for ${action}:`, result.error);
             }
 
             if (response.ok) {
                 console.log(`${action} successful:`, result);
                 showNotification(successMessage, 'success');
-                fetchAndUpdateStatus(); // Refresh UI
+                // Wait a moment before refreshing the UI to ensure the server has processed the change
+                setTimeout(() => {
+                    fetchAndUpdateStatus(); // Refresh UI
+                }, 500);
             } else {
                 const errorMessage = result.message || result.error || 'Unknown error';
                 console.error(`${action} failed:`, errorMessage);
@@ -503,14 +575,28 @@ document.addEventListener('DOMContentLoaded', () => {
         clockInBtn.addEventListener('click', async () => {
             console.log('Clock In button clicked');
             try {
+                const token = localStorage.getItem('token');
+                console.log('Using token for clock-in:', token ? (token.substring(0, 20) + '...') : 'No token');
+
+                if (!token) {
+                    console.error('No JWT token found for clock-in');
+                    showNotification('Authentication error. Please log in again.', 'error');
+                    return;
+                }
+
+                console.log('Sending clock-in request to /api/clock-in');
                 const response = await fetch('/api/clock-in', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT to header
+                        'Authorization': `Bearer ${token}` // Add JWT to header
                     },
                 });
+
+                console.log('Clock-in response status:', response.status);
                 const result = await response.json();
+                console.log('Clock-in response data:', result);
+
                 if (response.ok) {
                     console.log('Clock in successful:', result);
                     // Use the message from the server if available, otherwise use a default message
@@ -529,41 +615,173 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Clock Out
+    // Clock Out with debounce to prevent multiple clicks
     if (clockOutBtn) {
+        // Add a property to track if a request is in progress
+        clockOutBtn.isProcessing = false;
+
         clockOutBtn.addEventListener('click', async () => {
             console.log('Clock Out button clicked');
-             try {
+
+            // Prevent multiple clicks
+            if (clockOutBtn.isProcessing) {
+                console.log('Clock out request already in progress, ignoring click');
+                return;
+            }
+
+            // Disable the button immediately
+            clockOutBtn.isProcessing = true;
+            clockOutBtn.disabled = true;
+
+            try {
+                // First check if we're clocked in
+                const currentStatus = statusText.textContent.toLowerCase();
+                if (currentStatus.includes('not clocked in')) {
+                    console.log('Cannot clock out when not clocked in');
+                    showNotification('You are not currently clocked in.', 'warning');
+                    // Highlight the clock in button
+                    if (clockInBtn) {
+                        clockInBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            clockInBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                // Check if we're on break or unavailable
+                if (currentStatus.includes('on break')) {
+                    console.log('Cannot clock out while on break');
+                    showNotification('Please end your break before clocking out.', 'warning');
+                    // Highlight the end break button
+                    if (endBreakBtn) {
+                        endBreakBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            endBreakBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                if (currentStatus.includes('unavailable')) {
+                    console.log('Cannot clock out while unavailable');
+                    showNotification('Please end your unavailable period before clocking out.', 'warning');
+                    // Highlight the end unavailable button
+                    if (endUnavailableBtn) {
+                        endUnavailableBtn.classList.add('btn-highlight');
+                        setTimeout(() => {
+                            endUnavailableBtn.classList.remove('btn-highlight');
+                        }, 3000);
+                    }
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                const token = localStorage.getItem('token');
+                console.log('Using token for clock-out:', token ? (token.substring(0, 20) + '...') : 'No token');
+
+                if (!token) {
+                    console.error('No JWT token found for clock-out');
+                    showNotification('Authentication error. Please log in again.', 'error');
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                // Ask for confirmation before clocking out
+                if (!confirm('Are you sure you want to clock out?')) {
+                    console.log('Clock out cancelled by user');
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
+                    return;
+                }
+
+                console.log('Sending clock-out request to /api/clock-out');
                 const response = await fetch('/api/clock-out', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT to header
+                        'Authorization': `Bearer ${token}` // Add JWT to header
                     },
                 });
+
+                console.log('Clock-out response status:', response.status);
                 const result = await response.json();
+                console.log('Clock-out response data:', result);
+
                 if (response.ok) {
                     console.log('Clock out successful:', result);
                     showNotification('Clocked out successfully!', 'success');
-                    fetchAndUpdateStatus(); // Refresh UI
+
+                    // Wait a moment before refreshing the UI to ensure the server has processed the change
+                    setTimeout(() => {
+                        fetchAndUpdateStatus(); // Refresh UI
+                    }, 500);
                 } else {
                     const errorMessage = result.message || result.error || 'Unknown error';
                     console.error('Clock out failed:', errorMessage);
-                    showNotification(`Clock out failed: ${errorMessage}`, 'error');
+
+                    // Handle specific error messages
+                    if (errorMessage.includes('Not clocked in')) {
+                        showNotification('You are not currently clocked in.', 'warning');
+                    } else {
+                        showNotification(`Clock out failed: ${errorMessage}`, 'error');
+                    }
+
+                    // Re-enable the button
+                    clockOutBtn.isProcessing = false;
+                    clockOutBtn.disabled = false;
                 }
             } catch (error) {
                 console.error('Error sending clock out request:', error);
                 showNotification('An error occurred while trying to clock out.', 'error');
+
+                // Re-enable the button
+                clockOutBtn.isProcessing = false;
+                clockOutBtn.disabled = false;
             }
         });
     }
 
     // Event listeners using the generic handler
     if (startBreakBtn) {
-        startBreakBtn.addEventListener('click', () => handleTimesheetAction('start-break', 'Break started!', 'Failed to start break'));
+        startBreakBtn.addEventListener('click', () => {
+            console.log('Start Break button clicked');
+            // First check if we're already on break
+            const currentStatus = statusText.textContent.toLowerCase();
+            if (currentStatus.includes('on break')) {
+                console.log('Already on break');
+                showNotification('You are already on break.', 'warning');
+                return;
+            }
+
+            handleTimesheetAction('start-break', 'Break started successfully!', 'Failed to start break');
+        });
     }
+
     if (endBreakBtn) {
-        endBreakBtn.addEventListener('click', () => handleTimesheetAction('end-break', 'Break ended!', 'Failed to end break'));
+        endBreakBtn.addEventListener('click', () => {
+            console.log('End Break button clicked');
+            // First check if we're actually on break
+            const currentStatus = statusText.textContent.toLowerCase();
+            if (!currentStatus.includes('on break')) {
+                console.log('Not on break');
+                showNotification('You are not currently on break.', 'warning');
+                return;
+            }
+
+            handleTimesheetAction('end-break', 'Break ended successfully!', 'Failed to end break');
+        });
     }
     if (startUnavailableBtn) {
         startUnavailableBtn.addEventListener('click', () => handleTimesheetAction('start-unavailable', 'Marked as unavailable!', 'Failed to mark as unavailable'));
