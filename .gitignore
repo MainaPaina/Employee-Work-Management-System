@@ -12,6 +12,7 @@ node_modules/*
 scripts
 test-auth-routes.js
 test-routes.js
+run-migration.js
 requirements.txt
 migrations/*
 data/*
