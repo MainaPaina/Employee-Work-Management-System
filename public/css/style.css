@@ -306,7 +306,7 @@ a:hover {
   transition: all 0.3s ease;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .mobile-menu-toggle {
     display: flex;
     flex-direction: column;
@@ -2331,4 +2331,29 @@ body:not(.dark-mode) {
 /* Ensure theme toggle icon remains visible */
 body:not(.dark-mode) .theme-toggle button i {
   color: var(--dark-text-color);
+}
+
+
+.button-group {
+    display: flex;
+    justify-content: right;
+    gap: 20px;
+}
+
+#faq-grid h2 {
+    border-bottom: 1px solid white;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+    font-weight: 600;
+    color: white;
+}
+
+#faq-grid .faq-item {
+    margin-top: 20px;
+}
+
+.faq-answer a.faq-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    padding-left: 2rem;
 }
