@@ -265,18 +265,28 @@ app.post('/logout', (req, res) => {
 
 // Contact us page - Accessible to all
 app.get('/contact', (req, res) => {
-  res.render('contact', { activePage: 'contact' });
+    res.render('contact', { activePage: 'contact' });
 });
 
-// FAQ page - Accessible to all
-app.get('/faq', (req, res) => {
-  res.render('faq', { activePage: 'faq' });
+// Terms of Service - accessible to all
+app.get('/legal/terms', (req, res) => {
+    res.render('legal/terms', { activePage: 'terms' });
+});
+
+// Privacy Policy - accessible to all
+app.get('/legal/privacy', (req, res) => {
+    res.render('legal/privacy', { activePage: 'privacy' });
+});
+
+// Cookies Policy - accessible to all
+app.get('/legal/cookies', (req, res) => {
+    res.render('legal/cookies', { activePage: 'cookies' });
 });
 
 // Profile route (protected)
 app.get('/profile', checkAuth, (req, res) => {
-  // User data is available via res.locals.user or req.session.user
-  res.render('profile', { activePage: 'profile' });
+    // User data is available via res.locals.user or req.session.user
+    res.render('profile', { activePage: 'profile' });
 });
 
 // Dashboard route (protected) - Refactored for Supabase
