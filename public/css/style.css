@@ -2333,6 +2333,83 @@ body:not(.dark-mode) .theme-toggle button i {
   color: var(--dark-text-color);
 }
 
+<<<<<<< HEAD
+/* Today's Clock-in Entries Styles */
+.timesheet-table-container {
+  margin-bottom: 30px;
+}
+
+.timesheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background-color: var(--dark-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.timesheet-table th {
+  background-color: var(--dark-accent);
+  color: var(--text-color);
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.timesheet-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color-secondary);
+}
+
+.timesheet-table tbody tr:hover {
+  background-color: var(--darker-color);
+}
+
+.timesheet-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-active {
+  background-color: rgba(46, 213, 115, 0.2);
+  color: var(--success);
+  border: 1px solid var(--success-dark);
+}
+
+.status-completed, .status-submitted {
+  background-color: rgba(74, 108, 253, 0.2);
+  color: var(--primary);
+  border: 1px solid var(--primary-dark);
+}
+
+.status-on_break {
+  background-color: rgba(245, 171, 53, 0.2);
+  color: var(--warning);
+  border: 1px solid var(--warning-dark);
+}
+
+.status-unavailable {
+  background-color: rgba(108, 122, 137, 0.2);
+  color: var(--secondary);
+  border: 1px solid var(--secondary-dark);
+}
+
+.no-entries {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-style: italic;
+=======
 
 .button-group-contact {
     display: flex;
@@ -2356,4 +2433,5 @@ body:not(.dark-mode) .theme-toggle button i {
     color: var(--primary-color);
     text-decoration: none;
     padding-left: 2rem;
+>>>>>>> ce6a395980f5fcef943524c131a3b9987088f908
 }
