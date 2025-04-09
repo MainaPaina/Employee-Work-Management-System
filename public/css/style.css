@@ -283,7 +283,7 @@ a:hover {
   transition: width 0.3s ease;
 }
 
-.nav-link:not(.login-nav-link):hover::after {
+.nav-link:hover::after {
   width: 100%;
 }
 
@@ -561,6 +561,7 @@ footer {
 @media (max-width: 768px) {
   .footer-content {
     grid-template-columns: 1fr;
+    gap: 30px;
   }
 
   .footer-section:not(:last-child) {
@@ -2332,6 +2333,7 @@ body:not(.dark-mode) .theme-toggle button i {
   color: var(--dark-text-color);
 }
 
+<<<<<<< HEAD
 /* Today's Clock-in Entries Styles */
 .timesheet-table-container {
   margin-bottom: 30px;
@@ -2407,7 +2409,7 @@ body:not(.dark-mode) .theme-toggle button i {
   padding: 20px;
   color: var(--text-muted);
   font-style: italic;
-}
+=======
 
 .button-group-contact {
     display: flex;
@@ -2435,4 +2437,5 @@ faq-grid class="h2" {
     color: var(--primary-color);
     text-decoration: none;
     padding-left: 2rem;
+>>>>>>> ce6a395980f5fcef943524c131a3b9987088f908
 }

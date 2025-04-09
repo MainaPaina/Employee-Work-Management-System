@@ -617,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startUnavailableBtn = document.getElementById('startUnavailableBtn');
     const endUnavailableBtn = document.getElementById('endUnavailableBtn');
     const statusTextElement = document.getElementById('statusText');
-    const clockInTimeTextElement = document.getElementById('clockInTime');
+    const clockInTimeText = document.getElementById('clockInTime');
     const totalBreakTimeText = document.getElementById('totalBreakTime');
 
     // Function to update the UI based on current timesheet status
@@ -718,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startUnavailableBtn.disabled = true;
         endUnavailableBtn.disabled = true;
         statusTextElement.textContent = 'Not Clocked In';
-        clockInTimeTextElement.textContent = '--:--';
+        clockInTimeText.textContent = '--:--';
         totalBreakTimeText.textContent = '0 mins';
 
         if (activeEntry) {
@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clockOutBtn.disabled = false;
             statusTextElement.textContent = `Status: ${activeEntry.status || 'Active'}`;
             if (activeEntry.start_time) {
-                clockInTimeTextElement.textContent = new Date(activeEntry.start_time).toLocaleTimeString();
+                clockInTimeText.textContent = new Date(activeEntry.start_time).toLocaleTimeString();
             }
              if (activeEntry.total_break_duration) {
                  totalBreakTimeText.textContent = `${activeEntry.total_break_duration} mins`;

@@ -251,8 +251,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Get the clock-in time for reference (to determine if the user is still clocked in)
-        const clockInTimeCheckElement = document.getElementById('clockInTime');
-        const hasActiveEntry = clockInTimeCheckElement && clockInTimeCheckElement.textContent !== '--:--';
+        const clockInTimeText = document.getElementById('clockInTime');
+        const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
 
         // If the user is not clocked in, don't start the timer
         if (!hasActiveEntry) {
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Log the initial values for debugging
         console.log('Timer initialization:');
-        console.log('- Clock-in time:', clockInTimeCheckElement ? clockInTimeCheckElement.textContent : 'Not found');
+        console.log('- Clock-in time:', clockInTimeText ? clockInTimeText.textContent : 'Not found');
         console.log('- Initial worked seconds:', workedSeconds, '=', (workedSeconds / 3600).toFixed(2), 'hours');
         console.log('- Initial remaining seconds:', remainingSeconds, '=', (remainingSeconds / 3600).toFixed(2), 'hours');
         console.log('- Has active entry:', hasActiveEntry);
@@ -318,14 +318,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Force start the timer if we have an active entry (debug)
         const clockInTimeText = document.getElementById('clockInTime');
-        const hasActiveEntryCheck = clockInTimeText && clockInTimeText.textContent !== '--:--';
-        if (hasActiveEntryCheck && !isActivelyWorking) {
+        const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
+        if (hasActiveEntry && !isActivelyWorking) {
             console.log('Found active entry but status text does not indicate active. Forcing timer start.');
             console.log('Clock in time:', clockInTimeText.textContent);
         }
 
         // Start the timer if the user has an active entry
-        if (hasActiveEntryCheck) {
+        if (hasActiveEntry) {
             // Start timer immediately
             startTimer();
             console.log('Starting timer. User has an active entry. Clock in time:', clockInTimeText ? clockInTimeText.textContent : 'Not found');
@@ -1557,42 +1557,39 @@ async function sendTimeTrackingRequest(url, method = 'POST', data = null, retryC
         try {
             const response = await fetch(url, fetchOptions);
             clearTimeout(timeoutId); // Clear the timeout if the request completes
-            const data = await response.json();
 
-            // Check for non-OK responses (like 401, 403, 500 etc.)
-            if (!response.ok) {
-                // Special handling for 'Already actively clocked in' error with canForceClockIn flag
-                if (response.status === 400 && data.canForceClockIn && url.includes('/api/clock-in')) {
-                    console.log('Detected force clock-in scenario in sendTimeTrackingRequest');
-                    // Return the data with the error so the caller can handle it
-                    return data;
-                }
+        const data = await response.json();
 
-                // Use the error message from the server response if available
-                const errorMessage = data.error || data.message || `Request failed with status ${response.status}`;
-                console.error(`API Error (${response.status}):`, errorMessage);
-                throw new Error(errorMessage);
+        // Check for non-OK responses (like 401, 403, 500 etc.)
+        if (!response.ok) {
+            // Special handling for 'Already actively clocked in' error with canForceClockIn flag
+            if (response.status === 400 && data.canForceClockIn && url.includes('/api/clock-in')) {
+                console.log('Detected force clock-in scenario in sendTimeTrackingRequest');
+                // Return the data with the error so the caller can handle it
+                return data;
             }
 
-            return data;
-        } catch (error) {
-            // Catch fetch errors (network issues) or errors thrown from response check
-            console.error('sendTimeTrackingRequest Error:', error);
-
-            // Attempt to parse JSON even from error responses if needed, but handle gracefully
-            let errorDetail = 'Network error or invalid response';
-            if (error instanceof Error) {
-                errorDetail = error.message;
-            } else if (typeof error === 'string') {
-                errorDetail = error;
-            }
-
-            // Avoid throwing the raw error which might include the non-JSON string like "Unauthorized"
-            // Throw a consistent error message or the parsed server message if available
-            throw new Error(errorDetail);
+            // Use the error message from the server response if available
+            const errorMessage = data.error || data.message || `Request failed with status ${response.status}`;
+            console.error(`API Error (${response.status}):`, errorMessage);
+            throw new Error(errorMessage);
         }
+
+        return data;
     } catch (error) {
-        // Catch fetch network errors or errors from response.json() if response wasn't JSON
-        console.error('Network or processing error in sendTimeTrackingRequest:', error);
+        // Catch fetch errors (network issues) or errors thrown from response check
+        console.error('sendTimeTrackingRequest Error:', error);
+
+        // Attempt to parse JSON even from error responses if needed, but handle gracefully
+        let errorDetail = 'Network error or invalid response';
+        if (error instanceof Error) {
+            errorDetail = error.message;
+        } else if (typeof error === 'string') {
+            errorDetail = error;
+        }
+
+        // Avoid throwing the raw error which might include the non-JSON string like "Unauthorized"
+        // Throw a consistent error message or the parsed server message if available
+        throw new Error(errorDetail);
     }
 }
