@@ -16,61 +16,103 @@ class TimesheetController {
             // Get today's date in YYYY-MM-DD format
             const today = new Date().toISOString().split('T')[0];
 
-            // Get the active entry (if any)
-            const activeEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
+            // Use the new method to calculate hours worked for today
+            const hoursWorkedData = await this.timesheetModel.calculateHoursWorkedForDate(userId, today);
 
-            // Fetch all entries for today
+            // Extract the active entry and hours worked
+            const activeEntry = hoursWorkedData.activeEntry;
+            const hoursWorked = hoursWorkedData.hoursWorked;
+
+            // Calculate remaining hours in 8-hour shift
+            const remainingHours = Math.max(0, 8 - hoursWorked);
+
+            console.log(`[TimesheetController] Hours worked today: ${hoursWorked.toFixed(2)}`);
+            console.log(`[TimesheetController] Remaining hours: ${remainingHours.toFixed(2)}`);
+
+            // Fetch all entries for today (we still need this for other purposes)
             const todayEntries = await this.timesheetModel.findEntriesByEmployeeIdAndDate(userId, today);
+            console.log(`[TimesheetController] Found ${todayEntries.length} entries for today (${today})`);
 
-            // Also fetch recent entries for context (for the timesheet display)
+            // Fetch recent entries for the timesheet display
             const recentEntries = await this.timesheetModel.findRecentEntriesByEmployeeId(userId, 5);
 
-            console.log(`Found ${todayEntries.length} entries for today (${today})`);
+            // Format the recent entries for display
+            const formattedEntries = recentEntries.map(entry => {
+                // Format date
+                const entryDate = new Date(entry.date);
+                const formattedDate = entryDate.toLocaleDateString();
 
-            // Create a simple array of formatted entries for display
-            // This is a simpler approach that should be more reliable
-            const formattedEntries = [];
+                // Format login time (start_time)
+                let login = 'N/A';
+                if (entry.start_time) {
+                    const startTime = new Date(entry.start_time);
+                    login = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
 
-            // Add some sample entries for testing
-            formattedEntries.push({
-                date: new Date().toLocaleDateString(),
-                login: '09:00',
-                logout: '17:00',
-                pause: '30 mins',
-                unavailable: '15 mins',
-                totalAvailable: '7h 15m',
-                rawEntry: { status: 'completed' }
+                // Format logout time (end_time)
+                let logout = 'N/A';
+                if (entry.end_time) {
+                    const endTime = new Date(entry.end_time);
+                    logout = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
+                // Format pause duration
+                const pause = entry.total_break_duration ? `${entry.total_break_duration} mins` : '0 mins';
+
+                // Format unavailable duration
+                const unavailable = entry.total_unavailable_duration ? `${entry.total_unavailable_duration} mins` : '0 mins';
+
+                // Format total available time
+                let totalAvailable = 'N/A';
+                if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
+                    const hours = Math.floor(entry.hours_worked);
+                    const minutes = Math.round((entry.hours_worked % 1) * 60);
+                    totalAvailable = `${hours}h ${minutes}m`;
+                }
+
+                return {
+                    date: formattedDate,
+                    login,
+                    logout,
+                    pause,
+                    unavailable,
+                    totalAvailable,
+                    rawEntry: entry // Keep the raw entry for reference
+                };
             });
 
-            formattedEntries.push({
-                date: new Date(Date.now() - 86400000).toLocaleDateString(), // Yesterday
-                login: '08:30',
-                logout: '16:30',
-                pause: '45 mins',
-                unavailable: '0 mins',
-                totalAvailable: '7h 15m',
-                rawEntry: { status: 'completed' }
-            });
+            // If no entries were found, add some sample entries for testing
+            if (formattedEntries.length === 0) {
+                console.log('[TimesheetController] No recent entries found, adding sample entries');
 
-            formattedEntries.push({
-                date: new Date(Date.now() - 172800000).toLocaleDateString(), // 2 days ago
-                login: '09:15',
-                logout: '17:30',
-                pause: '30 mins',
-                unavailable: '20 mins',
-                totalAvailable: '7h 25m',
-                rawEntry: { status: 'completed' }
-            });
+                formattedEntries.push({
+                    date: new Date().toLocaleDateString(),
+                    login: '09:00',
+                    logout: '17:00',
+                    pause: '30 mins',
+                    unavailable: '15 mins',
+                    totalAvailable: '7h 15m',
+                    rawEntry: { status: 'completed' }
+                });
 
-            // Log the formatted entries
-            console.log('Formatted entries for display:');
-            console.log(JSON.stringify(formattedEntries, null, 2));
+                formattedEntries.push({
+                    date: new Date(Date.now() - 86400000).toLocaleDateString(), // Yesterday
+                    login: '08:30',
+                    logout: '16:30',
+                    pause: '45 mins',
+                    unavailable: '0 mins',
+                    totalAvailable: '7h 15m',
+                    rawEntry: { status: 'completed' }
+                });
+            }
 
             return {
                 activeEntry: activeEntry, // Could be null if not clocked in
                 todayEntries: todayEntries, // Entries specifically for today
                 entries: formattedEntries,  // Formatted recent entries for display
-                today: today                // Today's date for reference
+                today: today,               // Today's date for reference
+                hoursWorked: hoursWorked,   // Hours worked today (from calculation)
+                remainingHours: remainingHours // Remaining hours in 8-hour shift
             };
         } catch (error) {
             console.error(`Error fetching timesheet status data for user ${userId}:`, error);
@@ -396,97 +438,21 @@ class TimesheetController {
                 });
             }
 
-            // Calculate total time worked today from all entries
-            let totalWorkedMinutes = 0;
+            // The hours worked and remaining hours are already calculated in _fetchTimesheetStatusData
+            // We just need to ensure they're properly formatted for the API response
 
-            // Process all entries for today (both completed and active)
-            if (data.todayEntries && data.todayEntries.length > 0) {
-                console.log(`API: Processing ${data.todayEntries.length} entries for today (${data.today})`);
+            // Log the values for debugging
+            console.log(`API: Hours worked today: ${data.hoursWorked.toFixed(2)}`);
+            console.log(`API: Remaining hours in 8-hour shift: ${data.remainingHours.toFixed(2)}`);
 
-                // Add up hours from completed entries (entries with end_time)
-                for (const entry of data.todayEntries) {
-                    // Skip the active entry, we'll handle it separately
-                    if (data.activeEntry && entry.id === data.activeEntry.id) {
-                        console.log(`API: Skipping active entry ${entry.id} - will process it separately`);
-                        continue;
-                    }
-
-                    // Process completed entries
-                    if (entry.end_time) {
-                        // If the entry has hours_worked, use that
-                        if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
-                            console.log(`API: Entry ${entry.id}: Adding ${entry.hours_worked} hours (${entry.hours_worked * 60} minutes) from hours_worked`);
-                            totalWorkedMinutes += entry.hours_worked * 60;
-                        } else {
-                            // Otherwise calculate from start_time and end_time
-                            const startTime = new Date(entry.start_time);
-                            const endTime = new Date(entry.end_time);
-                            const durationMinutes = (endTime - startTime) / (1000 * 60);
-
-                            // Subtract break time if any
-                            const breakMinutes = entry.total_break_duration || 0;
-                            const actualMinutes = durationMinutes - breakMinutes;
-
-                            console.log(`API: Entry ${entry.id}: Adding ${actualMinutes.toFixed(2)} minutes calculated from start/end times`);
-                            totalWorkedMinutes += actualMinutes;
-                        }
-                    }
-                }
-            }
-
-            console.log(`API: Total minutes worked from completed entries: ${totalWorkedMinutes}`);
-
-            // Add time from current active entry if it exists
+            // Ensure the active entry has the clock-in time for reference
             if (data.activeEntry) {
-                const activeEntry = data.activeEntry;
-                const startTime = new Date(activeEntry.start_time);
-                const now = new Date();
-
-                // Calculate elapsed time in minutes
-                const elapsedMillis = now - startTime;
-                const elapsedMinutes = elapsedMillis / (1000 * 60);
-
-                // Subtract break time if any
-                const breakMinutes = activeEntry.total_break_duration || 0;
-
-                // Subtract unavailable time if any
-                const unavailableMinutes = activeEntry.total_unavailable_duration || 0;
-
-                // Calculate worked minutes for current session
-                const currentSessionMinutes = elapsedMinutes - breakMinutes - unavailableMinutes;
-
-                console.log(`API: Minutes worked in current session: ${currentSessionMinutes.toFixed(2)}`);
-                console.log(`API: Elapsed minutes: ${elapsedMinutes.toFixed(2)}, Break minutes: ${breakMinutes}, Unavailable minutes: ${unavailableMinutes}`);
-
-                // Only add time if the user is actively working (not on break or unavailable)
-                if (activeEntry.status === 'active') {
-                    console.log(`API: Adding current session minutes to total: ${currentSessionMinutes.toFixed(2)}`);
-                    totalWorkedMinutes += currentSessionMinutes;
-                } else {
-                    console.log(`API: Not adding current session minutes because status is: ${activeEntry.status}`);
-                    // Store the current status for reference
-                    data.currentStatus = activeEntry.status;
-                }
-
-                // Store the clock-in time for reference
+                const startTime = new Date(data.activeEntry.start_time);
                 data.clockInTime = startTime;
+
+                // Store the current status for reference
+                data.currentStatus = data.activeEntry.status;
             }
-
-            console.log(`API: Total minutes worked today: ${totalWorkedMinutes}`);
-
-            // Calculate hours worked (convert minutes to hours)
-            // Ensure totalWorkedMinutes is not negative
-            totalWorkedMinutes = Math.max(0, totalWorkedMinutes);
-            const hoursWorked = totalWorkedMinutes / 60;
-            console.log(`API: Hours worked today: ${hoursWorked.toFixed(2)}`);
-
-            // Calculate remaining hours in 8-hour shift
-            const remainingHours = Math.max(0, 8 - hoursWorked);
-            console.log(`API: Remaining hours in 8-hour shift: ${remainingHours.toFixed(2)}`);
-
-            // Store both values in the data
-            data.hoursWorked = Math.max(0, hoursWorked); // Ensure it's never negative
-            data.remainingHours = remainingHours;
 
             // Format login time if available
             if (data.activeEntry && data.activeEntry.start_time) {
@@ -527,57 +493,57 @@ class TimesheetController {
             console.log('Checking for active entry...');
             const existingActiveEntry = await this.timesheetModel.findActiveEntryByEmployeeId(userId);
             console.log('Active entry check result:', existingActiveEntry ? 'Found active entry' : 'No active entry found');
+
+            // Check if the force parameter is set to handle stuck entries
+            const forceClockIn = req.body && req.body.force === true;
+
             if (existingActiveEntry) {
-                // This handles scenarios where an active entry might somehow span midnight without clockout.
-                return res.status(400).json({ message: 'Already actively clocked in. Please clock out first.' });
-            }
+                // If force clock in is requested, handle the stuck entry
+                if (forceClockIn) {
+                    console.log('Force clock in requested. Closing existing active entry:', existingActiveEntry.id);
 
-            // Check if there's already an entry for today
-            const existingEntry = await this.timesheetModel.getEntryByEmployeeIdAndDate(userId, todayDateString);
+                    // Calculate hours worked for the existing entry
+                    const startTime = new Date(existingActiveEntry.start_time);
+                    const endTime = now;
+                    const durationMs = endTime - startTime;
+                    const durationHours = durationMs / (1000 * 60 * 60);
 
-            if (existingEntry) {
-                console.log('Found existing entry for today:', existingEntry);
+                    // Subtract break and unavailable time if any
+                    const breakMinutes = existingActiveEntry.total_break_duration || 0;
+                    const unavailableMinutes = existingActiveEntry.total_unavailable_duration || 0;
+                    const totalDeductionHours = (breakMinutes + unavailableMinutes) / 60;
 
-                // If the entry has an end_time (clocked out), we can reactivate it
-                if (existingEntry.end_time !== null) {
-                    console.log('Reactivating existing entry that was clocked out');
+                    // Calculate effective hours worked
+                    const effectiveHoursWorked = Math.max(0, durationHours - totalDeductionHours);
+                    console.log('Calculated hours worked for existing entry:', effectiveHoursWorked);
 
-                    // Update the existing entry to make it active again
-                    const updatedEntryData = {
-                        status: 'active',
-                        start_time: now.toISOString(), // Update start time to now
-                        end_time: null, // Clear end time
-                        // Keep existing break and unavailable durations
-                    };
-
+                    // Update the existing entry to close it
                     try {
-                        const updatedEntry = await this.timesheetModel.update(existingEntry.id, updatedEntryData);
-                        console.log('Successfully reactivated entry:', updatedEntry);
-                        return res.status(200).json({
-                            success: true,
-                            entry: updatedEntry,
-                            message: 'Reactivated existing timesheet entry for today.'
+                        await this.timesheetModel.update(existingActiveEntry.id, {
+                            end_time: now.toISOString(),
+                            hours_worked: parseFloat(effectiveHoursWorked.toFixed(2)),
+                            status: 'submitted'
                         });
+                        console.log('Successfully closed existing active entry');
                     } catch (updateError) {
-                        console.error('Error reactivating entry:', updateError);
-                        return res.status(500).json({ message: `Failed to reactivate timesheet: ${updateError.message}` });
+                        console.error('Error closing existing entry:', updateError);
+                        return res.status(500).json({ message: `Failed to force clock in: ${updateError.message}` });
                     }
-                } else if (existingEntry.status === 'active') {
-                    // If the entry is already active, just return it
-                    console.log('Entry is already active, returning it');
-                    return res.status(200).json({
-                        success: true,
-                        entry: existingEntry,
-                        message: 'Already clocked in for today.'
-                    });
                 } else {
-                    // If the entry exists but is in an unexpected state (like on_break or unavailable), return an error
-                    console.log('Entry is in an unexpected state:', existingEntry.status);
+                    // This handles scenarios where an active entry might somehow span midnight without clockout.
                     return res.status(400).json({
-                        message: `A timesheet entry for today exists with status '${existingEntry.status}'. Please refresh the page to see your current status.`
+                        message: 'Already actively clocked in. Please clock out first.',
+                        activeEntry: existingActiveEntry,
+                        canForceClockIn: true
                     });
                 }
             }
+
+            // Get all entries for today to show in the response
+            const todayEntries = await this.timesheetModel.findEntriesByEmployeeIdAndDate(userId, todayDateString);
+            console.log(`Found ${todayEntries.length} entries for today`);
+
+            // We'll always create a new entry for each clock-in
 
             // If no existing entry, proceed to create a new one
             console.log('Creating new timesheet entry');
@@ -595,7 +561,16 @@ class TimesheetController {
 
                 const createdEntry = await this.timesheetModel.create(newEntryData);
                 console.log('Entry created successfully:', createdEntry);
-                res.status(201).json({ success: true, entry: createdEntry });
+
+                // Get updated list of all entries for today after creating the new one
+                const updatedTodayEntries = await this.timesheetModel.findEntriesByEmployeeIdAndDate(userId, todayDateString);
+
+                res.status(201).json({
+                    success: true,
+                    entry: createdEntry,
+                    allEntries: updatedTodayEntries,
+                    message: 'Successfully clocked in. A new timesheet entry has been created.'
+                });
             } catch (createError) {
                 console.error('Error creating entry:', createError);
                 return res.status(500).json({ message: `Failed to clock in: ${createError.message}` });

@@ -55,20 +55,8 @@ class TimeEntry {
 
         const client = getAdminClient();
 
-        // First, delete any existing entries for today to avoid constraint violations
-        console.log(`[TimeEntry] Deleting existing entries for employee ${employee_id} on date ${date}...`);
-        const { error: deleteError } = await client
-            .from('timesheets')
-            .delete()
-            .eq('employee_id', employee_id)
-            .eq('date', date);
-
-        if (deleteError) {
-            console.error('[TimeEntry] Error deleting existing entries:', deleteError);
-            throw deleteError;
-        }
-
-        console.log('[TimeEntry] Existing entries deleted successfully');
+        // We no longer delete existing entries since we want to support multiple entries per day
+        console.log(`[TimeEntry] Creating a new entry for employee ${employee_id} on date ${date}...`);
 
         // Now create the new entry
         console.log('[TimeEntry] Creating new timesheet entry...');
@@ -322,6 +310,86 @@ class TimeEntry {
 
         console.log(`[TimeEntry] Found ${data ? data.length : 0} entries for date ${dateString}`);
         return data || []; // Return array of entries or empty array
+    }
+
+    // Method to calculate exact hours worked for an employee on a specific date
+    static async calculateHoursWorkedForDate(employeeId, dateString) {
+        if (!employeeId || !dateString) {
+            throw new Error('Employee ID and date are required to calculate hours worked.');
+        }
+
+        console.log(`[TimeEntry] Calculating hours worked for employee ${employeeId} on date ${dateString}`);
+
+        // Get all entries for the employee on the specified date
+        const entries = await this.findEntriesByEmployeeIdAndDate(employeeId, dateString);
+
+        // Calculate total worked minutes
+        let totalWorkedMinutes = 0;
+        let activeEntry = null;
+
+        // Process each entry
+        for (const entry of entries) {
+            // Check if this is an active entry (no end_time)
+            if (!entry.end_time) {
+                activeEntry = entry;
+                continue; // Skip for now, we'll process the active entry separately
+            }
+
+            // For completed entries, use hours_worked if available
+            if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
+                console.log(`[TimeEntry] Entry ${entry.id}: Adding ${entry.hours_worked} hours (${entry.hours_worked * 60} minutes) from hours_worked`);
+                totalWorkedMinutes += entry.hours_worked * 60;
+            } else {
+                // Otherwise calculate from start_time and end_time
+                const startTime = new Date(entry.start_time);
+                const endTime = new Date(entry.end_time);
+                const durationMinutes = (endTime - startTime) / (1000 * 60);
+
+                // Subtract break and unavailable time
+                const breakMinutes = entry.total_break_duration || 0;
+                const unavailableMinutes = entry.total_unavailable_duration || 0;
+                const actualMinutes = durationMinutes - breakMinutes - unavailableMinutes;
+
+                console.log(`[TimeEntry] Entry ${entry.id}: Adding ${actualMinutes.toFixed(2)} minutes calculated from duration`);
+                totalWorkedMinutes += Math.max(0, actualMinutes); // Ensure non-negative
+            }
+        }
+
+        // Process active entry if exists
+        if (activeEntry) {
+            const startTime = new Date(activeEntry.start_time);
+            const now = new Date();
+
+            // Calculate elapsed time in minutes
+            const elapsedMillis = now - startTime;
+            const elapsedMinutes = elapsedMillis / (1000 * 60);
+
+            // Subtract break and unavailable time
+            const breakMinutes = activeEntry.total_break_duration || 0;
+            const unavailableMinutes = activeEntry.total_unavailable_duration || 0;
+            const currentSessionMinutes = elapsedMinutes - breakMinutes - unavailableMinutes;
+
+            console.log(`[TimeEntry] Active entry ${activeEntry.id}: Status=${activeEntry.status}`);
+            console.log(`[TimeEntry] Elapsed minutes: ${elapsedMinutes.toFixed(2)}, Break minutes: ${breakMinutes}, Unavailable minutes: ${unavailableMinutes}`);
+
+            // Only add time if the user is actively working (not on break or unavailable)
+            if (activeEntry.status === 'active') {
+                console.log(`[TimeEntry] Adding current session minutes to total: ${currentSessionMinutes.toFixed(2)}`);
+                totalWorkedMinutes += Math.max(0, currentSessionMinutes); // Ensure non-negative
+            } else {
+                console.log(`[TimeEntry] Not adding current session minutes because status is: ${activeEntry.status}`);
+            }
+        }
+
+        // Convert minutes to hours
+        const hoursWorked = totalWorkedMinutes / 60;
+        console.log(`[TimeEntry] Total hours worked for ${dateString}: ${hoursWorked.toFixed(2)} (${totalWorkedMinutes.toFixed(2)} minutes)`);
+
+        return {
+            hoursWorked: Math.max(0, hoursWorked), // Ensure non-negative
+            totalWorkedMinutes: Math.max(0, totalWorkedMinutes), // Ensure non-negative
+            activeEntry: activeEntry // Return the active entry for reference
+        };
     }
 
     // Method to find all currently active timesheet entries (not 'completed')
