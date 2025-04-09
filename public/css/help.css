@@ -1,4 +1,4 @@
-/* FAQ Styling */
+ FAQ Styling 
 .faq-card {
     margin-bottom: 2rem;
     border-radius: 10px;
@@ -97,7 +97,7 @@
     padding: 0 1.5rem 1rem 2rem;
 }
 
-/* Contact Form Styling */
+ Contact Form Styling 
 .features-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -129,7 +129,7 @@
     padding-bottom: 0.75rem;
 }
 
-/* Ensure contact form is hidden by default */
+ Ensure contact form is hidden by default 
 .contact-form-hidden {
     display: none !important;
     opacity: 0;
@@ -225,7 +225,7 @@
     outline: none;
 }
 
-/* Responsive Adjustments */
+ Responsive Adjustments 
 @media (max-width: 768px) {
     .features-grid {
         grid-template-columns: 1fr;
@@ -240,7 +240,7 @@
     }
 }
 
-/* Additional styling improvements */
+ Additional styling improvements 
 .page-header {
     padding: 1.5rem 0;
     margin-bottom: 2rem;

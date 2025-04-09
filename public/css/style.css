@@ -752,7 +752,7 @@ footer {
 /* Timesheet Controls */
 .timesheet-controls {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr;
   gap: 25px;
   margin-bottom: 40px;
 }
@@ -1629,6 +1629,7 @@ body:not(.dark-mode) {
   .text-muted {
     color: #333333 !important; /* Much darker muted text in light mode */
   }
+}
 
   /* Fix for other commonly used text elements */
   .progress-name,
@@ -2405,24 +2406,24 @@ body:not(.dark-mode) .theme-toggle button i {
 }
 
 .no-entries {
-  text-align: center;
-  padding: 20px;
-  color: var(--text-muted);
-  font-style: italic;
-=======
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-style: italic;
+}
 
-.button-group-contact {
+/*.button-group-contact {
     display: flex;
     justify-content: right;
     gap: 20px;
-}
+}*/
 
-faq-grid class="h2" {
-    border-bottom: 1px solid white;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
-    font-weight: 600;
-    color: white;
+/*.faq-grid h2 {
+        border-bottom: 1px solid white;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        font-weight: 600;
+        color: white;
 }
 
 #faq-grid {
@@ -2437,5 +2438,4 @@ faq-grid class="h2" {
     color: var(--primary-color);
     text-decoration: none;
     padding-left: 2rem;
->>>>>>> ce6a395980f5fcef943524c131a3b9987088f908
-}
+}*/
