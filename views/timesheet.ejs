@@ -12,7 +12,7 @@
             </div>
             <div class="card-content">
                 <h4>Today's Login</h4>
-                <p class="card-value"><%= timesheetData.loginTime %></p>
+                <p class="card-value"><%= clockInTime ? clockInTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A' %></p>
             </div>
         </div>
 
@@ -24,124 +24,29 @@
                 <h4>Hours Today <i class="fas fa-info-circle" title="Shows hours worked today and remaining time in your 8-hour shift"></i></h4>
                 <div class="countdown-container">
                     <div class="hours-display">
-                        <%
-                        // Force default values to ensure no negative display
-                        let hoursWorked = 0;
-                        let minutesWorked = 0;
-                        let hoursRemaining = 8;
-                        let minutesRemaining = 0;
-
-                        try {
-                            // Debug logging
-                            console.log('Raw values from server:');
-                            console.log(`timesheetData.hoursWorked: ${timesheetData.hoursWorked}`);
-                            console.log(`timesheetData.remainingHours: ${timesheetData.remainingHours}`);
-
-                            // Process hours worked
-                            if (timesheetData.hoursWorked !== undefined) {
-                                // Force to number and ensure it's not negative
-                                const rawHoursWorked = Number(timesheetData.hoursWorked);
-                                const safeHoursWorked = isNaN(rawHoursWorked) ? 0 : Math.max(0, rawHoursWorked);
-
-                                console.log(`safeHoursWorked: ${safeHoursWorked}`);
-
-                                hoursWorked = Math.floor(safeHoursWorked);
-                                minutesWorked = Math.round((safeHoursWorked % 1) * 60);
-
-                                // Handle case where minutes might be 60 due to rounding
-                                if (minutesWorked === 60) {
-                                    hoursWorked += 1;
-                                    minutesWorked = 0;
-                                }
-
-                                console.log(`Final hoursWorked: ${hoursWorked}`);
-                                console.log(`Final minutesWorked: ${minutesWorked}`);
-                            }
-
-                            // Process remaining hours
-                            if (timesheetData.remainingHours !== undefined) {
-                                // Force to number and ensure it's not negative
-                                const rawRemainingHours = Number(timesheetData.remainingHours);
-                                const safeRemainingHours = isNaN(rawRemainingHours) ? 8 : Math.max(0, rawRemainingHours);
-
-                                console.log(`safeRemainingHours: ${safeRemainingHours}`);
-
-                                hoursRemaining = Math.floor(safeRemainingHours);
-                                minutesRemaining = Math.round((safeRemainingHours % 1) * 60);
-
-                                // Handle case where minutes might be 60 due to rounding
-                                if (minutesRemaining === 60) {
-                                    hoursRemaining += 1;
-                                    minutesRemaining = 0;
-                                }
-
-                                console.log(`Final hoursRemaining: ${hoursRemaining}`);
-                                console.log(`Final minutesRemaining: ${minutesRemaining}`);
-                            }
-                        } catch (error) {
-                            console.error('Error processing time values:', error);
-                            // Keep default values in case of error
-                        }
-                        %>
                         <div class="hours-row">
                             <span class="hours-label">Worked:</span>
                             <span id="hours-worked" class="hours-value"
-                                  data-total-hours-worked="<%= timesheetData.hoursWorked || 0 %>"
-                                  data-server-hours-worked="<%= timesheetData.hoursWorked || 0 %>">
-                                <%
-                                // Final safety check - never show negative values
-                                let displayHoursWorked = hoursWorked;
-                                let displayMinutesWorked = minutesWorked;
-
-                                if (displayHoursWorked < 0 || displayMinutesWorked < 0) {
-                                    console.error('Negative values still detected after processing!');
-                                    displayHoursWorked = 0;
-                                    displayMinutesWorked = 0;
-                                }
-                                %>
-                                <%= displayHoursWorked %>:<%= displayMinutesWorked.toString().padStart(2, '0') %>
-
+                                  data-total-hours-worked="<%= hoursWorkedRaw || 0 %>"
+                                  data-server-hours-worked="<%= hoursWorkedRaw || 0 %>">
+                                <%= hoursWorkedToday || '0h 0m' %>
                                 <!-- Hidden element to store total hours worked data -->
                                 <div id="hours-worked-data"
-                                     data-total-hours-worked="<%= timesheetData.hoursWorked || 0 %>"
-                                     data-server-hours-worked="<%= timesheetData.hoursWorked || 0 %>"
+                                     data-total-hours-worked="<%= hoursWorkedRaw || 0 %>"
+                                     data-server-hours-worked="<%= hoursWorkedRaw || 0 %>"
                                      style="display: none;"></div>
                             </span>
                         </div>
                         <div class="hours-row">
                             <span class="hours-label">Remaining:</span>
-                            <span id="countdown-timer" class="hours-value"
-                                  data-server-remaining-hours="<%= timesheetData.remainingHours || 8 %>">
-                                <%
-                                // Final safety check - never show negative values
-                                let displayHoursRemaining = hoursRemaining;
-                                let displayMinutesRemaining = minutesRemaining;
-
-                                if (displayHoursRemaining < 0 || displayMinutesRemaining < 0) {
-                                    console.error('Negative remaining values still detected after processing!');
-                                    displayHoursRemaining = 8;
-                                    displayMinutesRemaining = 0;
-                                }
-                                %>
-                                <%= displayHoursRemaining %>:<%= displayMinutesRemaining.toString().padStart(2, '0') %>
-
-                                <!-- Hidden element to store remaining hours data -->
-                                <div id="remaining-hours-data"
-                                     data-server-remaining-hours="<%= timesheetData.remainingHours || 8 %>"
-                                     style="display: none;"></div>
+                            <span id="hours-remaining" class="hours-value" data-remaining-hours="<%= remainingHoursRaw || 0 %>">
+                                <%= remainingHoursToday || '8h 0m' %>
                             </span>
                         </div>
-                    </div>
-                    <div class="timer-progress">
-                        <%
-                        // Calculate progress percentage based on hours worked
-                        let progressPercentage = 0;
-                        if (timesheetData.hoursWorked !== undefined && !isNaN(timesheetData.hoursWorked)) {
-                            // Calculate percentage based on 8-hour workday
-                            progressPercentage = Math.min(100, Math.max(0, (timesheetData.hoursWorked / 8) * 100));
-                        }
-                        %>
-                        <div class="timer-bar" style="width: <%= progressPercentage %>%;"></div>
+                        <!-- Progress Bar (relies on data attributes and JS) -->
+                        <div class="progress-bar-container">
+                            <div id="work-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -162,9 +67,9 @@
     <div class="time-tracking-panel card">
         <div class="panel-header">
             <h3>Time Tracking</h3>
-            <div class="status-indicator <%= timesheetData.activeEntry ? 'active' : 'inactive' %>">
+            <div class="status-indicator <%= activeEntry ? 'active' : 'inactive' %>">
                 <span class="status-dot"></span>
-                <span class="status-text"><%= timesheetData.activeEntry ? 'Working' : 'Not Working' %></span>
+                <span class="status-text"><%= activeEntry ? 'Working' : 'Not Working' %></span>
             </div>
         </div>
         <div class="panel-body">
@@ -235,8 +140,8 @@
             <div class="table-responsive">
                 <!-- Debug info to check if today's entries exist -->
                 <div style="margin-bottom: 10px; color: #666; font-size: 0.9rem;">
-                    <% if (timesheetData.todayEntries && timesheetData.todayEntries.length > 0) { %>
-                        Found <%= timesheetData.todayEntries.length %> entries for today.
+                    <% if (entries && entries.length > 0) { %>
+                        Found <%= entries.length %> entries for today.
                     <% } else { %>
                         No entries found for today.
                     <% } %>
@@ -257,11 +162,11 @@
                     <tbody>
                         <%
                         // Debug logging to see what today's entries are available
-                        console.log('Today\'s entries in view:', timesheetData.todayEntries);
+                        console.log('Today\'s entries in view:', entries);
 
-                        if (timesheetData.todayEntries && timesheetData.todayEntries.length > 0) {
+                        if (entries && entries.length > 0) {
                         %>
-                            <% timesheetData.todayEntries.forEach((entry, index) => {
+                            <% entries.forEach((entry, index) => {
                                 // Format times
                                 let clockInTime = 'N/A';
                                 if (entry.start_time) {
@@ -291,7 +196,11 @@
                                     <td><%= entry.total_unavailable_duration || 0 %> mins</td>
                                     <td><%= hoursDisplay %></td>
                                     <td>
-                                        <span class="status-badge status-<%= entry.status.toLowerCase() %>"><%= entry.status %></span>
+                                        <%
+                                          const status = (entry.rawEntry && entry.rawEntry.status) ? entry.rawEntry.status : 'Unknown';
+                                          const statusClass = status.toLowerCase();
+                                        %>
+                                        <span class="status-badge status-<%= statusClass %>"><%= status %></span>
                                     </td>
                                 </tr>
                             <% }); %>
@@ -318,8 +227,8 @@
             <div class="table-responsive">
                 <!-- Debug info to check if entries exist -->
                 <div style="margin-bottom: 10px; color: #666; font-size: 0.9rem;">
-                    <% if (timesheetData.entries && timesheetData.entries.length > 0) { %>
-                        Found <%= timesheetData.entries.length %> recent entries.
+                    <% if (entries && entries.length > 0) { %> <%# Use entries directly %>
+                        Found <%= entries.length %> recent entries. <%# Use entries directly %>
                     <% } else { %>
                         No recent entries found.
                     <% } %>
@@ -340,11 +249,11 @@
                     <tbody>
                         <%
                         // Debug logging to see what entries are available
-                        console.log('Entries in view:', timesheetData.entries);
+                        console.log('Entries in view:', entries);
 
-                        if (timesheetData.entries && timesheetData.entries.length > 0) {
+                        if (entries && entries.length > 0) {
                         %>
-                            <% timesheetData.entries.forEach((entry, index) => { %>
+                            <% entries.forEach((entry, index) => { %>
                                 <%
                                 // Debug logging for each entry
                                 console.log(`Rendering entry ${index}:`, entry);
@@ -357,16 +266,12 @@
                                     <td><%= entry.unavailable || '0 mins' %></td>
                                     <td><%= entry.totalAvailable || 'N/A' %></td>
                                     <td>
-                                        <%
-                                        let status = 'Unknown';
-                                        let statusClass = '';
-
-                                        if (entry.rawEntry && entry.rawEntry.status) {
-                                            status = entry.rawEntry.status.charAt(0).toUpperCase() + entry.rawEntry.status.slice(1);
-                                            statusClass = entry.rawEntry.status;
-                                        }
+                                        <% 
+                                          // Access status via rawEntry, with safety checks
+                                          const status = (entry.rawEntry && entry.rawEntry.status) ? entry.rawEntry.status : 'Unknown';
+                                          const statusClass = status.toLowerCase();
                                         %>
-                                        <span class="status-badge <%= statusClass %>"><%= status %></span>
+                                        <span class="status-badge status-<%= statusClass %>"><%= status %></span>
                                     </td>
                                 </tr>
                             <% }); %>
@@ -1159,7 +1064,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <td>${entry.total_unavailable_duration || 0} mins</td>
                                     <td>${hoursDisplay}</td>
                                     <td>
-                                        <span class="status-badge status-${entry.status.toLowerCase()}">${entry.status}</span>
+                                        ${(() => { // IIFE to calculate status and class
+                                            const status = (entry.rawEntry && entry.rawEntry.status) ? entry.rawEntry.status : 'Unknown';
+                                            const statusClass = status.toLowerCase();
+                                            return `<span class="status-badge status-${statusClass}">${status}</span>`;
+                                        })()}
                                     </td>
                                 `;
                                 todayEntriesTable.appendChild(newRow);
