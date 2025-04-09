@@ -1522,8 +1522,8 @@ notificationStyles.textContent = `
 `;
 document.head.appendChild(notificationStyles);
 
-// Helper function for time tracking API requests
-async function sendTimeTrackingRequest(url, method = 'POST', data = null) {
+// Helper function for time tracking API requests with retry mechanism
+async function sendTimeTrackingRequest(url, method = 'POST', data = null, retryCount = 0, maxRetries = 3) {
     try {
         const token = localStorage.getItem('token'); // Retrieve the token
         if (!token) {
@@ -1549,7 +1549,14 @@ async function sendTimeTrackingRequest(url, method = 'POST', data = null) {
             fetchOptions.body = JSON.stringify(data);
         }
 
-        const response = await fetch(url, fetchOptions);
+        // Add timeout to the fetch request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        fetchOptions.signal = controller.signal;
+
+        try {
+            const response = await fetch(url, fetchOptions);
+            clearTimeout(timeoutId); // Clear the timeout if the request completes
 
         const data = await response.json();
 

@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const endBreakBtn = document.getElementById('endBreakBtn');
     const startUnavailableBtn = document.getElementById('startUnavailableBtn');
     const endUnavailableBtn = document.getElementById('endUnavailableBtn');
-    const statusText = document.getElementById('statusText');
+    const statusTextElement = document.getElementById('statusText');
     const clockInTimeText = document.getElementById('clockInTime');
     const totalBreakTimeText = document.getElementById('totalBreakTime');
 
@@ -717,14 +717,14 @@ document.addEventListener('DOMContentLoaded', () => {
         endBreakBtn.disabled = true;
         startUnavailableBtn.disabled = true;
         endUnavailableBtn.disabled = true;
-        statusText.textContent = 'Not Clocked In';
+        statusTextElement.textContent = 'Not Clocked In';
         clockInTimeText.textContent = '--:--';
         totalBreakTimeText.textContent = '0 mins';
 
         if (activeEntry) {
             // User is clocked in
             clockOutBtn.disabled = false;
-            statusText.textContent = `Status: ${activeEntry.status || 'Active'}`;
+            statusTextElement.textContent = `Status: ${activeEntry.status || 'Active'}`;
             if (activeEntry.start_time) {
                 clockInTimeText.textContent = new Date(activeEntry.start_time).toLocaleTimeString();
             }
@@ -742,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     startBreakBtn.disabled = false;
                     startUnavailableBtn.disabled = false;
                     clockOutBtn.disabled = false; // Only allow clock out when active
-                    statusText.textContent = 'Active - Currently clocked in';
+                    statusTextElement.textContent = 'Active - Currently clocked in';
 
                     // Start the timer if it's not already running
                     if (typeof window.updateCountdown === 'function' && !window.timerRunning) {
@@ -754,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     startBreakBtn.disabled = true;
                     startUnavailableBtn.disabled = true;
                     clockOutBtn.disabled = true; // Disable clock out when on break
-                    statusText.textContent = 'On Break - End break before clocking out'; // More specific status with instruction
+                    statusTextElement.textContent = 'On Break - End break before clocking out'; // More specific status with instruction
                     // Add a visual indicator to the end break button
                     endBreakBtn.classList.add('btn-highlight');
                     setTimeout(() => {
@@ -765,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     startBreakBtn.disabled = true;
                     startUnavailableBtn.disabled = true;
                     clockOutBtn.disabled = true; // Disable clock out when unavailable
-                    statusText.textContent = 'Unavailable - End unavailable period before clocking out'; // More specific status with instruction
+                    statusTextElement.textContent = 'Unavailable - End unavailable period before clocking out'; // More specific status with instruction
                     // Add a visual indicator to the end unavailable button
                     endUnavailableBtn.classList.add('btn-highlight');
                     setTimeout(() => {
@@ -780,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 endBreakBtn.disabled = true;
                 startUnavailableBtn.disabled = true;
                 endUnavailableBtn.disabled = true;
-                statusText.textContent = 'Not clocked in';
+                statusTextElement.textContent = 'Not clocked in';
             }
             // Clock In button should remain disabled if clocked in
         } else {
@@ -795,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Token available:', token ? 'Yes' : 'No');
         if (!token) {
             console.error('No JWT found. User might not be logged in.');
-            statusText.textContent = 'Error: Not authenticated';
+            statusTextElement.textContent = 'Error: Not authenticated';
             // Optionally redirect to login or disable all buttons
             return;
         }
@@ -811,7 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.status === 401 || response.status === 403) {
                     // Handle unauthorized/forbidden (e.g., redirect to login)
                     console.error('Authentication error fetching status.');
-                    statusText.textContent = 'Authentication Error';
+                    statusTextElement.textContent = 'Authentication Error';
                     // Consider redirecting: window.location.href = '/login';
                 } else {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -829,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error fetching timesheet status:', error);
-            statusText.textContent = 'Error loading status';
+            statusTextElement.textContent = 'Error loading status';
             // Disable all buttons on error?
             clockInBtn.disabled = true;
             clockOutBtn.disabled = true;
@@ -897,6 +897,17 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(`Error sending ${action} request:`, error);
             showNotification(`An error occurred while trying to ${action.replace('-', ' ')}.`, 'error');
         }
+    }
+
+    // Placeholder function to resolve ReferenceError
+    async function checkAndFixTimesheetState() {
+        console.warn('checkAndFixTimesheetState function is not fully implemented. Returning false.');
+        // In a real implementation, this would:
+        // 1. Fetch the current server state.
+        // 2. Compare with local state/UI.
+        // 3. If inconsistent, send a request to fix it on the server.
+        // 4. Return true if a fix was attempted/successful, false otherwise.
+        return false; // Indicate state was not fixed
     }
 
     // Check for inconsistent timesheet state on page load
@@ -1189,7 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // First check if we're clocked in
-                const currentStatus = statusText.textContent.toLowerCase();
+                const currentStatus = statusTextElement.textContent.toLowerCase();
                 if (currentStatus.includes('not clocked in')) {
                     console.log('Cannot clock out when not clocked in');
                     showNotification('You are not currently clocked in.', 'warning');
@@ -1312,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startBreakBtn.addEventListener('click', () => {
             console.log('Start Break button clicked');
             // First check if we're already on break
-            const currentStatus = statusText.textContent.toLowerCase();
+            const currentStatus = statusTextElement.textContent.toLowerCase();
             if (currentStatus.includes('on break')) {
                 console.log('Already on break');
                 showNotification('You are already on break.', 'warning');
@@ -1327,7 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         endBreakBtn.addEventListener('click', () => {
             console.log('End Break button clicked');
             // First check if we're actually on break
-            const currentStatus = statusText.textContent.toLowerCase();
+            const currentStatus = statusTextElement.textContent.toLowerCase();
             if (!currentStatus.includes('on break')) {
                 console.log('Not on break');
                 showNotification('You are not currently on break.', 'warning');
