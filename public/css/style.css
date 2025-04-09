@@ -2334,7 +2334,7 @@ body:not(.dark-mode) .theme-toggle button i {
 }
 
 
-.button-group {
+.button-group-contact {
     display: flex;
     justify-content: right;
     gap: 20px;
