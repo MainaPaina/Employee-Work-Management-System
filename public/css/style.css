@@ -2417,12 +2417,16 @@ body:not(.dark-mode) .theme-toggle button i {
     gap: 20px;
 }
 
-#faq-grid h2 {
+faq-grid class="h2" {
     border-bottom: 1px solid white;
     padding-bottom: 10px;
     margin-bottom: 30px;
     font-weight: 600;
     color: white;
+}
+
+#faq-grid {
+
 }
 
 #faq-grid .faq-item {
