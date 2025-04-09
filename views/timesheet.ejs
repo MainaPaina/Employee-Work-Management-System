@@ -26,21 +26,14 @@
                     <div class="hours-display">
                         <div class="hours-row">
                             <span class="hours-label">Worked:</span>
-                            <span id="hours-worked" class="hours-value"
-                                  data-total-hours-worked="<%= hoursWorkedRaw || 0 %>"
-                                  data-server-hours-worked="<%= hoursWorkedRaw || 0 %>">
-                                <%= hoursWorkedToday || '0h 0m' %>
-                                <!-- Hidden element to store total hours worked data -->
-                                <div id="hours-worked-data"
-                                     data-total-hours-worked="<%= hoursWorkedRaw || 0 %>"
-                                     data-server-hours-worked="<%= hoursWorkedRaw || 0 %>"
-                                     style="display: none;"></div>
+                            <span id="hours-worked" class="hours-value">
+                                --h --m
                             </span>
                         </div>
                         <div class="hours-row">
                             <span class="hours-label">Remaining:</span>
-                            <span id="hours-remaining" class="hours-value" data-remaining-hours="<%= remainingHoursRaw || 0 %>">
-                                <%= remainingHoursToday || '8h 0m' %>
+                            <span id="hours-remaining" class="hours-value">
+                                --h --m
                             </span>
                         </div>
                         <!-- Progress Bar (relies on data attributes and JS) -->
@@ -470,8 +463,66 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Notification system
-    function showNotification(message, type) {
+    // Cache DOM elements
+    const statusTextElement = document.getElementById('statusText');
+    const clockInTimeText = document.getElementById('clockInTime');
+    const totalBreakTimeText = document.getElementById('totalBreakTime');
+    const clockInBtn = document.getElementById('clockInBtn');
+    const clockOutBtn = document.getElementById('clockOutBtn');
+    const startBreakBtn = document.getElementById('startBreakBtn');
+    const endBreakBtn = document.getElementById('endBreakBtn');
+    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
+    const endUnavailableBtn = document.getElementById('endUnavailableBtn');
+
+    // Get elements needed for live updates
+    const hoursWorkedElement = document.getElementById('hours-worked');
+    const hoursRemainingElement = document.getElementById('hours-remaining');
+    const progressBarElement = document.getElementById('work-progress-bar');
+
+    // Helper to format hours into Xh Ym
+    function formatHoursMinutes(decimalHours) {
+        if (typeof decimalHours !== 'number' || isNaN(decimalHours)) {
+            return 'N/A';
+        }
+        const totalMinutes = Math.max(0, Math.round(decimalHours * 60));
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        return `${hours}h ${minutes}m`;
+    }
+
+    // Function to update the display live (will be called by setInterval)
+    function updateLiveDisplay() {
+        if (!window.sessionStartTime || window.baseHoursWorked === null) {
+            // Not actively working or base data not set
+            // console.log('Live update skipped: No session start time or base hours.');
+            return;
+        }
+
+        const now = new Date();
+        const elapsedMilliseconds = now - window.sessionStartTime;
+        const elapsedSeconds = elapsedMilliseconds / 1000;
+        const elapsedHours = elapsedSeconds / 3600;
+
+        const currentTotalHours = window.baseHoursWorked + elapsedHours;
+        const currentRemainingHours = Math.max(0, 8 - currentTotalHours); // Assuming 8-hour day
+
+        // Update text content
+        if (hoursWorkedElement) {
+            hoursWorkedElement.textContent = formatHoursMinutes(currentTotalHours);
+        }
+        if (hoursRemainingElement) {
+            hoursRemainingElement.textContent = formatHoursMinutes(currentRemainingHours);
+        }
+
+        // Update progress bar
+        if (progressBarElement) {
+            const percentage = Math.min(100, Math.max(0, (currentTotalHours / 8) * 100));
+            progressBarElement.style.width = `${percentage}%`;
+        }
+    }
+
+    // Function to display notifications
+    function showNotification(message, type = 'info') {
         // Create notification container if it doesn't exist
         let notificationContainer = document.querySelector('.notification-container');
 
@@ -515,105 +566,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 5000);
     }
-    const clockInBtn = document.getElementById('clockInBtn');
-    const clockOutBtn = document.getElementById('clockOutBtn');
-    const startBreakBtn = document.getElementById('startBreakBtn');
-    const endBreakBtn = document.getElementById('endBreakBtn');
-    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
-    const endUnavailableBtn = document.getElementById('endUnavailableBtn');
-    const statusTextElement = document.getElementById('statusText');
-    const clockInTimeText = document.getElementById('clockInTime');
-    const totalBreakTimeText = document.getElementById('totalBreakTime');
 
     // Function to update the UI based on current timesheet status
     function updateUI(statusData) {
-        console.log('Updating UI with status:', statusData);
         const activeEntry = statusData.activeEntry;
+        console.log('Updating UI with data:', statusData);
 
-        // Get references to the hours display elements
-        const hoursWorkedElement = document.getElementById('hours-worked');
-        const countdownTimerElement = document.getElementById('countdown-timer');
-
-        // Update hours worked and remaining hours display
-        if (statusData.hoursWorked !== undefined && !isNaN(statusData.hoursWorked)) {
-            // Check if the user is clocked out
-            const isUserClockedOut = !activeEntry;
-            const currentDisplay = hoursWorkedElement ? hoursWorkedElement.textContent : '';
-
-            // Only update if the user is clocked in or the display is empty/invalid
-            if (!isUserClockedOut || currentDisplay === '--:--' || !currentDisplay.match(/^\d+:\d{2}$/)) {
-                // Ensure hours worked is not negative
-                const safeHoursWorked = Math.max(0, statusData.hoursWorked);
-                let hoursWorked = Math.floor(safeHoursWorked);
-                let minutesWorked = Math.round((safeHoursWorked % 1) * 60);
-
-                // Handle case where minutes might be 60 due to rounding
-                if (minutesWorked === 60) {
-                    hoursWorked += 1;
-                    minutesWorked = 0;
-                }
-
-                if (hoursWorkedElement) {
-                    const newWorkedTimeText = `${hoursWorked}:${minutesWorked.toString().padStart(2, '0')}`;
-                    hoursWorkedElement.textContent = newWorkedTimeText;
-                    console.log(`Updated hours worked display to: ${newWorkedTimeText}`);
-
-                    // Log the raw and calculated values for debugging
-                    console.log('Raw hoursWorked from server:', statusData.hoursWorked);
-                    console.log('Calculated hoursWorked:', hoursWorked, 'minutesWorked:', minutesWorked);
-                }
-            } else {
-                console.log('User is clocked out. Preserving current hours worked display:', currentDisplay);
-            }
+        // Clear previous timer interval if it exists
+        if (window.liveTimerIntervalId) {
+            clearInterval(window.liveTimerIntervalId);
+            window.liveTimerIntervalId = null;
+            console.log('Cleared existing live timer.');
         }
+        // Reset base values used by the timer
+        window.baseHoursWorked = null;
+        window.sessionStartTime = null;
 
-        if (statusData.remainingHours !== undefined && !isNaN(statusData.remainingHours)) {
-            // Check if the user is clocked out
-            const isUserClockedOut = !activeEntry;
-            const currentDisplay = countdownTimerElement ? countdownTimerElement.textContent : '';
+        const initialHoursWorked = statusData.hoursWorkedRaw !== undefined ? statusData.hoursWorkedRaw : 0;
+        // Assume 8h day for remaining calculation if not provided
+        const initialRemainingHours = statusData.remainingHoursRaw !== undefined ? statusData.remainingHoursRaw : Math.max(0, 8 - initialHoursWorked);
 
-            // Only update if the user is clocked in or the display is empty/invalid
-            if (!isUserClockedOut || currentDisplay === '--:--' || !currentDisplay.match(/^\d+:\d{2}$/)) {
-                // Ensure remaining hours is not negative
-                const safeRemainingHours = Math.max(0, statusData.remainingHours);
-                let hoursRemaining = Math.floor(safeRemainingHours);
-                let minutesRemaining = Math.round((safeRemainingHours % 1) * 60);
-
-                // Handle case where minutes might be 60 due to rounding
-                if (minutesRemaining === 60) {
-                    hoursRemaining += 1;
-                    minutesRemaining = 0;
-                }
-
-                if (countdownTimerElement) {
-                    const newRemainingTimeText = `${hoursRemaining}:${minutesRemaining.toString().padStart(2, '0')}`;
-                    countdownTimerElement.textContent = newRemainingTimeText;
-                    console.log(`Updated remaining hours display to: ${newRemainingTimeText}`);
-
-                    // Log the raw and calculated values for debugging
-                    console.log('Raw remainingHours from server:', statusData.remainingHours);
-                    console.log('Calculated hoursRemaining:', hoursRemaining, 'minutesRemaining:', minutesRemaining);
-                }
-            } else {
-                console.log('User is clocked out. Preserving current remaining hours display:', currentDisplay);
-            }
+        // --- Update display elements initially based on statusData ---
+        // Set static display elements based on fetched data. Live timer will overwrite if active.
+        if (hoursWorkedElement) {
+             hoursWorkedElement.textContent = formatHoursMinutes(initialHoursWorked);
         }
-
-        // Update progress bar - but only if the user is clocked in
-        const timerBar = document.querySelector('.timer-bar');
-        if (timerBar && statusData.hoursWorked !== undefined) {
-            // Check if the user is clocked out
-            const isUserClockedOut = !activeEntry;
-
-            // Only update if the user is clocked in
-            if (!isUserClockedOut) {
-                const percentage = Math.min(100, Math.max(0, (statusData.hoursWorked / 8) * 100));
-                timerBar.style.width = `${percentage}%`;
-                console.log(`Updated progress bar: ${percentage}%`);
-            } else {
-                console.log('User is clocked out. Preserving current progress bar width:', timerBar.style.width);
-            }
+        if (hoursRemainingElement) {
+            hoursRemainingElement.textContent = formatHoursMinutes(initialRemainingHours);
         }
+         if (progressBarElement) {
+             const initialPercentage = Math.min(100, Math.max(0, (initialHoursWorked / 8) * 100));
+             progressBarElement.style.width = `${initialPercentage}%`;
+         }
 
         // Reset all buttons to default state (mostly disabled)
         clockInBtn.disabled = true;
@@ -628,69 +612,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (activeEntry) {
             // User is clocked in
-            clockOutBtn.disabled = false;
-            statusTextElement.textContent = `Status: ${activeEntry.status || 'Active'}`;
+            clockOutBtn.disabled = false; // Base state when clocked in
+            statusTextElement.textContent = `Status: ${activeEntry.status || 'Unknown'}`; // Default
             if (activeEntry.start_time) {
                 clockInTimeText.textContent = new Date(activeEntry.start_time).toLocaleTimeString();
             }
-             if (activeEntry.total_break_duration) {
-                 totalBreakTimeText.textContent = `${activeEntry.total_break_duration} mins`;
+             if (activeEntry.total_break_duration !== undefined) {
+                 totalBreakTimeText.textContent = `${Math.round(activeEntry.total_break_duration)} mins`;
              }
 
-            // Determine state based on status
-            if (activeEntry) {
-                // User is clocked in - enable/disable buttons based on status
-                clockInBtn.disabled = true; // Can't clock in again
-                clockOutBtn.disabled = false; // Can clock out
+            // Determine specific state based on status
+            if (activeEntry.status === 'active') {
+                startBreakBtn.disabled = false;
+                startUnavailableBtn.disabled = false;
+                clockOutBtn.disabled = false; // Ensure clock out is enabled
+                statusTextElement.textContent = 'Active - Currently Working';
 
-                if (activeEntry.status === 'active') {
-                    startBreakBtn.disabled = false;
-                    startUnavailableBtn.disabled = false;
-                    clockOutBtn.disabled = false; // Only allow clock out when active
-                    statusTextElement.textContent = 'Active - Currently clocked in';
+                // Store base hours and start time for the live timer
+                // Use the initial values calculated above
+                window.baseHoursWorked = initialHoursWorked;
+                window.sessionStartTime = activeEntry.start_time ? new Date(activeEntry.start_time) : null;
+                console.log('Base hours worked set:', window.baseHoursWorked);
+                console.log('Session start time set:', window.sessionStartTime);
 
-                    // Start the timer if it's not already running
-                    if (typeof window.updateCountdown === 'function' && !window.timerRunning) {
-                        console.log('Starting timer from updateUI function');
-                        window.updateCountdown();
-                    }
-                } else if (activeEntry.status === 'on_break') {
+                // Start the live timer ONLY if sessionStartTime is valid and timer isn't already running
+                if (window.sessionStartTime && !window.liveTimerIntervalId) {
+                    console.log('Starting live timer.');
+                    updateLiveDisplay(); // Initial update immediately using calculated live value
+                    window.liveTimerIntervalId = setInterval(updateLiveDisplay, 1000);
+                }
+            } else {
+                // Handle 'on_break', 'unavailable', or other clocked-in states
+                // Timer should be stopped (already handled above by clearing interval)
+                // Static display values (hours worked/remaining/progress) were already set
+                // at the beginning of updateUI based on fetched data.
+                if (activeEntry.status === 'on_break') {
                     endBreakBtn.disabled = false;
                     startBreakBtn.disabled = true;
                     startUnavailableBtn.disabled = true;
-                    clockOutBtn.disabled = true; // Disable clock out when on break
-                    statusTextElement.textContent = 'On Break - End break before clocking out'; // More specific status with instruction
-                    // Add a visual indicator to the end break button
-                    endBreakBtn.classList.add('btn-highlight');
-                    setTimeout(() => {
-                        endBreakBtn.classList.remove('btn-highlight');
-                    }, 2000);
+                    clockOutBtn.disabled = true;
+                    statusTextElement.textContent = 'On Break';
                 } else if (activeEntry.status === 'unavailable') {
                     endUnavailableBtn.disabled = false;
                     startBreakBtn.disabled = true;
                     startUnavailableBtn.disabled = true;
-                    clockOutBtn.disabled = true; // Disable clock out when unavailable
-                    statusTextElement.textContent = 'Unavailable - End unavailable period before clocking out'; // More specific status with instruction
-                    // Add a visual indicator to the end unavailable button
-                    endUnavailableBtn.classList.add('btn-highlight');
-                    setTimeout(() => {
-                        endUnavailableBtn.classList.remove('btn-highlight');
-                    }, 2000);
+                    clockOutBtn.disabled = true;
+                    statusTextElement.textContent = 'Unavailable';
+                } else {
+                     // Handle any other potential statuses or fallback
+                     console.warn('Unknown activeEntry status:', activeEntry.status);
+                     statusTextElement.textContent = `Status: ${activeEntry.status || 'Unknown'}`;
+                     // Keep clock out enabled as a default if clocked in but status unknown?
+                     clockOutBtn.disabled = false;
                 }
-            } else {
-                // User is not clocked in - disable all buttons except clock in
-                clockInBtn.disabled = false;
-                clockOutBtn.disabled = true;
-                startBreakBtn.disabled = true;
-                endBreakBtn.disabled = true;
-                startUnavailableBtn.disabled = true;
-                endUnavailableBtn.disabled = true;
-                statusTextElement.textContent = 'Not clocked in';
+                // Ensure clock-in is always disabled when clocked in
+                clockInBtn.disabled = true;
             }
-            // Clock In button should remain disabled if clocked in
         } else {
             // User is not clocked in
             clockInBtn.disabled = false; // Enable clock-in
+            statusTextElement.textContent = 'Not Clocked In';
+             // Ensure progress bar resets if not clocked in
+             if (progressBarElement) {
+                 progressBarElement.style.width = '0%';
+             }
+             // Reset display hours explicitly to 0 / 8
+             if (hoursWorkedElement) hoursWorkedElement.textContent = formatHoursMinutes(0);
+             if (hoursRemainingElement) hoursRemainingElement.textContent = formatHoursMinutes(8);
         }
     }
 
