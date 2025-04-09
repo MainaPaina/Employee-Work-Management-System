@@ -23,6 +23,8 @@ const leaveRoutes = require('./routes/leave');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profile'); // New profile routes
+/// routes for legal pages
+const legalRoutes = require('./routes/legal');
 
 // Initialize Supabase Admin Client (if needed for specific operations)
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -224,6 +226,14 @@ app.get('/profile', checkAuth, async (req, res) => {
   }
 });
 
+// Legal pages - accessible to all - terms, cookies, privacy
+app.use("/legal", legalRoutes);
+
+// Contact us page - Accessible to all
+app.get('/contact', (req, res) => res.render('static/contact', { activePage: 'contact' }));
+
+// About us page - accessible to all
+app.get('/about', (req, res) => res.render('static/about', { activePage: 'about'}));
 
 // ============================================================================
 // SPECIFIC PAGE ROUTES (defined directly in server.js)
@@ -307,25 +317,7 @@ app.post('/logout', (req, res) => {
     }
 });
 
-// Contact us page - Accessible to all
-app.get('/contact', (req, res) => {
-    res.render('contact', { activePage: 'contact' });
-});
 
-// Terms of Service - accessible to all
-app.get('/legal/terms', (req, res) => {
-    res.render('legal/terms', { activePage: 'terms' });
-});
-
-// Privacy Policy - accessible to all
-app.get('/legal/privacy', (req, res) => {
-    res.render('legal/privacy', { activePage: 'privacy' });
-});
-
-// Cookies Policy - accessible to all
-app.get('/legal/cookies', (req, res) => {
-    res.render('legal/cookies', { activePage: 'cookies' });
-});
 
 // Profile route (protected)
 app.get('/profile', checkAuth, async (req, res) => {
