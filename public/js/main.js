@@ -268,17 +268,17 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('- Has active entry:', hasActiveEntry);
 
         // Get the current status to determine if we should increment the worked time
-        const statusText = document.getElementById('statusText');
-        const isActiveStatus = statusText && (
-            statusText.textContent.includes('active') ||
-            statusText.textContent.includes('Active') ||
-            !statusText.textContent.includes('break') &&
-            !statusText.textContent.includes('Break') &&
-            !statusText.textContent.includes('unavailable') &&
-            !statusText.textContent.includes('Unavailable')
+        const statusTextCheckElement = document.getElementById('statusText');
+        const isActiveStatus = statusTextCheckElement && (
+            statusTextCheckElement.textContent.includes('active') ||
+            statusTextCheckElement.textContent.includes('Active') ||
+            !statusTextCheckElement.textContent.includes('break') &&
+            !statusTextCheckElement.textContent.includes('Break') &&
+            !statusTextCheckElement.textContent.includes('unavailable') &&
+            !statusTextCheckElement.textContent.includes('Unavailable')
         );
 
-        console.log('Status text:', statusText ? statusText.textContent : 'Not found');
+        console.log('Status text:', statusTextCheckElement ? statusTextCheckElement.textContent : 'Not found');
         console.log('Is active status:', isActiveStatus);
 
         // Get break time for reference
