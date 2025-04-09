@@ -174,7 +174,34 @@ class User {
              return null;
         }
     }
+    static async updateProfileImage(id, image) {
+        if (!id || !image) {
+            console.error('Cannot update profile image without ID and image.');
+            return null;
+        }
+        try {
+            // Use admin client if available to bypass RLS
+            const client = supabaseAdmin || supabase;
+            
+            // Update the profile_image column
+            const { data, error } = await client
+                .from('users')
+                .update({ profile_image: image })
+                .eq('id', id)
+                .select()
+                .single();
 
+            if (error) {
+                console.error('Error updating user profile image:', error.message);
+                return null;
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Exception updating user profile image:', error);
+            return null;
+        }
+    }
     // Add other static methods if needed for profile management
  }
 

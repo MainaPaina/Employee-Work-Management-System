@@ -13,6 +13,7 @@ const flash = require('connect-flash'); // Needed for flash messages
 // Import models if used directly in server.js
 const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
+const User = require('./model/User'); // Assuming User model exists
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -177,8 +178,39 @@ app.use('/timesheet', checkAuth, timesheetRoutes);
 // Leave related routes - Require login
 app.use('/leave', checkAuth, leaveRoutes);
 
-// Profile related routes - Require JWT authentication
-app.use('/profile/api', profileRoutes);
+// Profile related routes - Accessible to authenticated users
+app.use('/profile', profileRoutes);
+
+// Profile page route - Require login
+app.get('/profile', checkAuth, async (req, res) => {
+  try {
+    // Get user data from session
+    const userId = req.session?.user?.id;
+    if (!userId) {
+      return res.redirect('/login');
+    }
+    
+    // Get fresh user data from database to ensure we have the latest profile image
+    const userData = await User.findById(userId) || req.session.user;
+    
+    // Update session with fresh data if we got user data
+    if (userData) {
+      // Update profile image in session if it exists in the database
+      if (userData.profile_image) {
+        req.session.user.profile_image = userData.profile_image;
+      }
+    }
+    
+    // Render profile page
+    res.render('profile', { 
+      activePage: 'profile',
+      user: req.session.user
+    });
+  } catch (error) {
+    console.error('Error loading profile page:', error);
+    res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
+  }
+});
 
 
 // ============================================================================
@@ -284,9 +316,25 @@ app.get('/legal/cookies', (req, res) => {
 });
 
 // Profile route (protected)
-app.get('/profile', checkAuth, (req, res) => {
-    // User data is available via res.locals.user or req.session.user
-    res.render('profile', { activePage: 'profile' });
+app.get('/profile', checkAuth, async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.redirect('/login');
+        }
+
+        // Get user data including profile image
+        const userData = await User.findById(userId);
+        
+        // Render the profile page with user data
+        res.render('profile', { 
+            user: userData,
+            activePage: 'profile' 
+        });
+    } catch (error) {
+        console.error('Error loading profile page:', error);
+        res.status(500).send('Server error');
+    }
 });
 
 // Dashboard route (protected) - Refactored for Supabase
