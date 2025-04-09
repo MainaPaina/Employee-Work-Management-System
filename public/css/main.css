@@ -77,7 +77,6 @@
 
 .nav-link:hover {
     color: #3498db;
-    text-decoration: none !important;
 }
 
 .nav-link.active {
@@ -95,10 +94,6 @@
 .login-btn {
     background-color: #3498db;
     color: white;
-}
-
-.login-btn:hover {
-    text-decoration: none !important;
 }
 
 .logout-btn {

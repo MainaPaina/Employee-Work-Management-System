@@ -283,7 +283,7 @@ a:hover {
   transition: width 0.3s ease;
 }
 
-.nav-link:not(.login-nav-link):hover::after {
+.nav-link:hover::after {
   width: 100%;
 }
 
@@ -561,6 +561,7 @@ footer {
 @media (max-width: 768px) {
   .footer-content {
     grid-template-columns: 1fr;
+    gap: 30px;
   }
 
   .footer-section:not(:last-child) {
@@ -2333,6 +2334,7 @@ body:not(.dark-mode) .theme-toggle button i {
   color: var(--dark-text-color);
 }
 
+<<<<<<< HEAD
 /* Today's Clock-in Entries Styles */
 .timesheet-table-container {
   margin-bottom: 30px;
