@@ -55,7 +55,60 @@ class TimeEntry {
 
         const client = getAdminClient();
 
-        // We no longer delete existing entries since we want to support multiple entries per day
+        // Check if an entry already exists for this employee and date
+        // This is needed because Supabase has a unique constraint on (employee_id, date)
+        console.log(`[TimeEntry] Checking for existing entry for employee ${employee_id} on date ${date}...`);
+        const { data: existingEntries, error: findError } = await client
+            .from('timesheets')
+            .select('id, end_time, status')
+            .eq('employee_id', employee_id)
+            .eq('date', date);
+
+        if (findError) {
+            console.error('[TimeEntry] Error checking for existing entry:', findError);
+            throw new Error(`Failed to check for existing timesheet entry: ${findError.message}`);
+        }
+
+        // If an entry exists and has an end_time (completed entry), we need to handle it differently
+        if (existingEntries && existingEntries.length > 0) {
+            const existingEntry = existingEntries[0];
+            console.log(`[TimeEntry] Found existing entry for employee ${employee_id} on date ${date}:`, existingEntry);
+
+            // If the existing entry is already completed (has end_time), we need to update it
+            // to support multiple clock-ins per day despite the unique constraint
+            if (existingEntry.end_time && existingEntry.status !== 'active') {
+                console.log('[TimeEntry] Existing entry is completed. Updating it to support multiple entries per day...');
+
+                // Update the existing entry to make it active again
+                const { data: updatedEntry, error: updateError } = await client
+                    .from('timesheets')
+                    .update({
+                        status: status || 'active',
+                        start_time: start_time, // Use the new start time
+                        end_time: null, // Clear the end time to make it active
+                        hours_worked: hours_worked, // Reset hours worked
+                        total_break_duration: total_break_duration || 0,
+                        total_unavailable_duration: total_unavailable_duration || 0
+                    })
+                    .eq('id', existingEntry.id)
+                    .select()
+                    .single();
+
+                if (updateError) {
+                    console.error('[TimeEntry] Error updating existing entry:', updateError);
+                    throw new Error(`Failed to update existing timesheet entry: ${updateError.message}`);
+                }
+
+                console.log('[TimeEntry] Successfully updated existing entry to support multiple entries per day');
+                return updatedEntry;
+            } else {
+                // If the existing entry is still active, we can't create a new one due to the unique constraint
+                console.error('[TimeEntry] Cannot create new entry: An active entry already exists for this employee and date');
+                throw new Error('An active timesheet entry already exists for today. Please clock out first.');
+            }
+        }
+
+        // If no existing entry, create a new one
         console.log(`[TimeEntry] Creating a new entry for employee ${employee_id} on date ${date}...`);
 
         // Now create the new entry

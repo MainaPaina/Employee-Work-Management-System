@@ -584,7 +584,7 @@ class TimesheetController {
                 console.log('Caught unique constraint violation, attempting to recover...');
 
                 try {
-                    // Try to get the existing entry and reactivate it
+                    // Try to get the existing entry
                     const existingEntry = await this.timesheetModel.getEntryByEmployeeIdAndDate(userId, todayDateString);
 
                     if (existingEntry) {
@@ -592,24 +592,44 @@ class TimesheetController {
 
                         // If the entry has an end_time (clocked out), we can reactivate it
                         if (existingEntry.end_time !== null) {
-                            console.log('Reactivating existing entry during error recovery');
+                            // If force clock in is requested, reactivate the entry
+                            if (forceClockIn) {
+                                console.log('Force clock in requested. Reactivating existing entry during error recovery');
 
-                            const updatedEntryData = {
-                                status: 'active',
-                                start_time: new Date().toISOString(),
-                                end_time: null
-                            };
+                                const updatedEntryData = {
+                                    status: 'active',
+                                    start_time: new Date().toISOString(),
+                                    end_time: null,
+                                    hours_worked: 0,
+                                    total_break_duration: 0,
+                                    total_unavailable_duration: 0
+                                };
 
-                            const updatedEntry = await this.timesheetModel.update(existingEntry.id, updatedEntryData);
-                            return res.status(200).json({
-                                success: true,
-                                entry: updatedEntry,
-                                message: 'Reactivated existing timesheet entry for today.'
-                            });
+                                const updatedEntry = await this.timesheetModel.update(existingEntry.id, updatedEntryData);
+
+                                // Get all entries for today after the update
+                                const updatedTodayEntries = await this.timesheetModel.findEntriesByEmployeeIdAndDate(userId, todayDateString);
+
+                                return res.status(201).json({
+                                    success: true,
+                                    entry: updatedEntry,
+                                    allEntries: updatedTodayEntries,
+                                    message: 'Successfully clocked in. A new timesheet entry has been created.'
+                                });
+                            } else {
+                                // Inform the user about the limitation and offer force clock in
+                                return res.status(400).json({
+                                    message: 'You have already clocked in and out today. The system currently supports only one timesheet entry per day.',
+                                    existingEntry: existingEntry,
+                                    canForceClockIn: true
+                                });
+                            }
                         } else {
-                            // Entry exists but is in an unexpected state
+                            // Entry exists and is still active
                             return res.status(400).json({
-                                message: `A timesheet entry for today already exists with status '${existingEntry.status}'. Please refresh the page to see your current status.`
+                                message: 'Already actively clocked in. Please clock out first.',
+                                activeEntry: existingEntry,
+                                canForceClockIn: true
                             });
                         }
                     } else {
@@ -624,6 +644,12 @@ class TimesheetController {
                         message: 'Failed to clock in: Error occurred while trying to recover from duplicate entry. Please refresh the page and try again.'
                     });
                 }
+            } else if (error.message === 'An active timesheet entry already exists for today. Please clock out first.') {
+                // This is the error thrown by our TimeEntry.create method when an active entry exists
+                return res.status(400).json({
+                    message: error.message,
+                    canForceClockIn: true
+                });
             } else {
                 // For other types of errors
                 return res.status(500).json({ message: `Failed to clock in: ${error.message}` });
