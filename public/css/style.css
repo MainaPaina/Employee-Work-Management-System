@@ -752,9 +752,16 @@ footer {
 /* Timesheet Controls */
 .timesheet-controls {
   display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 25px;
+  margin-bottom: 5px;
+}
+
+.timesheet-recent {
+  display: grid;
   grid-template-columns: 1fr;
   gap: 25px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .control-panel {
@@ -1401,7 +1408,7 @@ footer {
 
 /* Time Tracking Panel */
 .time-tracking-panel {
-  margin-bottom: 2rem;
+  margin-bottom: 25px;
 }
 
 .panel-header {

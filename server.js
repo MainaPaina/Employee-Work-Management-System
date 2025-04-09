@@ -50,18 +50,21 @@ app.use(expressLayouts);
 app.set('layout', 'layout'); // Default layout file
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.set('started', Date.now());
 
 // Middleware
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 app.use(express.json()); // Parse JSON body
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form bodies
 
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`);
-  console.log('Headers:', JSON.stringify(req.headers));
-  next();
-});
+// Request logging middleware - only if NODE_ENV is set to development
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path}`);
+    console.log('Headers:', JSON.stringify(req.headers));
+    next();
+  });
+}
 
 // Session configuration
 app.use(session({
@@ -118,6 +121,15 @@ app.use((req, res, next) => {
   res.locals.info_msg = req.flash('info');
   // Make activePage available globally, default to empty string
   res.locals.activePage = '';
+  
+  // automatisk reload av nettleser
+  if (process.env.NODE_ENV === 'development') {
+    // sett reloadRunning til true for å aktivere skript
+    res.locals.reloadRunning = true;
+    // sett reloadStarted til app variabelen started
+    res.locals.reloadStarted = app.get('started');
+  }
+  // 
   next();
 });
 
@@ -399,6 +411,19 @@ app.get('/dashboard', checkAuth, async (req, res) => {
 // Remove direct app.get/app.post handlers for these if they exist in this file.
 // Ensure leaveRoutes contains the necessary GET/POST handlers.
 
+/// ===================================================
+/// RELOAD BROWSER - only if env == development
+/// ==================================================
+if (process.env.NODE_ENV == 'development')
+  {
+    console.log("registering /reload route for automatic reload of browser when app is restarted");
+    // register route /reload
+    app.get('/reload', (req, res) => {
+      // response -> json { started: js-date-object }
+      res.json({ 'started': app.get('started') });
+    });
+  }
+  
 
 // ============================================================================
 // ERROR HANDLING
@@ -422,6 +447,8 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.render('error'); // Ensure you have views/error.ejs
 });
+
+
 
 // ============================================================================
 // START SERVER
