@@ -58,8 +58,33 @@
                 <div class="progress-bar" style="width: 60%"></div>
             </div>
             <p class="leave-balance-text">15 days used out of 25</p>
-            <a href="/apply-leave" class="btn btn-outline">View Details</a>
+            <a href="/leave/apply" class="btn btn-outline">View Details</a>
         </div>
+
+        <!-- Time Tracking Card -->
+        <div class="summary-card action-card">
+            <div class="card-icon"><i class="fas fa-clock"></i></div>
+            <h3>Time Tracking</h3>
+            <p>Manage your work hours and breaks</p>
+            <a href="/timesheet" class="btn btn-primary">Go to Timesheet</a>
+        </div>
+
+        <!-- Leave Management Card -->
+        <div class="summary-card action-card">
+            <div class="card-icon"><i class="fas fa-calendar"></i></div>
+            <h3>Leave Management</h3>
+            <p>Apply for leaves and check your balance</p>
+            <a href="/leave/apply" class="btn btn-secondary">Apply Leave</a>
+        </div>
+
+        <!-- Reports Card -->
+        <div class="summary-card action-card">
+            <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+            <h3>Reports</h3>
+            <p>View your productivity metrics</p>
+            <a href="#" class="btn btn-tertiary">View Reports</a>
+        </div>
+
     </div>
 
     <!-- Recent Time Entries with improved margin -->
@@ -94,33 +119,6 @@
                     <% } %>
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
-        <div class="action-cards">
-            <div class="action-card">
-                <div class="card-icon"><i class="fas fa-clock"></i></div>
-                <h3>Time Tracking</h3>
-                <p>Manage your work hours and breaks</p>
-                <a href="/timesheet" class="btn btn-primary">Go to Timesheet</a>
-            </div>
-
-            <div class="action-card">
-                <div class="card-icon"><i class="fas fa-calendar"></i></div>
-                <h3>Leave Management</h3>
-                <p>Apply for leaves and check your balance</p>
-                <a href="/leave/apply" class="btn btn-secondary">Apply Leave</a>
-            </div>
-
-            <div class="action-card">
-                <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-                <h3>Reports</h3>
-                <p>View your productivity metrics</p>
-                <a href="#" class="btn btn-tertiary">View Reports</a>
-            </div>
         </div>
     </div>
 </div>
