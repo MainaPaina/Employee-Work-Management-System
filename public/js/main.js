@@ -63,6 +63,70 @@ document.addEventListener('DOMContentLoaded', function() {
     // Store the current date to check for day changes
     window.currentTimerDate = new Date().toISOString().split('T')[0];
 
+    // Function to update timer values from server data
+    window.updateTimerValues = function(newWorkedSeconds, newRemainingSeconds) {
+        // Only update if the timer is running
+        if (!window.timerRunning) {
+            console.log('Timer not running, cannot update values');
+            return;
+        }
+
+        // Update the global timer values
+        if (window.workedSeconds !== undefined && window.remainingSeconds !== undefined) {
+            // Calculate the difference to avoid sudden jumps
+            const workedDiff = newWorkedSeconds - window.workedSeconds;
+            const remainingDiff = window.remainingSeconds - newRemainingSeconds;
+
+            // Only update if the difference is significant (more than 60 seconds)
+            // This prevents small fluctuations due to timing differences
+            if (Math.abs(workedDiff) > 60 || Math.abs(remainingDiff) > 60) {
+                console.log('Significant difference detected in timer values:');
+                console.log('Worked seconds diff:', workedDiff, 'Remaining seconds diff:', remainingDiff);
+
+                // Update the global values
+                window.workedSeconds = newWorkedSeconds;
+                window.remainingSeconds = newRemainingSeconds;
+
+                console.log('Updated timer values - Worked:', (window.workedSeconds / 3600).toFixed(2),
+                            'hours, Remaining:', (window.remainingSeconds / 3600).toFixed(2), 'hours');
+
+                // Update the display immediately
+                const countdownElement = document.getElementById('countdown-timer');
+                const hoursWorkedElement = document.getElementById('hours-worked');
+                const timerBar = document.querySelector('.timer-bar');
+
+                if (hoursWorkedElement) {
+                    // Calculate hours and minutes
+                    const workedHours = Math.floor(window.workedSeconds / 3600);
+                    const workedMinutes = Math.floor((window.workedSeconds % 3600) / 60);
+
+                    // Update the display
+                    hoursWorkedElement.textContent = `${workedHours}:${workedMinutes.toString().padStart(2, '0')}`;
+                }
+
+                if (countdownElement) {
+                    // Calculate hours and minutes
+                    const remainingHours = Math.floor(window.remainingSeconds / 3600);
+                    const remainingMinutes = Math.floor((window.remainingSeconds % 3600) / 60);
+
+                    // Update the display
+                    countdownElement.textContent = `${remainingHours}:${remainingMinutes.toString().padStart(2, '0')}`;
+                }
+
+                if (timerBar) {
+                    // Update the progress bar
+                    const workDaySeconds = 8 * 3600;
+                    const percentage = Math.min(100, Math.max(0, (window.workedSeconds / workDaySeconds) * 100));
+                    timerBar.style.width = `${percentage}%`;
+                }
+            } else {
+                console.log('Timer values are close enough to server values, no update needed');
+            }
+        } else {
+            console.log('Global timer values not initialized, cannot update');
+        }
+    };
+
     window.updateCountdown = function() {
         // Check if the date has changed since the last timer initialization
         const today = new Date().toISOString().split('T')[0];
@@ -94,11 +158,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const timerBar = document.querySelector('.timer-bar');
 
         // Get the server-provided values for hours worked and remaining hours
-        let workedSeconds = 0;
-        let remainingSeconds = 0;
+        // Make these globally accessible so they can be updated by the sync function
+        window.workedSeconds = 0;
+        window.remainingSeconds = 0;
 
-        // Define the workday length in seconds (8 hours)
-        const workDaySeconds = 8 * 3600;
+        // Define the workday length in seconds (8 hours) - make it global
+        window.workDaySeconds = 8 * 3600;
 
         // First, try to get the total hours worked for the day from the server data
         try {
@@ -116,8 +181,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const remainingHours = parseFloat(serverRemainingHours.getAttribute('data-server-remaining-hours') || '8');
 
                 if (!isNaN(hoursWorked) && !isNaN(remainingHours)) {
-                    workedSeconds = Math.max(0, hoursWorked * 3600);
-                    remainingSeconds = Math.max(0, remainingHours * 3600);
+                    window.workedSeconds = Math.max(0, hoursWorked * 3600);
+                    window.remainingSeconds = Math.max(0, remainingHours * 3600);
                     console.log('Using server-provided data - Total hours worked today:', hoursWorked, 'Remaining hours:', remainingHours);
                     console.log('This includes all clock-in entries for today, not just the current session');
 
@@ -132,17 +197,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // If server data isn't available, try data attributes
-        if (workedSeconds === 0) {
+        if (window.workedSeconds === 0) {
             const hoursWorkedData = document.getElementById('hours-worked-data');
             if (hoursWorkedData) {
                 const totalHoursWorked = parseFloat(hoursWorkedData.getAttribute('data-total-hours-worked') || '0');
                 if (!isNaN(totalHoursWorked)) {
-                    workedSeconds = Math.max(0, totalHoursWorked * 3600);
-                    console.log('Using total hours worked from data attribute:', totalHoursWorked, 'hours =', workedSeconds, 'seconds');
+                    window.workedSeconds = Math.max(0, totalHoursWorked * 3600);
+                    console.log('Using total hours worked from data attribute:', totalHoursWorked, 'hours =', window.workedSeconds, 'seconds');
 
                     // Calculate remaining seconds based on total hours worked
-                    remainingSeconds = Math.max(0, workDaySeconds - workedSeconds);
-                    console.log('Calculated remaining seconds:', remainingSeconds);
+                    window.remainingSeconds = Math.max(0, window.workDaySeconds - window.workedSeconds);
+                    console.log('Calculated remaining seconds:', window.remainingSeconds);
 
                     // Store the total hours worked for the day in a global variable
                     window.totalHoursWorkedToday = totalHoursWorked;
@@ -152,37 +217,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // If data attributes aren't available, fall back to parsing the display elements
-        if (workedSeconds === 0) {
+        if (window.workedSeconds === 0) {
             try {
                 // Parse the remaining time from the countdown element
                 const remainingTime = parseTimeString(countdownElement.textContent);
-                remainingSeconds = Math.max(0, remainingTime.hours * 3600 + remainingTime.minutes * 60);
-                console.log('Parsed remaining seconds from display:', remainingSeconds);
+                window.remainingSeconds = Math.max(0, remainingTime.hours * 3600 + remainingTime.minutes * 60);
+                console.log('Parsed remaining seconds from display:', window.remainingSeconds);
 
                 // Parse the worked time from the hours worked element
                 if (hoursWorkedElement) {
                     const workedTime = parseTimeString(hoursWorkedElement.textContent);
-                    workedSeconds = Math.max(0, workedTime.hours * 3600 + workedTime.minutes * 60);
-                    console.log('Parsed worked seconds from display:', workedSeconds);
+                    window.workedSeconds = Math.max(0, workedTime.hours * 3600 + workedTime.minutes * 60);
+                    console.log('Parsed worked seconds from display:', window.workedSeconds);
 
                     // Store the total hours worked for the day in a global variable
-                    window.totalHoursWorkedToday = workedSeconds / 3600;
+                    window.totalHoursWorkedToday = window.workedSeconds / 3600;
                     console.log('Stored total hours worked today from display:', window.totalHoursWorkedToday);
                 }
             } catch (error) {
                 console.error('Error parsing time from display elements:', error);
                 // Use default values if parsing fails
-                remainingSeconds = workDaySeconds; // 8 hours in seconds
-                workedSeconds = 0;
+                window.remainingSeconds = window.workDaySeconds; // 8 hours in seconds
+                window.workedSeconds = 0;
                 window.totalHoursWorkedToday = 0;
             }
         }
 
         // Final sanity check - ensure the values make sense
-        if (workedSeconds + remainingSeconds > workDaySeconds + 300) { // Allow a small buffer for rounding
+        if (window.workedSeconds + window.remainingSeconds > window.workDaySeconds + 300) { // Allow a small buffer for rounding
             console.warn('Invalid time values detected. Total exceeds workday length. Resetting to defaults.');
-            workedSeconds = 0;
-            remainingSeconds = workDaySeconds;
+            window.workedSeconds = 0;
+            window.remainingSeconds = window.workDaySeconds;
         }
 
         // Get the clock-in time for reference (to determine if the user is still clocked in)
@@ -336,23 +401,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Only increment worked time if the user is in active status
                 if (isActiveStatus) {
                     // Increase worked time by the elapsed seconds
-                    workedSeconds += elapsedSeconds;
-                    console.log(`Incremented worked seconds by ${elapsedSeconds} to:`, workedSeconds);
+                    window.workedSeconds += elapsedSeconds;
+                    console.log(`Incremented worked seconds by ${elapsedSeconds} to:`, window.workedSeconds);
 
                     // Decrease remaining time by the elapsed seconds
-                    remainingSeconds -= elapsedSeconds;
-                    console.log(`Decremented remaining seconds by ${elapsedSeconds} to:`, remainingSeconds);
+                    window.remainingSeconds -= elapsedSeconds;
+                    console.log(`Decremented remaining seconds by ${elapsedSeconds} to:`, window.remainingSeconds);
                 } else {
                     console.log('User is not in active status. Not incrementing worked time.');
                 }
 
                 // Update the display
-                if (remainingSeconds <= 0) {
+                if (window.remainingSeconds <= 0) {
                     clearInterval(timer);
                     countdownElement.textContent = '0:00';
                     if (hoursWorkedElement) {
                         // Ensure worked seconds is not negative
-                        const safeWorkedSeconds = Math.max(0, workedSeconds);
+                        const safeWorkedSeconds = Math.max(0, window.workedSeconds);
                         console.log('Safe worked seconds for display (time complete):', safeWorkedSeconds);
 
                         // Calculate hours, minutes, and seconds
@@ -378,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Update remaining hours display
                 // Ensure remaining seconds is not negative
-                const safeRemainingSeconds = Math.max(0, remainingSeconds);
+                const safeRemainingSeconds = Math.max(0, window.remainingSeconds);
                 const remainingHours = Math.floor(safeRemainingSeconds / 3600);
                 const remainingMinutesTotal = Math.floor((safeRemainingSeconds % 3600) / 60);
                 const remainingSecondsOnly = Math.floor(safeRemainingSeconds % 60);
@@ -393,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update worked hours display
                 if (hoursWorkedElement) {
                     // Ensure worked seconds is not negative
-                    const safeWorkedSeconds = Math.max(0, workedSeconds);
+                    const safeWorkedSeconds = Math.max(0, window.workedSeconds);
 
                     // Calculate hours, minutes, and seconds
                     const workedHours = Math.floor(safeWorkedSeconds / 3600);
@@ -424,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Update progress bar
                 if (timerBar) {
-                    const percentage = Math.min(100, Math.max(0, (workedSeconds / workDaySeconds) * 100));
+                    const percentage = Math.min(100, Math.max(0, (window.workedSeconds / workDaySeconds) * 100));
                     timerBar.style.width = `${percentage}%`;
                 }
 
@@ -442,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Update the data attributes with the current values
                         // Use the global totalHoursWorkedToday variable to ensure we don't reset
                         // when clocking in again on the same day
-                        const currentHoursWorked = workedSeconds / 3600;
+                        const currentHoursWorked = window.workedSeconds / 3600;
 
                         // Update the global total hours worked for the day
                         window.totalHoursWorkedToday = currentHoursWorked;
@@ -458,7 +523,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (remainingHoursData && countdownElement) {
                         // Update the remaining hours data attribute
-                        const currentRemainingHours = remainingSeconds / 3600;
+                        const currentRemainingHours = window.remainingSeconds / 3600;
                         remainingHoursData.setAttribute('data-server-remaining-hours', currentRemainingHours.toString());
                         countdownElement.setAttribute('data-server-remaining-hours', currentRemainingHours.toString());
 
@@ -466,8 +531,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     // Log the current values for debugging
-                    console.log('Current worked seconds:', workedSeconds, '=', (workedSeconds / 3600).toFixed(2), 'hours');
-                    console.log('Current remaining seconds:', remainingSeconds, '=', (remainingSeconds / 3600).toFixed(2), 'hours');
+                    console.log('Current worked seconds:', window.workedSeconds, '=', (window.workedSeconds / 3600).toFixed(2), 'hours');
+                    console.log('Current remaining seconds:', window.remainingSeconds, '=', (window.remainingSeconds / 3600).toFixed(2), 'hours');
                     console.log('Total hours worked today:', window.totalHoursWorkedToday);
                 }
             }, 1000); // Update every second for more responsive display
@@ -1085,13 +1150,14 @@ function setupTimeTracking() {
         });
     }
 
-    // Auto-refresh timesheet status
+    // Auto-refresh timesheet status more frequently to keep the timer in sync
     if (document.querySelector('.time-tracking-panel')) {
+        // Set up a more frequent sync for the timer
         setInterval(() => {
-            // Always update the timesheet status to ensure accurate data
-            console.log('Updating timesheet status from server');
-            updateTimesheetStatus();
-        }, 300000); // Update every 5 minutes to avoid potential conflicts
+            // Update the timesheet status to ensure accurate data
+            console.log('Syncing timer with server data');
+            updateTimesheetStatus(false, true); // Pass true for syncTimerOnly
+        }, 60000); // Update every minute for better accuracy
     }
 }
 
@@ -1157,7 +1223,7 @@ async function checkAndFixTimesheetState() {
 }
 
 // Update timesheet status without full page reload
-async function updateTimesheetStatus(forceUpdate = false) {
+async function updateTimesheetStatus(forceUpdate = false, syncTimerOnly = false) {
     try {
         const token = localStorage.getItem('token'); // Retrieve the token
         if (!token) {
@@ -1255,16 +1321,28 @@ async function updateTimesheetStatus(forceUpdate = false) {
                     console.log('Updated data attributes with total hours worked:', data.hoursWorked);
                 }
 
+                // If this is a timer sync request and the timer is running, update the timer values
+                if (syncTimerOnly && !isUserClockedOut && window.timerRunning) {
+                    console.log('Syncing running timer with server data');
+                    // Update the global timer values if they exist
+                    if (typeof window.updateTimerValues === 'function') {
+                        // Convert hours to seconds
+                        const serverWorkedSeconds = data.hoursWorked * 3600;
+                        const serverRemainingSeconds = data.remainingHours * 3600;
+                        window.updateTimerValues(serverWorkedSeconds, serverRemainingSeconds);
+                        console.log('Updated timer values from server - Worked:', data.hoursWorked, 'Remaining:', data.remainingHours);
+                    }
+                }
                 // Start the timer if the user is clocked in and the timer is not already running
-                if (!isUserClockedOut && typeof window.updateCountdown === 'function' && !window.timerRunning) {
+                else if (!isUserClockedOut && typeof window.updateCountdown === 'function' && !window.timerRunning) {
                     console.log('Starting timer from updateTimesheetStatus function');
                     console.log('User status:', data.activeEntry.status);
                     // Add a small delay to ensure the display is updated before starting the timer
                     setTimeout(() => {
                         window.updateCountdown();
                     }, 100);
-                } else if (!isUserClockedOut && window.timerRunning) {
-                    // If the timer is already running, just log it
+                } else if (!isUserClockedOut && window.timerRunning && !syncTimerOnly) {
+                    // If the timer is already running and this is not a sync request, just log it
                     console.log('Timer already running, not interfering with it');
                 }
             } else {
