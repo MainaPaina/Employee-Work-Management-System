@@ -452,12 +452,8 @@ class TimesheetController {
                         return res.status(500).json({ message: `Failed to force clock in: ${updateError.message}` });
                     }
                 } else {
-                    // This handles scenarios where an active entry might somehow span midnight without clockout.
-                    return res.status(400).json({
-                        message: 'Already actively clocked in. Please clock out first.',
-                        activeEntry: existingActiveEntry,
-                        canForceClockIn: true
-                    });
+                    // We'll automatically close the existing entry and create a new one
+                    console.log('Active entry found. Will be automatically closed by the TimeEntry.create method.');
                 }
             }
 
@@ -465,10 +461,16 @@ class TimesheetController {
             const todayEntries = await this.timesheetModel.findEntriesByEmployeeIdAndDate(userId, todayDateString);
             console.log(`Found ${todayEntries.length} entries for today`);
 
-            // We'll always create a new entry for each clock-in
+            // We'll always create a new entry for each clock-in or update an existing one
+            // The TimeEntry.create method will handle the logic of preserving accumulated hours
+
+            // Calculate the total hours worked so far today (before this new clock-in)
+            const hoursWorkedData = await this.timesheetModel.calculateHoursWorkedForDate(userId, todayDateString);
+            const previousHoursWorked = hoursWorkedData.hoursWorked || 0;
+            console.log(`Total hours worked so far today (before new clock-in): ${previousHoursWorked}`);
 
             // If no existing entry, proceed to create a new one
-            console.log('Creating new timesheet entry');
+            console.log('Creating new timesheet entry or updating existing one');
             try {
                 const newEntryData = {
                     employee_id: userId,
@@ -476,13 +478,14 @@ class TimesheetController {
                     start_time: now.toISOString(), // Ensure start_time is set here
                     status: 'active',
                     end_time: null,
-                    hours_worked: 0, // Explicitly set hours_worked to 0
+                    hours_worked: previousHoursWorked, // Use the accumulated hours worked so far
                     total_break_duration: 0,
                     total_unavailable_duration: 0
                 };
 
+                console.log('New entry data with accumulated hours:', newEntryData);
                 const createdEntry = await this.timesheetModel.create(newEntryData);
-                console.log('Entry created successfully:', createdEntry);
+                console.log('Entry created/updated successfully:', createdEntry);
 
                 // Get updated list of all entries for today after creating the new one
                 const updatedTodayEntries = await this.timesheetModel.findEntriesByEmployeeIdAndDate(userId, todayDateString);
@@ -566,10 +569,12 @@ class TimesheetController {
                         message: 'Failed to clock in: Error occurred while trying to recover from duplicate entry. Please refresh the page and try again.'
                     });
                 }
-            } else if (error.message === 'An active timesheet entry already exists for today. Please clock out first.') {
-                // This is the error thrown by our TimeEntry.create method when an active entry exists
+            } else if (error.message && error.message.includes('An active timesheet entry already exists')) {
+                // This error should no longer occur since we've updated the TimeEntry.create method
+                // to automatically close active entries, but we'll keep this as a fallback
+                console.log('Received active entry error despite auto-closing logic. Offering force clock-in.');
                 return res.status(400).json({
-                    message: error.message,
+                    message: 'An active timesheet entry exists. Use force clock-in to close it and create a new one.',
                     canForceClockIn: true
                 });
             } else {
@@ -624,10 +629,17 @@ class TimesheetController {
             const hoursWorked = effectiveWorkedMs / (1000 * 60 * 60);
             console.log(`Calculated hoursWorked: ${hoursWorked}`); // <-- ADDED LOG
 
+            // Get the current accumulated hours from the active entry
+            const currentAccumulatedHours = activeEntry.hours_worked || 0;
+
+            // Add the hours worked in this session to the accumulated total
+            const totalHoursWorked = currentAccumulatedHours + parseFloat(hoursWorked.toFixed(2));
+            console.log(`Current accumulated hours: ${currentAccumulatedHours}, This session: ${hoursWorked.toFixed(2)}, New total: ${totalHoursWorked.toFixed(2)}`);
+
             // Prepare data for update
             const updatedEntryData = {
                 end_time: clockOutTime.toISOString(),
-                hours_worked: parseFloat(hoursWorked.toFixed(2)), // Store with precision
+                hours_worked: parseFloat(totalHoursWorked.toFixed(2)), // Use the accumulated total
                 status: 'submitted' // Or 'completed'?
             };
 
