@@ -13,7 +13,7 @@ const verifyJWT = require('../middleware/verifyJWT');
 // GET /leave/apply - Display the form to apply for leave
 router.get('/apply', (req, res) => {
     // TODO: Fetch necessary data like leave types, balances via controller
-    res.render('apply-leave', { 
+    res.render('leave/apply', { 
         activePage: 'applyLeave', 
         title: 'Apply for Leave',
         leaveTypes: ['Vacation', 'Sick', 'Personal'], 
