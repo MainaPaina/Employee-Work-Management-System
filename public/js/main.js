@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Get the clock-in time for reference (to determine if the user is still clocked in)
         const clockInTimeText = document.getElementById('clockInTime');
-        const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
+        let hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
 
         // If the user is not clocked in, don't start the timer
         if (!hasActiveEntry) {
@@ -317,8 +317,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Is actively working:', isActivelyWorking);
 
         // Force start the timer if we have an active entry (debug)
-        const clockInTimeText = document.getElementById('clockInTime');
-        const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
         if (hasActiveEntry && !isActivelyWorking) {
             console.log('Found active entry but status text does not indicate active. Forcing timer start.');
             console.log('Clock in time:', clockInTimeText.textContent);
@@ -362,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Check if the user still has an active entry (clocked in)
                 const clockInTimeText = document.getElementById('clockInTime');
-                const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
+                hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
 
                 // Only stop the timer if the user has clocked out
                 if (!hasActiveEntry) {
@@ -404,9 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.workedSeconds += elapsedSeconds;
                     console.log(`Incremented worked seconds by ${elapsedSeconds} to:`, window.workedSeconds);
 
-                    // Decrease remaining time by the elapsed seconds
-                    window.remainingSeconds -= elapsedSeconds;
-                    console.log(`Decremented remaining seconds by ${elapsedSeconds} to:`, window.remainingSeconds);
+                    // Recalculate remaining time based on the updated total worked time
+                    window.remainingSeconds = Math.max(0, window.workDaySeconds - window.workedSeconds);
+                    console.log(`Recalculated remaining seconds:`, window.remainingSeconds);
                 } else {
                     console.log('User is not in active status. Not incrementing worked time.');
                 }
@@ -550,15 +548,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const cleanTimeStr = timeStr.toString().trim();
                 console.log('Parsing time string:', cleanTimeStr);
 
-                // Special case for negative values
-                if (cleanTimeStr.includes('-')) {
-                    console.warn('Negative time detected:', cleanTimeStr);
+                // Handle special case for "--:--" or similar (placeholder)
+                if (cleanTimeStr.includes('--')) {
+                    console.warn('Placeholder time format detected:', cleanTimeStr);
                     return { hours: 0, minutes: 0 };
                 }
 
-                // Handle special case for "--:--" or similar
-                if (cleanTimeStr.includes('--')) {
-                    console.warn('Invalid time format with dashes:', cleanTimeStr);
+                // Special case for negative values
+                if (cleanTimeStr.includes('-')) {
+                    console.warn('Negative time detected:', cleanTimeStr);
                     return { hours: 0, minutes: 0 };
                 }
 
@@ -606,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         // Only start the timer if the user is clocked in
         const clockInTimeText = document.getElementById('clockInTime');
-        const hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
+        let hasActiveEntry = clockInTimeText && clockInTimeText.textContent !== '--:--';
 
         if (hasActiveEntry && typeof window.updateCountdown === 'function' && !window.timerRunning) {
             console.log('Initializing timer on page load');
@@ -1558,28 +1556,43 @@ async function sendTimeTrackingRequest(url, method = 'POST', data = null, retryC
             const response = await fetch(url, fetchOptions);
             clearTimeout(timeoutId); // Clear the timeout if the request completes
 
-        const data = await response.json();
+            const data = await response.json();
 
-        // Check for non-OK responses (like 401, 403, 500 etc.)
-        if (!response.ok) {
-            // Special handling for 'Already actively clocked in' error with canForceClockIn flag
-            if (response.status === 400 && data.canForceClockIn && url.includes('/api/clock-in')) {
-                console.log('Detected force clock-in scenario in sendTimeTrackingRequest');
-                // Return the data with the error so the caller can handle it
-                return data;
+            // Check for non-OK responses (like 401, 403, 500 etc.)
+            if (!response.ok) {
+                // Special handling for 'Already actively clocked in' error with canForceClockIn flag
+                if (response.status === 400 && data.canForceClockIn && url.includes('/api/clock-in')) {
+                    console.log('Detected force clock-in scenario in sendTimeTrackingRequest');
+                    // Return the data with the error so the caller can handle it
+                    return data;
+                }
+
+                // Use the error message from the server response if available
+                const errorMessage = data.error || data.message || `Request failed with status ${response.status}`;
+                console.error(`API Error (${response.status}):`, errorMessage);
+                throw new Error(errorMessage);
             }
 
-            // Use the error message from the server response if available
-            const errorMessage = data.error || data.message || `Request failed with status ${response.status}`;
-            console.error(`API Error (${response.status}):`, errorMessage);
-            throw new Error(errorMessage);
+            return data;
+        } catch (error) {
+            // Catch fetch errors (network issues) or errors thrown from response check
+            console.error('sendTimeTrackingRequest Error:', error);
+
+            // Attempt to parse JSON even from error responses if needed, but handle gracefully
+            let errorDetail = 'Network error or invalid response';
+            if (error instanceof Error) {
+                errorDetail = error.message;
+            } else if (typeof error === 'string') {
+                errorDetail = error;
+            }
+
+            // Avoid throwing the raw error which might include the non-JSON string like "Unauthorized"
+            // Throw a consistent error message or the parsed server message if available
+            throw new Error(errorDetail);
         }
-
-        return data;
     } catch (error) {
-        // Catch fetch errors (network issues) or errors thrown from response check
-        console.error('sendTimeTrackingRequest Error:', error);
-
+        // Catch fetch network errors or errors from response.json() if response wasn't JSON
+        console.error('Network or processing error in sendTimeTrackingRequest:', error);
         // Attempt to parse JSON even from error responses if needed, but handle gracefully
         let errorDetail = 'Network error or invalid response';
         if (error instanceof Error) {
