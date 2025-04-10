@@ -4,6 +4,10 @@ const router = express.Router();
 const { createClient } = require('@supabase/supabase-js'); // Import createClient
 
 const adminUserManagementRoutes = require('./admin/usermanagement');
+const adminPolicyRoutes = require('./admin/policies');
+const adminDepartmentRoutes = require('./admin/departments');
+
+/// MIDDLEWARE
 const verifyRoles = require('../middleware/verifyRoles');
 
 // Anon key client (for general reads, respecting RLS)
@@ -11,6 +15,9 @@ const supabase = require('../config/supabaseClient');
 const supabaseAdmin = require('../config/supabaseAdmin');
 
 // Admin routes - Require login AND admin role
+router.use("/usermanagement", verifyRoles(['admin']), adminUserManagementRoutes);
+router.use("/policies", verifyRoles(['admin']), adminPolicyRoutes);
+router.use("/departments", verifyRoles(['admin']), adminDepartmentRoutes);
 
 let userTimeEntries = {};
 
@@ -123,6 +130,7 @@ async function getTimesheetData() {
     }
 }
 
+//router.get('/admin/usermanagement', verifyRoles(['admin']), async (req, res) => res.render('admin/usermanagement/index'));
 router.use('/admin/usermanagement', verifyRoles(['admin']), adminUserManagementRoutes);
 
 router.get('/timesheets', verifyRoles(['admin']), async (req, res) => {
@@ -151,7 +159,7 @@ router.get('/', verifyRoles(['admin']), async (req, res) => {
 
         const timesheets = await getTimesheetData();
 
-        res.render('admin', {
+        res.render('admin/index', {
             users: users || [],
             timesheets: timesheets || [],
             activePage: 'admin',

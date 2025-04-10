@@ -35,7 +35,6 @@ const timesheetRoutes = require('./routes/timesheet');
 const leaveRoutes = require('./routes/leave');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
-const adminUserManagementRoutes = require('./routes/admin/usermanagement'); // User management routes
 const profileRoutes = require('./routes/profile'); // New profile routes
 /// routes for legal pages
 const legalRoutes = require('./routes/legal');
@@ -145,7 +144,7 @@ app.use((req, res, next) => {
   }
   // 
   
-  console.log(req.session.user);
+  //console.log(req.session.user);
   next();
 });
 
@@ -215,13 +214,6 @@ app.use('/timesheet', checkAuth, timesheetRoutes);
 
 // Leave related routes - Require login
 app.use('/leave', checkAuth, leaveRoutes);
-
-// test roles read
-app.get('/roles', async (req, res) => {
-    const roles = await Role.list();
-    //await Role.list();
-    res.json({ 'roles': JSON.stringify(roles) });
-});
 
 // Profile related routes - Accessible to authenticated users
 app.use('/profile', checkAuth, profileRoutes);
