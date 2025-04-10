@@ -16,6 +16,7 @@ run-migration.js
 requirements.txt
 migrations/*
 data/*
+lostnfound.txt
 
 # Large files
 *.zip

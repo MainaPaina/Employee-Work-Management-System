@@ -11,7 +11,6 @@ const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash'); // Needed for flash messages
 
 // Import models if used directly in server.js
-const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
 const User = require('./model/User'); // Assuming User model exists
 
@@ -19,7 +18,6 @@ const User = require('./model/User'); // Assuming User model exists
 const authRoutes = require('./routes/auth');
 const employeeRoutes = require('./routes/employee');
 const timesheetRoutes = require('./routes/timesheet');
-const leaveRoutes = require('./routes/leave');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profile'); // New profile routes
@@ -121,7 +119,7 @@ app.use((req, res, next) => {
   res.locals.info_msg = req.flash('info');
   // Make activePage available globally, default to empty string
   res.locals.activePage = '';
-  
+
   // automatisk reload av nettleser
   if (process.env.NODE_ENV === 'development') {
     // sett reloadRunning til true for å aktivere skript
@@ -129,7 +127,7 @@ app.use((req, res, next) => {
     // sett reloadStarted til app variabelen started
     res.locals.reloadStarted = app.get('started');
   }
-  // 
+  //
   next();
 });
 
@@ -187,8 +185,7 @@ app.use('/employee', checkAuth, employeeRoutes);
 // Timesheet view/actions - Require login
 app.use('/timesheet', checkAuth, timesheetRoutes);
 
-// Leave related routes - Require login
-app.use('/leave', checkAuth, leaveRoutes);
+// Leave related routes - REMOVED (no longer needed)
 
 // Profile related routes - Accessible to authenticated users
 app.use('/profile', profileRoutes);
@@ -201,10 +198,10 @@ app.get('/profile', checkAuth, async (req, res) => {
     if (!userId) {
       return res.redirect('/login');
     }
-    
+
     // Get fresh user data from database to ensure we have the latest profile image
     const userData = await User.findById(userId) || req.session.user;
-    
+
     // Update session with fresh data if we got user data
     if (userData) {
       // Update profile image in session if it exists in the database
@@ -212,9 +209,9 @@ app.get('/profile', checkAuth, async (req, res) => {
         req.session.user.profile_image = userData.profile_image;
       }
     }
-    
+
     // Render profile page
-    res.render('profile', { 
+    res.render('profile', {
       activePage: 'profile',
       user: req.session.user
     });
@@ -337,11 +334,11 @@ app.get('/profile', checkAuth, async (req, res) => {
 
         // Get user data including profile image
         const userData = await User.findById(userId);
-        
+
         // Render the profile page with user data
-        res.render('profile', { 
+        res.render('profile', {
             user: userData,
-            activePage: 'profile' 
+            activePage: 'profile'
         });
     } catch (error) {
         console.error('Error loading profile page:', error);
@@ -423,7 +420,7 @@ if (process.env.NODE_ENV == 'development')
       res.json({ 'started': app.get('started') });
     });
   }
-  
+
 
 // ============================================================================
 // ERROR HANDLING
