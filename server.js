@@ -14,6 +14,7 @@ const flash = require('connect-flash'); // Needed for flash messages
 const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
 const User = require('./model/User'); // Assuming User model exists
+const Role = require('./model/Role'); // Assuming Role model exists
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -224,6 +225,14 @@ app.get('/profile', checkAuth, async (req, res) => {
   }
 });
 
+// test roles read
+// maina: 4044700a-8ede-4514-8530-d0bf506fb308
+app.get('/getroles/:id', async (req, res) => {
+  const { id } = req.params;
+  const roles = await Role.listUserRoles(id);
+  //await Role.list();
+  res.json({ 'roles': JSON.stringify(roles) });
+});
 
 // ============================================================================
 // SPECIFIC PAGE ROUTES (defined directly in server.js)
