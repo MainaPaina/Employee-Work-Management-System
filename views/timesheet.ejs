@@ -26,19 +26,19 @@
                     <div class="hours-display">
                         <div class="hours-row">
                             <span class="hours-label">Worked:</span>
-                            <span id="hours-worked" class="hours-value">
-                                --h --m
+                            <span id="hours-worked" class="hours-value" data-hours-worked="<%= hoursWorkedRaw || 0 %>">
+                                <%= hoursWorkedToday || '0h 0m' %>
                             </span>
                         </div>
                         <div class="hours-row">
                             <span class="hours-label">Remaining:</span>
-                            <span id="hours-remaining" class="hours-value">
-                                --h --m
+                            <span id="hours-remaining" class="hours-value" data-remaining-hours="<%= remainingHoursRaw || 8 %>">
+                                <%= remainingHoursToday || '8h 0m' %>
                             </span>
                         </div>
                         <!-- Progress Bar (relies on data attributes and JS) -->
                         <div class="progress-bar-container">
-                            <div id="work-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                            <div id="work-progress-bar" class="progress-bar" style="width: <%= Math.min(100, Math.max(0, ((hoursWorkedRaw || 0) / 8) * 100)) %>%;"></div>
                         </div>
                     </div>
                 </div>
@@ -63,23 +63,23 @@
             <div class="timer-display">
                 <div class="timer-item">
                     <span class="timer-label">Worked:</span>
-                    <span id="hours-worked" class="timer-value">--:--</span>
+                    <span id="timer-hours-worked" class="timer-value"><%= hoursWorkedToday || '0h 0m' %></span>
                     <!-- Hidden data attribute for initialization -->
-                    <span id="hours-worked-data" data-total-hours-worked="<%= locals.totalHoursWorkedToday || 0 %>" style="display: none;"></span>
+                    <span id="hours-worked-data" data-total-hours-worked="<%= hoursWorkedRaw || 0 %>" style="display: none;"></span>
                 </div>
                 <div class="timer-item">
                     <span class="timer-label">Remaining:</span>
-                    <span id="countdown-timer" class="timer-value">--:--</span>
+                    <span id="countdown-timer" class="timer-value"><%= remainingHoursToday || '8h 0m' %></span>
                 </div>
             </div>
             <div class="progress-bar-container mt-3">
                 <div class="progress" style="height: 10px;">
-                    <div class="progress-bar timer-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar timer-bar" role="progressbar" style="width: <%= Math.min(100, Math.max(0, ((hoursWorkedRaw || 0) / 8) * 100)) %>%;" aria-valuenow="<%= hoursWorkedRaw || 0 %>" aria-valuemin="0" aria-valuemax="8"></div>
                 </div>
             </div>
             <!-- Elements for Server-Side Data (optional but good practice) -->
-            <span data-server-hours-worked="<%= locals.totalHoursWorkedToday || 0 %>" style="display: none;"></span>
-            <span data-server-remaining-hours="<%= locals.remainingHoursToday || 8 %>" style="display: none;"></span>
+            <span data-server-hours-worked="<%= hoursWorkedRaw || 0 %>" style="display: none;"></span>
+            <span data-server-remaining-hours="<%= remainingHoursRaw || 8 %>" style="display: none;"></span>
         </div>
     </div>
 
@@ -287,7 +287,7 @@
                                     <td><%= entry.unavailable || '0 mins' %></td>
                                     <td><%= entry.totalAvailable || 'N/A' %></td>
                                     <td>
-                                        <% 
+                                        <%
                                           // Access status via rawEntry, with safety checks
                                           const status = (entry.rawEntry && entry.rawEntry.status) ? entry.rawEntry.status : 'Unknown';
                                           const statusClass = status.toLowerCase();
@@ -507,6 +507,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const hoursRemainingElement = document.getElementById('hours-remaining');
     const progressBarElement = document.getElementById('work-progress-bar');
 
+    // Get elements from the Timer Display Section
+    const timerHoursWorkedElement = document.getElementById('timer-hours-worked');
+    const countdownTimerElement = document.getElementById('countdown-timer');
+    const timerBarElement = document.querySelector('.progress-bar.timer-bar');
+
     // Helper to format hours into Xh Ym
     function formatHoursMinutes(decimalHours) {
         if (typeof decimalHours !== 'number' || isNaN(decimalHours)) {
@@ -520,6 +525,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to update the display live (will be called by setInterval)
     function updateLiveDisplay() {
+        // Check if the main.js timer is running
+        if (window.timerRunning && !window.timesheetTimerRunning) {
+            console.log('Main.js timer is running. Stopping timesheet timer.');
+            if (window.liveTimerIntervalId) {
+                clearInterval(window.liveTimerIntervalId);
+                window.liveTimerIntervalId = null;
+            }
+            return;
+        }
+
         if (!window.sessionStartTime || window.baseHoursWorked === null) {
             // Not actively working or base data not set
             // console.log('Live update skipped: No session start time or base hours.');
@@ -531,21 +546,62 @@ document.addEventListener('DOMContentLoaded', () => {
         const elapsedSeconds = elapsedMilliseconds / 1000;
         const elapsedHours = elapsedSeconds / 3600;
 
-        const currentTotalHours = window.baseHoursWorked + elapsedHours;
+        // Calculate the total hours worked for the day
+        // This includes the base hours (accumulated from previous sessions) plus the elapsed hours in the current session
+        const currentSessionHours = elapsedHours;
+        const currentTotalHours = window.baseHoursWorked + currentSessionHours;
+
+        // Store the total hours worked for the day in a global variable
+        // This will be used when the page is refreshed or when the user navigates away and back
+        window.totalHoursWorkedToday = currentTotalHours;
+
+        // Calculate the remaining hours in the 8-hour workday
         const currentRemainingHours = Math.max(0, 8 - currentTotalHours); // Assuming 8-hour day
 
-        // Update text content
+        // Store the remaining hours in a global variable for consistency
+        window.remainingHoursToday = currentRemainingHours;
+
+        // Also update localStorage to persist the values across page refreshes
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem('lastWorkDate', today);
+        localStorage.setItem('totalHoursWorkedToday', currentTotalHours.toString());
+        localStorage.setItem('remainingHoursToday', currentRemainingHours.toString());
+        // console.log('Updated localStorage with current values');
+
+        // Calculate the percentage for the progress bar
+        const percentage = Math.min(100, Math.max(0, (currentTotalHours / 8) * 100));
+
+        // Format the hours for display
+        const formattedHoursWorked = formatHoursMinutes(currentTotalHours);
+        const formattedRemainingHours = formatHoursMinutes(currentRemainingHours);
+
+        console.log('Current session hours:', currentSessionHours);
+        console.log('Total hours worked today:', currentTotalHours);
+        console.log('Remaining hours:', currentRemainingHours);
+
+        // Update Hours Today card
         if (hoursWorkedElement) {
-            hoursWorkedElement.textContent = formatHoursMinutes(currentTotalHours);
+            hoursWorkedElement.textContent = formattedHoursWorked;
+            hoursWorkedElement.setAttribute('data-hours-worked', currentTotalHours.toString());
         }
         if (hoursRemainingElement) {
-            hoursRemainingElement.textContent = formatHoursMinutes(currentRemainingHours);
+            hoursRemainingElement.textContent = formattedRemainingHours;
+            hoursRemainingElement.setAttribute('data-remaining-hours', currentRemainingHours.toString());
+        }
+        if (progressBarElement) {
+            progressBarElement.style.width = `${percentage}%`;
         }
 
-        // Update progress bar
-        if (progressBarElement) {
-            const percentage = Math.min(100, Math.max(0, (currentTotalHours / 8) * 100));
-            progressBarElement.style.width = `${percentage}%`;
+        // Update Timer Display Section
+        if (timerHoursWorkedElement) {
+            timerHoursWorkedElement.textContent = formattedHoursWorked;
+        }
+        if (countdownTimerElement) {
+            countdownTimerElement.textContent = formattedRemainingHours;
+        }
+        if (timerBarElement) {
+            timerBarElement.style.width = `${percentage}%`;
+            timerBarElement.setAttribute('aria-valuenow', currentTotalHours.toString());
         }
     }
 
@@ -604,28 +660,86 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.liveTimerIntervalId) {
             clearInterval(window.liveTimerIntervalId);
             window.liveTimerIntervalId = null;
+            window.timesheetTimerRunning = false;
             console.log('Cleared existing live timer.');
         }
         // Reset base values used by the timer
         window.baseHoursWorked = null;
         window.sessionStartTime = null;
 
-        const initialHoursWorked = statusData.hoursWorkedRaw !== undefined ? statusData.hoursWorkedRaw : 0;
-        // Assume 8h day for remaining calculation if not provided
-        const initialRemainingHours = statusData.remainingHoursRaw !== undefined ? statusData.remainingHoursRaw : Math.max(0, 8 - initialHoursWorked);
+        // Check if we have stored values in localStorage from the same day
+        const today = new Date().toISOString().split('T')[0];
+        const lastWorkDate = localStorage.getItem('lastWorkDate');
+        let storedHoursWorked = 0;
+        let storedRemainingHours = 0;
+
+        // If we have stored values from the same day, use them
+        if (lastWorkDate === today) {
+            storedHoursWorked = parseFloat(localStorage.getItem('totalHoursWorkedToday') || '0');
+            storedRemainingHours = parseFloat(localStorage.getItem('remainingHoursToday') || '8');
+            console.log('Found stored values from today:', lastWorkDate);
+            console.log('Stored hours worked:', storedHoursWorked);
+            console.log('Stored remaining hours:', storedRemainingHours);
+        } else {
+            console.log('No stored values from today or different day. Last work date:', lastWorkDate);
+        }
+
+        // Get the hours worked from the status data, window variable, or localStorage
+        const initialHoursWorked = statusData.hoursWorkedRaw !== undefined ? statusData.hoursWorkedRaw :
+                                  (window.totalHoursWorkedToday !== undefined ? window.totalHoursWorkedToday :
+                                   (lastWorkDate === today ? storedHoursWorked : 0));
+
+        // Calculate remaining hours based on total hours worked
+        // Use the value from the status data, window variable, or localStorage
+        const initialRemainingHours = statusData.remainingHoursRaw !== undefined ? statusData.remainingHoursRaw :
+                                     (window.remainingHoursToday !== undefined ? window.remainingHoursToday :
+                                      (lastWorkDate === today ? storedRemainingHours : Math.max(0, 8 - initialHoursWorked)));
+
+        // Store these values in global variables for consistency across all timers
+        window.totalHoursWorkedToday = initialHoursWorked;
+        window.remainingHoursToday = initialRemainingHours;
+
+        // Also update localStorage
+        localStorage.setItem('lastWorkDate', today);
+        localStorage.setItem('totalHoursWorkedToday', initialHoursWorked.toString());
+        localStorage.setItem('remainingHoursToday', initialRemainingHours.toString());
+
+        console.log('Initial hours worked set to:', initialHoursWorked);
+        console.log('Initial remaining hours set to:', initialRemainingHours);
 
         // --- Update display elements initially based on statusData ---
         // Set static display elements based on fetched data. Live timer will overwrite if active.
+        const initialPercentage = Math.min(100, Math.max(0, (initialHoursWorked / 8) * 100));
+        const formattedHoursWorked = formatHoursMinutes(initialHoursWorked);
+        const formattedRemainingHours = formatHoursMinutes(initialRemainingHours);
+
+        // Update Hours Today card
         if (hoursWorkedElement) {
-             hoursWorkedElement.textContent = formatHoursMinutes(initialHoursWorked);
+             hoursWorkedElement.textContent = formattedHoursWorked;
+             hoursWorkedElement.setAttribute('data-hours-worked', initialHoursWorked.toString());
         }
         if (hoursRemainingElement) {
-            hoursRemainingElement.textContent = formatHoursMinutes(initialRemainingHours);
+            hoursRemainingElement.textContent = formattedRemainingHours;
+            hoursRemainingElement.setAttribute('data-remaining-hours', initialRemainingHours.toString());
         }
-         if (progressBarElement) {
-             const initialPercentage = Math.min(100, Math.max(0, (initialHoursWorked / 8) * 100));
-             progressBarElement.style.width = `${initialPercentage}%`;
-         }
+        if (progressBarElement) {
+            progressBarElement.style.width = `${initialPercentage}%`;
+        }
+
+        // Update Timer Display Section
+        if (timerHoursWorkedElement) {
+            timerHoursWorkedElement.textContent = formattedHoursWorked;
+        }
+        if (countdownTimerElement) {
+            countdownTimerElement.textContent = formattedRemainingHours;
+        }
+        if (timerBarElement) {
+            timerBarElement.style.width = `${initialPercentage}%`;
+            timerBarElement.setAttribute('aria-valuenow', initialHoursWorked.toString());
+        }
+
+        // Store the initial hours worked in a global variable
+        window.totalHoursWorkedToday = initialHoursWorked;
 
         // Reset all buttons to default state (mostly disabled)
         clockInBtn.disabled = true;
@@ -656,18 +770,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 clockOutBtn.disabled = false; // Ensure clock out is enabled
                 statusTextElement.textContent = 'Active - Currently Working';
 
+                // Check if we have stored values in localStorage from the same day
+                const today = new Date().toISOString().split('T')[0];
+                const lastWorkDate = localStorage.getItem('lastWorkDate');
+                let storedHoursWorked = 0;
+
+                // If we have stored values from the same day, use them
+                if (lastWorkDate === today) {
+                    storedHoursWorked = parseFloat(localStorage.getItem('totalHoursWorkedToday') || '0');
+                    console.log('Found stored hours worked from today:', storedHoursWorked);
+                }
+
                 // Store base hours and start time for the live timer
-                // Use the initial values calculated above
-                window.baseHoursWorked = initialHoursWorked;
-                window.sessionStartTime = activeEntry.start_time ? new Date(activeEntry.start_time) : null;
+                // Use the total hours worked for the day as the base, not just the current session
+                // This ensures the timer doesn't reset when clocking in again
+                // Priority: window variable > localStorage > initialHoursWorked
+                window.baseHoursWorked = window.totalHoursWorkedToday !== undefined ? window.totalHoursWorkedToday :
+                                        (lastWorkDate === today ? storedHoursWorked : initialHoursWorked);
+
+                // For the session start time, we need to calculate it based on the current time and the elapsed hours
+                // in the current session to ensure the timer continues correctly
+                const now = new Date();
+                const currentSessionHours = activeEntry.hours_worked || 0;
+                const sessionStartTime = activeEntry.start_time ? new Date(activeEntry.start_time) : null;
+
+                // Store the session start time for the timer
+                window.sessionStartTime = sessionStartTime;
+
+                // Update localStorage with the current values
+                localStorage.setItem('lastWorkDate', today);
+                localStorage.setItem('totalHoursWorkedToday', window.baseHoursWorked.toString());
+                localStorage.setItem('remainingHoursToday', Math.max(0, 8 - window.baseHoursWorked).toString());
+
                 console.log('Base hours worked set:', window.baseHoursWorked);
                 console.log('Session start time set:', window.sessionStartTime);
+                console.log('Current session hours:', currentSessionHours);
 
-                // Start the live timer ONLY if sessionStartTime is valid and timer isn't already running
-                if (window.sessionStartTime && !window.liveTimerIntervalId) {
-                    console.log('Starting live timer.');
+                // Start the live timer ONLY if sessionStartTime is valid and no timer is already running
+                // Check both our own timer and the main.js timer
+                if (window.sessionStartTime && !window.liveTimerIntervalId && !window.timerRunning) {
+                    console.log('Starting live timer from timesheet.ejs');
+                    // Set a global flag to indicate that our timer is running
+                    window.timesheetTimerRunning = true;
                     updateLiveDisplay(); // Initial update immediately using calculated live value
                     window.liveTimerIntervalId = setInterval(updateLiveDisplay, 1000);
+                } else if (window.timerRunning) {
+                    console.log('Not starting timesheet timer because main.js timer is already running');
                 }
             } else {
                 // Handle 'on_break', 'unavailable', or other clocked-in states
@@ -740,6 +888,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 return; // Stop further processing on error
             }
             const statusData = await response.json();
+
+            // Ensure we have the correct hours worked and remaining hours
+            if (statusData.hoursWorked !== undefined) {
+                // Store the total hours worked for the day in a global variable
+                window.totalHoursWorkedToday = statusData.hoursWorked;
+                console.log('Stored total hours worked today from server:', window.totalHoursWorkedToday);
+
+                // Calculate remaining hours based on total hours worked
+                statusData.remainingHours = Math.max(0, 8 - statusData.hoursWorked);
+                statusData.remainingHoursRaw = statusData.remainingHours;
+                console.log('Calculated remaining hours:', statusData.remainingHours);
+
+                // Store the current date in localStorage to track if it's the same day
+                const today = new Date().toISOString().split('T')[0];
+                localStorage.setItem('lastWorkDate', today);
+                localStorage.setItem('totalHoursWorkedToday', statusData.hoursWorked.toString());
+                localStorage.setItem('remainingHoursToday', statusData.remainingHours.toString());
+                console.log('Stored work data in localStorage for date:', today);
+            }
+
             updateUI(statusData);
 
             // Start the timer if the user is actively working and the timer is not already running
