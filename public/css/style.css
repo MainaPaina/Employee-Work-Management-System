@@ -272,7 +272,7 @@ a:hover {
   color: var(--accent-color);
 }
 
-.nav-link::after {
+.nav-link:not(.login-nav-link)::after {
   content: '';
   position: absolute;
   width: 0;
@@ -384,6 +384,10 @@ text-decoration: none !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-decoration: none !important;
+}
+
+.login-nav-link {
+  color: white;
 }
 
 /* User dropdown styles */
@@ -1670,7 +1674,6 @@ body:not(.dark-mode) {
   .info-group label {
     color: #333333;
   }
-}
 
 /* 5. Ensure the hero section has proper contrast */
 .hero p {
@@ -2123,6 +2126,13 @@ body:not(.dark-mode) {
     color: var(--primary-color) !important;
   }
 
+  .login-nav-link {
+    color: white !important;
+  }
+  .login-nav-link:hover {
+    color: var(--light-gray) !important;
+  }
+
   /* Mobile menu toggle bars */
   .toggle-bar {
     background-color: var(--dark-text-color);
@@ -2349,7 +2359,6 @@ body:not(.dark-mode) .theme-toggle button i {
   color: var(--dark-text-color);
 }
 
-<<<<<<< HEAD
 /* Today's Clock-in Entries Styles */
 .timesheet-table-container {
   margin-bottom: 30px;
@@ -2425,7 +2434,7 @@ body:not(.dark-mode) .theme-toggle button i {
   padding: 20px;
   color: var(--text-muted);
   font-style: italic;
-=======
+}
 
 .button-group-contact {
     display: flex;
@@ -2453,5 +2462,4 @@ body:not(.dark-mode) .theme-toggle button i {
     color: var(--primary-color);
     text-decoration: none;
     padding-left: 2rem;
->>>>>>> ce6a395980f5fcef943524c131a3b9987088f908
 }
