@@ -466,7 +466,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Cache DOM elements
     const statusTextElement = document.getElementById('statusText');
-    const clockInTimeText = document.getElementById('clockInTime');
+    // const clockInTimeText = document.getElementById('clockInTime');
     const totalBreakTimeText = document.getElementById('totalBreakTime');
     const clockInBtn = document.getElementById('clockInBtn');
     const clockOutBtn = document.getElementById('clockOutBtn');
@@ -608,16 +608,16 @@ document.addEventListener('DOMContentLoaded', () => {
         startUnavailableBtn.disabled = true;
         endUnavailableBtn.disabled = true;
         statusTextElement.textContent = 'Not Clocked In';
-        clockInTimeText.textContent = '--:--';
+        // clockInTimeText.textContent = '--:--';
         totalBreakTimeText.textContent = '0 mins';
 
         if (activeEntry) {
             // User is clocked in
             clockOutBtn.disabled = false; // Base state when clocked in
             statusTextElement.textContent = `Status: ${activeEntry.status || 'Unknown'}`; // Default
-            if (activeEntry.start_time) {
-                clockInTimeText.textContent = new Date(activeEntry.start_time).toLocaleTimeString();
-            }
+            // if (activeEntry.start_time) {
+            //     clockInTimeText.textContent = new Date(activeEntry.start_time).toLocaleTimeString();
+            // }
              if (activeEntry.total_break_duration !== undefined) {
                  totalBreakTimeText.textContent = `${Math.round(activeEntry.total_break_duration)} mins`;
              }
