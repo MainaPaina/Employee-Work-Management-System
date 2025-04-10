@@ -9,36 +9,22 @@ const supabaseAdmin = require('../../config/supabaseAdmin');
 
 const verifyRoles = require('../../middleware/verifyRoles');
 
-const User = require('../../model/User');
 const Role = require('../../model/Role');
 
 router.get('/', verifyRoles(['admin']), async (req, res) => {
     try {
-        console.log('GET /admin/usermanagement called');
-        const { data: users, error: usersError } = await supabase
-            .from('users')
-            .select('id, username, name, role, active, email')
-            .order('name');
+        console.log('GET /admin/roles called');
+        // Fetch all users from the database
+        let roles = await Role.list(includeCountUsers = true);
 
-        if (usersError) {
-            console.error('Supabase error fetching users for admin page:', usersError);
-            throw usersError;
-        }
-
-        // Fetch roles for each user
-        for (let i = 0; i < users.length; i++) {
-            let roles = await Role.listUserRoles(users[i].id);
-            users[i].roles = roles;
-        }
-
-        res.render('admin/usermanagement/index', {
-            users: users || [],
+        res.render('admin/roles/index', {
+            roles: roles || [],
             activePage: 'admin',
             currentUser: req.session.user
         });
     } catch (error) {
         console.error('Error fetching admin data:', error);
-        res.render('admin', {
+        res.render('admin/index', {
             users: [],
             timesheets: [],
             activePage: 'admin',

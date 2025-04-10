@@ -11,9 +11,10 @@ const supabase = require('../config/supabaseClient');
 const supabaseAdmin = require('../config/supabaseAdmin');
 
 // Admin routes - Require login AND admin role
-router.use("/usermanagement", verifyRoles(['admin']), require('./admin/usermanagement'));
-router.use("/policies", verifyRoles(['admin']), require('./admin/policies'));
-router.use("/departments", verifyRoles(['admin']), require('./admin/departments'));
+router.use('/usermanagement', verifyRoles(['admin']), require('./admin/usermanagement'));
+router.use('/policies', verifyRoles(['admin']), require('./admin/policies'));
+router.use('/departments', verifyRoles(['admin']), require('./admin/departments'));
+router.use('/roles', verifyRoles(['admin']), require('./admin/roles'));
 
 // GET /admin
 router.get('/', verifyRoles(['admin']), async (req, res) => res.render('admin/index'));

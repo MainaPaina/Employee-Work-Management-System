@@ -34,7 +34,7 @@ class Role {
     }
 
     /// Static method to list all roles
-    static async list() {
+    static async list(includeCountUsers = false) {
         try {
             const { data, error } = await supabase
                 .from('roles')   // From table roles
@@ -42,6 +42,22 @@ class Role {
             if (error) {
                 console.error('Error fetching roles:', error.message);
                 return null;
+            }
+
+            if (includeCountUsers) {
+                for (let i = 0; i < data.length; i++) {
+                    const role = data[i];
+                    const { data: countData, error: countError } = await supabase
+                        .from('user_roles')
+                        .select('*', { count: 'exact' })
+                        .eq('role_id', role.id); // Assuming 'id' is the role ID in the user_roles table
+
+                    if (countError) {
+                        console.error('Error fetching user count:', countError.message);
+                        return null;
+                    }
+                    role.userCount = countData.count; // Add user count to the data object
+                }
             }
             return data; // Return the role objects (or null if not found)
         } catch (error) {
@@ -63,7 +79,7 @@ class Role {
             }
             if (data != null)
             {
-                console.log(data);
+                //console.log(data);
                 return data.map((item) => item.roles.name); // Extract role names from the data
             }
             return data; // Return the role objects (or null if not found)
