@@ -126,7 +126,7 @@ app.use((req, res, next) => {
   // automatisk reload av nettleser
   if (process.env.NODE_ENV === 'development') {
     // sett reloadRunning til true for å aktivere skript
-    res.locals.reloadRunning = true;
+    res.locals.reloadRunning = false;
     // sett reloadStarted til app variabelen started
     res.locals.reloadStarted = app.get('started');
   }

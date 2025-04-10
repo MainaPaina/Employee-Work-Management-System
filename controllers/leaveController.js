@@ -15,22 +15,22 @@ class LeaveController {
             }
 
             const { data: requests, error } = await this.leaveRequestModel.findAllByEmployee(employeeId);
-            
+
             if (error) {
                 console.error('Error fetching employee requests for page:', error);
                  // Render page with error or default state
-                 return res.status(500).render('leave', { 
-                    requests: [], 
+                 return res.status(500).render('leave', {
+                    requests: [],
                     error: 'Could not load your leave requests.',
                     user: req.user // Pass user info if needed
                 });
             }
 
-            res.render('leave', { 
-                requests: requests || [], 
+            res.render('leave', {
+                requests: requests || [],
                 error: null,
                 user: req.user // Pass user info if needed
-            }); 
+            });
 
         } catch (err) {
             console.error('Error rendering leave page:', err);
@@ -109,7 +109,7 @@ class LeaveController {
 
             // 1. Fetch the request to verify ownership and status
             const { data: request, error: findError } = await this.leaveRequestModel.findById(requestId);
-            
+
             if (findError || !request) {
                  return res.status(404).json({ error: 'Leave request not found.' });
             }
@@ -145,7 +145,7 @@ class LeaveController {
     async getAllRequests(req, res) {
          try {
             // TODO: Add filtering/pagination options? e.g., req.query.status
-            const { data, error } = await this.leaveRequestModel.findAll(); 
+            const { data, error } = await this.leaveRequestModel.findAll();
             if (error) throw error;
             res.status(200).json(data || []);
         } catch (err) {

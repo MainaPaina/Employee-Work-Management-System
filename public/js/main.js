@@ -97,6 +97,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('totalHoursWorkedToday', window.totalHoursWorkedToday.toString());
                 localStorage.setItem('remainingHoursToday', window.remainingHoursToday.toString());
 
+                console.log('Updated localStorage with current values:');
+                console.log('- Total hours worked today:', window.totalHoursWorkedToday);
+                console.log('- Remaining hours today:', window.remainingHoursToday);
+
+                // Update the progress bar if it exists
+                const progressBar = document.querySelector('.progress-bar.timer-bar');
+                if (progressBar) {
+                    const percentComplete = Math.min(100, Math.max(0, (window.totalHoursWorkedToday / 8) * 100));
+                    progressBar.style.width = `${percentComplete}%`;
+                    progressBar.setAttribute('aria-valuenow', window.totalHoursWorkedToday.toString());
+                    console.log(`Updated progress bar to ${percentComplete}%`);
+                }
+
                 console.log('Updated timer values - Worked:', window.totalHoursWorkedToday.toFixed(2),
                             'hours, Remaining:', window.remainingHoursToday.toFixed(2), 'hours');
 
@@ -207,8 +220,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Total hours worked today:', window.totalHoursWorkedToday);
             console.log('Remaining hours today:', window.remainingHoursToday);
 
+            // Use the accumulated hours worked for the day, not just the current session
             window.workedSeconds = Math.max(0, window.totalHoursWorkedToday * 3600);
             window.remainingSeconds = Math.max(0, window.remainingHoursToday * 3600);
+
+            console.log('Initialized timer with accumulated hours worked:', window.totalHoursWorkedToday);
         } else {
             // Check if we have stored values in localStorage from the same day
             const today = new Date().toISOString().split('T')[0];

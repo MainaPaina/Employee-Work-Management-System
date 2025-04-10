@@ -79,9 +79,27 @@ class TimeEntry {
             if (existingEntry.end_time && existingEntry.status !== 'active') {
                 console.log('[TimeEntry] Existing entry is completed. Re-activating it for new segment...');
 
+                // Get the full entry details to access all fields including hours_worked
+                const { data: fullEntry, error: fetchError } = await client
+                    .from('timesheets')
+                    .select('*')
+                    .eq('id', existingEntry.id)
+                    .single();
+
+                if (fetchError) {
+                    console.error('[TimeEntry] Error fetching full entry details:', fetchError);
+                    throw new Error(`Failed to fetch full timesheet entry details: ${fetchError.message}`);
+                }
+
                 // Preserve the previously accumulated hours_worked. Reset durations for the new segment.
-                const accumulatedHoursWorked = existingEntry.hours_worked || 0; // Get previous total
+                const accumulatedHoursWorked = fullEntry.hours_worked || 0; // Get previous total
                 console.log(`[TimeEntry] Preserving accumulated hours: ${accumulatedHoursWorked}`);
+
+                // Log more details about the accumulated hours
+                console.log('[TimeEntry] Accumulated hours breakdown:');
+                console.log(`[TimeEntry] - Hours from previous clock-ins: ${accumulatedHoursWorked}`);
+                console.log('[TimeEntry] - Hours from current session: 0 (just starting)');
+                console.log(`[TimeEntry] - Total accumulated hours: ${accumulatedHoursWorked}`);
 
                 // Update the existing entry to make it active again
                 const { data: updatedEntry, error: updateError } = await client
@@ -106,9 +124,67 @@ class TimeEntry {
                 console.log('[TimeEntry] Successfully re-activated existing entry for new segment.');
                 return updatedEntry;
             } else {
-                // If the existing entry is still active, we can't create a new one due to the unique constraint
-                console.error('[TimeEntry] Cannot create new entry: An active entry already exists for this employee and date');
-                throw new Error('An active timesheet entry already exists for today. Please clock out first.');
+                // If the existing entry is still active, update it to track the new clock-in
+                console.log('[TimeEntry] Found active entry. Updating it to track the new clock-in.');
+
+                // Get the full entry details to access all fields
+                const { data: fullEntry, error: fetchError } = await client
+                    .from('timesheets')
+                    .select('*')
+                    .eq('id', existingEntry.id)
+                    .single();
+
+                if (fetchError) {
+                    console.error('[TimeEntry] Error fetching full entry details:', fetchError);
+                    throw new Error(`Failed to fetch full timesheet entry details: ${fetchError.message}`);
+                }
+
+                // If the entry is active (not clocked out), calculate hours worked for the current session
+                let accumulatedHours = fullEntry.hours_worked || 0;
+
+                if (fullEntry.status === 'active' && !fullEntry.end_time) {
+                    // Calculate hours worked for the current active session
+                    const sessionStartTime = new Date(fullEntry.start_time);
+                    const sessionEndTime = new Date(start_time); // Use the new clock-in time as the end time
+                    const sessionDurationMs = sessionEndTime - sessionStartTime;
+                    const sessionDurationHours = sessionDurationMs / (1000 * 60 * 60);
+
+                    // Adjust for breaks and unavailable time
+                    const breakMinutes = fullEntry.total_break_duration || 0;
+                    const unavailableMinutes = fullEntry.total_unavailable_duration || 0;
+                    const totalDeductionHours = (breakMinutes + unavailableMinutes) / 60;
+
+                    // Calculate effective hours worked for this session
+                    const effectiveSessionHours = Math.max(0, sessionDurationHours - totalDeductionHours);
+
+                    // Add the current session hours to the accumulated total
+                    accumulatedHours += parseFloat(effectiveSessionHours.toFixed(2));
+
+                    console.log(`[TimeEntry] Calculated session hours: ${effectiveSessionHours.toFixed(2)}, New accumulated total: ${accumulatedHours.toFixed(2)}`);
+                }
+
+                // Update the existing entry with the new clock-in information
+                const { data: updatedEntry, error: updateError } = await client
+                    .from('timesheets')
+                    .update({
+                        start_time: start_time, // Update to the new clock-in time
+                        end_time: null, // Clear end time to make it active again
+                        status: 'active', // Set status to active
+                        total_break_duration: 0, // Reset break duration for the new session
+                        total_unavailable_duration: 0, // Reset unavailable duration for the new session
+                        hours_worked: accumulatedHours // Set hours_worked to the accumulated total
+                    })
+                    .eq('id', existingEntry.id)
+                    .select()
+                    .single();
+
+                if (updateError) {
+                    console.error('[TimeEntry] Error updating existing entry:', updateError);
+                    throw new Error(`Failed to update existing timesheet entry: ${updateError.message}`);
+                }
+
+                console.log('[TimeEntry] Successfully updated entry to track new clock-in.');
+                return updatedEntry; // Return the updated entry
             }
         }
 
@@ -228,6 +304,32 @@ class TimeEntry {
         return data; // Returns the entry object or null if not found
     }
 
+    // Method to find an entry by ID
+    static async findById(id) {
+        if (!id) {
+            throw new Error('Entry ID is required to find an entry.');
+        }
+
+        console.log(`[TimeEntry] Finding entry with ID: ${id}`);
+
+        const client = getAdminClient();
+
+        const { data, error } = await client
+            .from('timesheets')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) {
+            console.error(`[TimeEntry] Error finding entry with ID ${id}:`, error);
+            throw new Error(`Failed to find timesheet entry: ${error.message}`);
+        }
+
+        // No need to initialize clock_history as we're not using it anymore
+
+        return data;
+    }
+
     // Method to update an existing timesheet entry by its ID
     static async update(id, updateData) {
         // Ensure we have valid data to update
@@ -240,32 +342,17 @@ class TimeEntry {
 
         // --- MODIFICATION START: Handle cumulative hours on clock-out ---
         if (updateData.end_time && updateData.hours_worked !== undefined) {
-            console.log(`[TimeEntry Update] Clock-out detected for entry ${id}. Calculating cumulative hours.`);
+            console.log(`[TimeEntry Update] Clock-out detected for entry ${id}. Using provided hours_worked value.`);
 
-            // 1. Fetch the current entry
-            const { data: currentEntry, error: fetchError } = await client
-                .from('timesheets')
-                .select('hours_worked')
-                .eq('id', id)
-                .maybeSingle();
+            // Log the hours_worked value that's being used
+            console.log(`[TimeEntry Update] Using hours_worked value: ${updateData.hours_worked}`);
 
-            if (fetchError) {
-                console.error(`[TimeEntry Update] Error fetching current entry ${id}:`, fetchError);
-                throw new Error(`Failed to fetch current entry details for update: ${fetchError.message}`);
-            }
-            if (!currentEntry) {
-                console.warn(`[TimeEntry Update] Entry ${id} not found during cumulative calculation.`);
-                // Proceed with caution, or throw error? For now, assume updateData.hours_worked is the total.
-            } else {
-                const currentCumulativeHours = currentEntry.hours_worked || 0;
-                const lastSegmentHours = updateData.hours_worked; // This is duration of segment just ended
+            // IMPORTANT: We're no longer adding to the current hours_worked value here
+            // because the timesheetController.clockOut method already does this calculation.
+            // This prevents double-counting of hours.
 
-                const newCumulativeHours = currentCumulativeHours + lastSegmentHours;
-                console.log(`[TimeEntry Update] currentCumulative=${currentCumulativeHours}, lastSegment=${lastSegmentHours}, newCumulative=${newCumulativeHours}`);
-
-                // 2. Modify updateData to use the new cumulative total
-                updateData.hours_worked = parseFloat(newCumulativeHours.toFixed(2)); // Ensure precision
-            }
+            // Ensure precision with 2 decimal places
+            updateData.hours_worked = parseFloat(updateData.hours_worked.toFixed(2));
         }
         // --- MODIFICATION END ---
 
@@ -412,10 +499,23 @@ class TimeEntry {
         }
 
         console.log(`[TimeEntry] Found ${data ? data.length : 0} entries for date ${dateString}`);
+
+        // Log the details of each entry for debugging
+        if (data && data.length > 0) {
+            data.forEach((entry, index) => {
+                console.log(`[TimeEntry] Entry ${index + 1}:`);
+                console.log(`  ID: ${entry.id}`);
+                console.log(`  Status: ${entry.status}`);
+                console.log(`  Hours worked: ${entry.hours_worked || 0}`);
+                console.log(`  Start time: ${entry.start_time}`);
+                console.log(`  End time: ${entry.end_time || 'N/A'}`);
+            });
+        }
+
         return data || []; // Return array of entries or empty array
     }
 
-    // Method to calculate exact hours worked for an employee on a specific date (Revised for single entry per day)
+    // Method to calculate exact hours worked for an employee on a specific date (Updated to handle multiple entries per day)
     static async calculateHoursWorkedForDate(employeeId, dateString) {
         if (!employeeId || !dateString) {
             throw new Error('Employee ID and date are required to calculate hours worked.');
@@ -423,50 +523,59 @@ class TimeEntry {
 
         console.log(`[TimeEntry Calc] Calculating hours for employee ${employeeId} on ${dateString}`);
 
-        // Fetch the single entry for the employee on the specified date
-        // Assuming findEntriesByEmployeeIdAndDate returns an array, we take the first (or only) element
+        // Fetch all entries for the employee on the specified date
         const entries = await this.findEntriesByEmployeeIdAndDate(employeeId, dateString);
 
         if (!entries || entries.length === 0) {
-            console.log(`[TimeEntry Calc] No entry found for ${employeeId} on ${dateString}. Returning 0 hours.`);
+            console.log(`[TimeEntry Calc] No entries found for ${employeeId} on ${dateString}. Returning 0 hours.`);
             return { hoursWorked: 0, totalWorkedMinutes: 0, activeEntry: null };
         }
 
-        // Use the single entry for the day
-        const entry = entries[0];
-        console.log(`[TimeEntry Calc] Found entry: ID=${entry.id}, Status=${entry.status}, StoredHours=${entry.hours_worked}`);
+        console.log(`[TimeEntry Calc] Found ${entries.length} entries for ${employeeId} on ${dateString}.`);
 
-        // Start with the cumulative hours stored in the entry (up to the last clock-out)
-        let baseCumulativeHours = entry.hours_worked || 0;
-        let totalHoursWorked = baseCumulativeHours;
-        let currentActiveSegmentHours = 0; // Initialize active segment duration
+        // Initialize variables to track total hours and active entry
+        let totalHoursWorked = 0;
+        let activeEntry = null;
 
-        // Check if the entry is currently active and the user is working
-        if (!entry.end_time && entry.status === 'active') {
-            console.log(`[TimeEntry Calc] Entry ${entry.id} is active. Calculating current segment duration.`);
-            const startTime = new Date(entry.start_time);
-            const now = new Date();
+        // Process each entry and sum up the hours worked
+        for (const entry of entries) {
+            console.log(`[TimeEntry Calc] Processing entry: ID=${entry.id}, Status=${entry.status}, StoredHours=${entry.hours_worked || 0}`);
 
-            // Calculate elapsed time in hours for the current segment
-            const elapsedMillis = now - startTime;
-            const elapsedHours = elapsedMillis / (1000 * 60 * 60);
+            // For completed entries, use the stored hours_worked which includes all accumulated hours
+            if (entry.end_time && entry.hours_worked !== undefined) {
+                console.log(`[TimeEntry Calc] Adding completed entry hours: ${entry.hours_worked}`);
+                totalHoursWorked += entry.hours_worked;
+                console.log(`[TimeEntry Calc] Running total after adding entry ${entry.id}: ${totalHoursWorked.toFixed(2)} hours`);
+            }
 
-            // Get break and unavailable time *for the current active segment*
-            // These are reset on clock-in, so they only reflect the current segment
-            const currentBreakMinutes = entry.total_break_duration || 0;
-            const currentUnavailableMinutes = entry.total_unavailable_duration || 0;
-            const currentDeductionHours = (currentBreakMinutes + currentUnavailableMinutes) / 60;
+            // For active entries, calculate the current active session
+            if (!entry.end_time && entry.status === 'active') {
+                console.log(`[TimeEntry Calc] Entry ${entry.id} is active. Calculating current session duration.`);
+                activeEntry = entry; // Store the active entry for return
 
-            // Calculate the net duration of the current active segment
-            currentActiveSegmentHours = Math.max(0, elapsedHours - currentDeductionHours);
+                const startTime = new Date(entry.start_time);
+                const now = new Date();
 
-            console.log(`[TimeEntry Calc] Current segment: ElapsedHours=${elapsedHours.toFixed(2)}, DeductionHours=${currentDeductionHours.toFixed(2)}, NetSegmentHours=${currentActiveSegmentHours.toFixed(2)}`);
+                // Calculate elapsed time in hours for the current session
+                const elapsedMillis = now - startTime;
+                const elapsedHours = elapsedMillis / (1000 * 60 * 60);
 
-            // Add the current active segment's duration to the base cumulative hours
-            totalHoursWorked += currentActiveSegmentHours;
+                // Get break and unavailable time for the current active session
+                const currentBreakMinutes = entry.total_break_duration || 0;
+                const currentUnavailableMinutes = entry.total_unavailable_duration || 0;
+                const currentDeductionHours = (currentBreakMinutes + currentUnavailableMinutes) / 60;
 
-        } else {
-            console.log(`[TimeEntry Calc] Entry ${entry.id} is not currently active or user is not working (Status: ${entry.status}). Using stored hours: ${baseCumulativeHours.toFixed(2)}`);
+                // Calculate the net duration of the current active session
+                const currentActiveSessionHours = Math.max(0, elapsedHours - currentDeductionHours);
+
+                console.log(`[TimeEntry Calc] Current session: ElapsedHours=${elapsedHours.toFixed(2)}, DeductionHours=${currentDeductionHours.toFixed(2)}, NetSessionHours=${currentActiveSessionHours.toFixed(2)}`);
+
+                // Add the current active session's duration to the total hours worked
+                totalHoursWorked += currentActiveSessionHours;
+                console.log(`[TimeEntry Calc] Added active session hours: ${currentActiveSessionHours.toFixed(2)}`);
+                console.log(`[TimeEntry Calc] Running total after adding active session: ${totalHoursWorked.toFixed(2)} hours`);
+            }
+            // We've already handled completed entries above
         }
 
         // Final total hours
@@ -474,11 +583,12 @@ class TimeEntry {
         const finalMinutes = finalHours * 60;
 
         console.log(`[TimeEntry Calc] Final total hours worked for ${dateString}: ${finalHours.toFixed(2)} (${finalMinutes.toFixed(2)} minutes)`);
+        console.log(`[TimeEntry Calc] Active entry: ${activeEntry ? activeEntry.id : 'None'}`);
 
         return {
             hoursWorked: parseFloat(finalHours.toFixed(2)), // Return with precision
             totalWorkedMinutes: parseFloat(finalMinutes.toFixed(2)), // Return with precision
-            activeEntry: !entry.end_time ? entry : null // Return the entry if it's active
+            activeEntry: activeEntry // Return the active entry if found
         };
     }
 
