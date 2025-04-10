@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const leaveController = require('../controllers/leaveController'); 
-const verifyJWT = require('../middleware/verifyJWT'); 
+const leaveController = require('../controllers/leaveController');
+const { getLeaveSummary } = require('../model/Leave');
+const verifyJWT = require('../middleware/verifyJWT');
+const Leave = require('../model/Leave');
+
 
 // Instantiate Controller (if it's a class)
 // const controller = new leaveController(); 
@@ -11,20 +14,34 @@ const verifyJWT = require('../middleware/verifyJWT');
 // === PAGE RENDERING ROUTES ===
 
 // GET /leave/apply - Display the form to apply for leave
-router.get('/apply', (req, res) => {
-    // TODO: Fetch necessary data like leave types, balances via controller
-    res.render('apply-leave', { 
-        activePage: 'applyLeave', 
-        title: 'Apply for Leave',
-        leaveTypes: ['Vacation', 'Sick', 'Personal'], 
-        // TODO: Replace placeholder with actual data from leaveController
-        leaveData: { 
-            totalQuota: 20, 
-            leaveUsed: 5, 
-            leaveRemaining: 15 
+
+router.get("/apply", async (req, res) => {
+    try {
+        const user = req.session.user;
+        if (!user || !user.id) {
+            return res.status(401).send("Unauthorized")
         }
-    });
+
+        const employeeId = user.id;
+        
+        const summary = await Leave.getLeaveSummary(employeeId);
+
+        res.render("apply-leave", {
+            activePage: "applyLeave",
+            title: "Apply for Leave", 
+            leaveTypes: ["Vacation", "Sick", "Personal"],
+            leaveData: {
+                totalQuota: summary.totalQuota,
+                leavesUsed: summary.usedLeaves,
+                leavesRemaining: summary.totalQuota - summary.usedLeaves
+            }
+        });
+    } catch (error) {
+        console.error("Error rendering leave form:", error);
+        res.status(500).send("Server error while loading leave application form.")
+    }
 });
+
 
 // GET /leave/ - Display the user's leave history (Example)
 router.get('/', (req, res) => {
