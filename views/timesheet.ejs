@@ -1438,19 +1438,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 console.log('Sending clock-out request to /api/clock-out');
-                const response = await fetch('/api/clock-out', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Add JWT to header
-                    },
-                });
+                try {
+                    // Use the sendTimeTrackingRequest function instead of fetch directly
+                    const result = await sendTimeTrackingRequest('/api/clock-out', 'POST');
+                    console.log('Clock-out response data:', result);
 
-                console.log('Clock-out response status:', response.status);
-                const result = await response.json();
-                console.log('Clock-out response data:', result);
-
-                if (response.ok) {
+                    // If we get here, the request was successful
                     console.log('Clock out successful:', result);
                     showNotification('Clocked out successfully!', 'success');
 
@@ -1534,15 +1527,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Refresh UI without referencing any variables from the outer scope
                         fetchAndUpdateStatus();
                     }, 500);
-                } else {
-                    const errorMessage = result.message || result.error || 'Unknown error';
-                    console.error('Clock out failed:', errorMessage);
+                } catch (error) {
+                    console.error('Clock out failed:', error.message);
 
                     // Handle specific error messages
-                    if (errorMessage.includes('Not clocked in')) {
+                    if (error.message.includes('Not clocked in')) {
                         showNotification('You are not currently clocked in.', 'warning');
                     } else {
-                        showNotification(`Clock out failed: ${errorMessage}`, 'error');
+                        showNotification(`Clock out failed: ${error.message}`, 'error');
                     }
 
                     // Re-enable the button
