@@ -342,32 +342,17 @@ class TimeEntry {
 
         // --- MODIFICATION START: Handle cumulative hours on clock-out ---
         if (updateData.end_time && updateData.hours_worked !== undefined) {
-            console.log(`[TimeEntry Update] Clock-out detected for entry ${id}. Calculating cumulative hours.`);
+            console.log(`[TimeEntry Update] Clock-out detected for entry ${id}. Using provided hours_worked value.`);
 
-            // 1. Fetch the current entry
-            const { data: currentEntry, error: fetchError } = await client
-                .from('timesheets')
-                .select('hours_worked')
-                .eq('id', id)
-                .maybeSingle();
+            // Log the hours_worked value that's being used
+            console.log(`[TimeEntry Update] Using hours_worked value: ${updateData.hours_worked}`);
 
-            if (fetchError) {
-                console.error(`[TimeEntry Update] Error fetching current entry ${id}:`, fetchError);
-                throw new Error(`Failed to fetch current entry details for update: ${fetchError.message}`);
-            }
-            if (!currentEntry) {
-                console.warn(`[TimeEntry Update] Entry ${id} not found during cumulative calculation.`);
-                // Proceed with caution, or throw error? For now, assume updateData.hours_worked is the total.
-            } else {
-                const currentCumulativeHours = currentEntry.hours_worked || 0;
-                const lastSegmentHours = updateData.hours_worked; // This is duration of segment just ended
+            // IMPORTANT: We're no longer adding to the current hours_worked value here
+            // because the timesheetController.clockOut method already does this calculation.
+            // This prevents double-counting of hours.
 
-                const newCumulativeHours = currentCumulativeHours + lastSegmentHours;
-                console.log(`[TimeEntry Update] currentCumulative=${currentCumulativeHours}, lastSegment=${lastSegmentHours}, newCumulative=${newCumulativeHours}`);
-
-                // 2. Modify updateData to use the new cumulative total
-                updateData.hours_worked = parseFloat(newCumulativeHours.toFixed(2)); // Ensure precision
-            }
+            // Ensure precision with 2 decimal places
+            updateData.hours_worked = parseFloat(updateData.hours_worked.toFixed(2));
         }
         // --- MODIFICATION END ---
 

@@ -620,14 +620,14 @@ class TimesheetController {
 
             // Calculate effective worked duration
             let effectiveWorkedMs = totalDurationMs - totalBreakMs - totalUnavailableMs;
-            console.log(`Durations: totalMs=${totalDurationMs}, breakMs=${totalBreakMs}, unavailableMs=${totalUnavailableMs}`); // <-- ADDED LOG
-            console.log(`Calculated effectiveWorkedMs (before clamp): ${effectiveWorkedMs}`); // <-- ADDED LOG
+            console.log(`Durations: totalMs=${totalDurationMs}, breakMs=${totalBreakMs}, unavailableMs=${totalUnavailableMs}`);
+            console.log(`Calculated effectiveWorkedMs (before clamp): ${effectiveWorkedMs}`);
             if (effectiveWorkedMs < 0) effectiveWorkedMs = 0; // Ensure non-negative
-            console.log(`Calculated effectiveWorkedMs (after clamp): ${effectiveWorkedMs}`); // <-- ADDED LOG
+            console.log(`Calculated effectiveWorkedMs (after clamp): ${effectiveWorkedMs}`);
 
             // Convert effective worked duration to hours (decimal)
             const hoursWorked = effectiveWorkedMs / (1000 * 60 * 60);
-            console.log(`Calculated hoursWorked: ${hoursWorked}`); // <-- ADDED LOG
+            console.log(`Calculated hoursWorked: ${hoursWorked}`);
 
             // Get the current accumulated hours from the active entry
             const currentAccumulatedHours = activeEntry.hours_worked || 0;
@@ -635,6 +635,18 @@ class TimesheetController {
             // Add the hours worked in this session to the accumulated total
             const totalHoursWorked = currentAccumulatedHours + parseFloat(hoursWorked.toFixed(2));
             console.log(`Current accumulated hours: ${currentAccumulatedHours}, This session: ${hoursWorked.toFixed(2)}, New total: ${totalHoursWorked.toFixed(2)}`);
+
+            // Log more details about the calculation
+            console.log('Clock-out calculation breakdown:');
+            console.log(`- Start time: ${startTime.toISOString()}`);
+            console.log(`- End time: ${clockOutTime.toISOString()}`);
+            console.log(`- Total duration (ms): ${totalDurationMs}`);
+            console.log(`- Break time (ms): ${totalBreakMs}`);
+            console.log(`- Unavailable time (ms): ${totalUnavailableMs}`);
+            console.log(`- Effective worked time (ms): ${effectiveWorkedMs}`);
+            console.log(`- Effective worked time (hours): ${hoursWorked}`);
+            console.log(`- Previous accumulated hours: ${currentAccumulatedHours}`);
+            console.log(`- Final total hours: ${totalHoursWorked}`);
 
             // Prepare data for update
             const updatedEntryData = {
