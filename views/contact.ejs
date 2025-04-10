@@ -23,7 +23,7 @@
 					<p>You can log your work hours by navigating to the Timesheet page after logging in. The system automatically records your login time, and you can manually log your breaks and logout time.</p>
 					<p>
 						<a href="/timesheet" class="btn btn-sm btn-outline-primary mt-2">
-							Go to Timesheet <i class="fas fa-arrow-right"></i>
+							Go to Timesheet <i class="fas fa-arrow-right"></i> 
 						</a>
 					</p>
 				</div>
@@ -100,7 +100,7 @@
 				<div class="faq-answer" id="faq-a1" aria-hidden="true">
 					<p>You can log your work hours by navigating to the Timesheet page after logging in. The system automatically records your login time, and you can manually log your breaks and logout time.</p>
 					<a href="/timesheet" class="faq-link">Go to Timesheet <i class="fas fa-arrow-right"></i></a>
-
+					
 				</div>
 			</div>
 
@@ -128,7 +128,7 @@
 				<div class="faq-answer" id="faq-a3" aria-hidden="true">
 					<p>To apply for a leave, go to the Apply Leave page, check your available leave balance, and click on the "Apply Leave" button. Fill in the required details in the form, including the leave reason and duration, and submit it for approval.</p>
 					<p>
-						<a href="/leave/apply" class="faq-link">Apply for Leave <i class="fas fa-arrow-right"></i></a>
+						<a href="/leave/apply" class="faq-link">Apply for Leave <i class="fas fa-arrow-right"></i></a>	
 					</p>
 				</div>
 			</div>
@@ -179,7 +179,7 @@
                     <div class="form-group mt-2">
                         <label for="phone">Phone</label>
                         <input type="tel" id="phone" class="form-control" required>
-                    </div>
+                    </div>	
 
                     <div class="form-group mt-2">
                         <label for="email">Email</label>
@@ -190,7 +190,7 @@
                         <label for="query">Your Query</label>
                         <textarea id="query" class="form-control" rows="5" required></textarea>
                     </div>
-
+					
                     <div class="button-group-contact mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-paper-plane"></i> Submit
@@ -204,7 +204,7 @@
         </div>
         <div class="feature-card">
             <h3><i class="fas fa-headset"></i> Immediate Contact</h3>
-
+                
             <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
                 <div class="immediate-contact-info">
                     <p>
@@ -241,12 +241,12 @@ function showContactOptionsForm() {
     const contactForm = document.getElementById("contact-option-form-content");
     const contactText = document.getElementById("contact-option-form");
     const featureGrid = document.getElementById("contact-options-grid");
-
+    
     // Instant display with minimal animation delay
     contactForm.style.display = 'block';
     contactText.style.opacity = '0';
     contactText.style.transform = 'translateY(-20px)';
-
+    
     // Minimize delay
     setTimeout(() => {
         contactText.style.display = 'none';
@@ -256,7 +256,7 @@ function showContactOptionsForm() {
         const firstInput = contactForm.querySelector('input');
         if (firstInput) firstInput.focus();
     }, 50); // Ultra-fast transition
-
+    
     return false;
 }
 
@@ -264,23 +264,23 @@ function hideContactOptionsForm() {
     const contactForm = document.getElementById("contact-option-form-content");
     const contactText = document.getElementById("contact-option-form");
     const featureGrid = document.getElementById("contact-options-grid");
-
+    
     contactForm.style.opacity = '0';
     contactForm.style.transform = 'translateY(20px)';
-
+    
     setTimeout(() => {
         contactForm.style.display = 'none';
         contactText.style.display = 'block';
         contactText.style.opacity = '0';
         contactText.style.transform = 'translateY(-20px)';
         featureGrid.style.gridTemplateColumns = "1fr 1fr";
-
+        
         setTimeout(() => {
             contactText.style.opacity = '1';
             contactText.style.transform = 'translateY(0)';
         }, 50);
     }, 100);
-
+    
     return false;
 }
 </script>

@@ -1,148 +1,131 @@
 const supabase = require('../config/supabaseClient');
 
 class LeaveRequest {
-    /**
-     * Create a new leave request
-     * @param {Object} requestData - Leave request data
-     * @returns {Promise<Object>} - Created leave request
-     */
+    // Create a new leave request
     static async create(requestData) {
-        try {
-            const { data, error } = await supabase
-                .from('leave_requests')
-                .insert(requestData)
-                .select()
-                .single();
+        const { employee_id, start_date, end_date, leave_type, reason, total_leave_days } = requestData;
 
-            if (error) throw error;
-            return data;
-        } catch (error) {
-            console.error('Error creating leave request:', error);
-            throw error;
+        // Basic validation
+        if (!employee_id || !start_date || !end_date || !leave_type) {
+            return { data: null, error: new Error('Missing required fields for leave request.') };
         }
+
+        // TODO: Add logic to calculate total_leave_days if not provided, 
+        // potentially excluding weekends/holidays. For now, assume it's provided or null.
+
+        const { data, error } = await supabase
+            .from('leave_requests')
+            .insert([
+                { 
+                    employee_id, 
+                    start_date, 
+                    end_date, 
+                    leave_type, 
+                    reason, 
+                    total_leave_days,
+                    // status defaults to 'Pending' in DB
+                    // requested_at defaults to now() in DB
+                }
+            ])
+            .select() // Return the created record
+            .single(); // Expecting a single record back
+
+        if (error) {
+            console.error('Supabase error creating leave request:', error.message);
+        }
+        
+        return { data, error };
     }
 
-    /**
-     * Find all leave requests with optional filtering
-     * @param {Object} options - Filter options
-     * @returns {Promise<Array>} - Array of leave requests
-     */
-    static async findAll(options = {}) {
-        try {
-            let query = supabase
-                .from('leave_requests')
-                .select('*, employees(*)');
-
-            // Apply filters if provided
-            if (options.status) {
-                query = query.eq('status', options.status);
-            }
-            
-            if (options.startDate) {
-                query = query.gte('start_date', options.startDate);
-            }
-            
-            if (options.endDate) {
-                query = query.lte('end_date', options.endDate);
-            }
-
-            // Order by created_at by default
-            query = query.order('created_at', { ascending: false });
-
-            const { data, error } = await query;
-
-            if (error) throw error;
-            return data || [];
-        } catch (error) {
-            console.error('Error finding leave requests:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Find leave requests by employee ID
-     * @param {number} employeeId - Employee ID
-     * @returns {Promise<Array>} - Array of leave requests
-     */
-    static async findAllByEmployee(employeeId) {
-        try {
-            const { data, error } = await supabase
-                .from('leave_requests')
-                .select('*')
-                .eq('employee_id', employeeId)
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-            return { data: data || [], error: null };
-        } catch (error) {
-            console.error('Error finding employee leave requests:', error);
-            return { data: null, error };
-        }
-    }
-
-    /**
-     * Find a leave request by ID
-     * @param {number} id - Leave request ID
-     * @returns {Promise<Object>} - Leave request
-     */
+    // Find a leave request by its ID
     static async findById(id) {
-        try {
-            const { data, error } = await supabase
-                .from('leave_requests')
-                .select('*, employees(*)')
-                .eq('id', id)
-                .single();
+        const { data, error } = await supabase
+            .from('leave_requests')
+            .select('*') // Select all columns
+            // Consider joining with employees table if needed: .select('*, employees(fullName, email)')
+            .eq('id', id)
+            .single();
 
-            if (error) throw error;
-            return data;
-        } catch (error) {
-            console.error('Error finding leave request by ID:', error);
-            throw error;
+        if (error && error.code !== 'PGRST116') { // Ignore 'Range not satisfactory' error for no rows found
+             console.error('Supabase error finding leave request by ID:', error.message);
         }
+
+        return { data, error: data ? null : error }; // Return error only if it's not the "not found" error
     }
 
-    /**
-     * Update a leave request
-     * @param {number} id - Leave request ID
-     * @param {Object} updateData - Updated leave request data
-     * @returns {Promise<Object>} - Updated leave request
-     */
-    static async update(id, updateData) {
-        try {
-            const { data, error } = await supabase
-                .from('leave_requests')
-                .update(updateData)
-                .eq('id', id)
-                .select()
-                .single();
+    // Find all leave requests for a specific employee
+    static async findAllByEmployee(employeeId) {
+        const { data, error } = await supabase
+            .from('leave_requests')
+            .select('*') // Select all columns, potentially join with employees later
+            .eq('employee_id', employeeId)
+            .order('start_date', { ascending: false }); // Order by start date, newest first
 
-            if (error) throw error;
-            return data;
-        } catch (error) {
-            console.error('Error updating leave request:', error);
-            throw error;
+        if (error) {
+            console.error('Supabase error finding leave requests by employee:', error.message);
         }
+
+        return { data, error };
+    }
+    
+    // Find all leave requests (e.g., for admin/manager view)
+    static async findAll(options = {}) {
+        // Example: Allow filtering by status or date range in the future
+        // const { statusFilter, dateFilter } = options; 
+        
+        let query = supabase
+            .from('leave_requests')
+             // Join with employees table to get employee name
+            .select(`
+                *,
+                employee:employees ( fullName, email ) 
+            `); 
+            // TODO: Add filters based on options
+
+        query = query.order('requested_at', { ascending: false }); // Order by request date
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error('Supabase error finding all leave requests:', error.message);
+        }
+
+        return { data, error };
     }
 
-    /**
-     * Delete a leave request
-     * @param {number} id - Leave request ID
-     * @returns {Promise<boolean>} - Success status
-     */
-    static async delete(id) {
-        try {
-            const { error } = await supabase
-                .from('leave_requests')
-                .delete()
-                .eq('id', id);
+    // Update the status of a leave request (Approve/Reject)
+    static async updateStatus(id, status, approverId, comments = null) {
+         if (!status || !approverId) {
+             return { data: null, error: new Error('Missing status or approver ID for update.') };
+         }
+         
+         const allowedStatuses = ['Approved', 'Rejected', 'Cancelled']; // Add 'Cancelled' if employees can cancel
+         if (!allowedStatuses.includes(status)) {
+             return { data: null, error: new Error('Invalid status provided.') };
+         }
 
-            if (error) throw error;
-            return true;
-        } catch (error) {
-            console.error('Error deleting leave request:', error);
-            throw error;
+        const { data, error } = await supabase
+            .from('leave_requests')
+            .update({ 
+                status: status, 
+                approver_id: approverId,
+                comments: comments,
+                approved_at: new Date().toISOString() // Set approval timestamp
+            })
+            .eq('id', id)
+             // Optionally add constraint: .eq('status', 'Pending') to only update pending requests
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Supabase error updating leave request status:', error.message);
         }
+        
+        return { data, error };
     }
+
+    // TODO: Add delete method if needed
+    // static async delete(id) { ... }
 }
 
 module.exports = LeaveRequest;

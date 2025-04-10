@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Leave = require('../model/Leave');
 const TimeEntry = require('../model/TimeEntry');
 
 // Dashboard route (main dashboard page, not /apply)
@@ -14,7 +15,8 @@ router.get("/", async (req, res) => {
 
         const employeeId = user.id;
 
-        // Leave functionality has been removed
+        // Get leave summary
+        const summary = await Leave.getLeaveSummary(employeeId);
 
         // Fetch data using the helper method - this now includes aggregated hoursWorked
         /* const timesheetData = await this._fetchTimesheetStatusData(employeeId); */
@@ -42,9 +44,9 @@ router.get("/", async (req, res) => {
             activePage: "dashboard",
             title: "User Dashboard",
             leaveData: {
-                totalQuota: 25, // Default values for leave functionality
-                leavesUsed: 5,
-                leavesRemaining: 20
+                totalQuota: summary.totalQuota,
+                leavesUsed: summary.usedLeaves,
+                leavesRemaining: summary.totalQuota - summary.usedLeaves
             },
             dashboardData: {
                 activeEntry: activeEntry,

@@ -1,0 +1,51 @@
+<div class="container">
+    <h1 class="text-center mb-2">Leave Request Form</h1>
+    
+    <div class="leave-request-form">
+        <form>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="employee-id">Employee ID</label>
+                    <input type="text" id="employee-id" class="form-control" value="<%= userData.employeeId %>" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" class="form-control" value="<%= userData.name %>" readonly>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control" value="<%= userData.email %>" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="manager-email">Manager Email</label>
+                <input type="email" id="manager-email" class="form-control" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="from-date">From Date</label>
+                    <input type="date" id="from-date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="to-date">To Date</label>
+                    <input type="date" id="to-date" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="leave-reason">Leave Reason</label>
+                <textarea id="leave-reason" class="form-control" rows="5" required></textarea>
+            </div>
+            
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Submit Leave Request</button>
+                <a href="/apply-leave" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
