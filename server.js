@@ -10,6 +10,9 @@ const ejs = require('ejs');
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash'); // Needed for flash messages
 
+// import middlewares
+const verifyRoles = require('./middleware/verifyRoles'); // Role verification for routes
+
 // Import models if used directly in server.js
 const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
@@ -128,7 +131,7 @@ app.use((req, res, next) => {
   // automatisk reload av nettleser
   if (process.env.NODE_ENV === 'development') {
     // sett reloadRunning til true for å aktivere skript
-    res.locals.reloadRunning = true;
+    res.locals.reloadRunning = false;
     // sett reloadStarted til app variabelen started
     res.locals.reloadStarted = app.get('started');
   }
@@ -151,17 +154,27 @@ const checkAuth = (req, res, next) => {
 
 // Admin authorization middleware
 const checkAdmin = (req, res, next) => {
-  // Assumes checkAuth has already run
-  if (req.session.user && req.session.user.role !== 'admin') {
-     req.flash('error', 'Access denied. Admin privileges required.');
-     // Redirect non-admins away from admin pages
-     return res.redirect('/dashboard'); // Or another appropriate non-admin page
+  if (!req.session.user) {
+    req.flash('error', 'Please log in to access this page.');
+    req.session.returnTo = req.originalUrl;
+    return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
+  }
+  if (!req.session.user.roles) {
+    req.flash('error', 'Please log in to access this page.');
+    req.session.returnTo = req.originalUrl;
+    return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
+  }
+
+  if (!req.session.user.roles.includes('admin')) {
+    req.flash('error', 'Access denied. Admin privileges required.');
+    // Redirect non-admins away from admin pages
+    return res.redirect('/dashboard'); // Or another appropriate non-admin page
   }
   // If checkAuth didn't run first, add an extra check
   if (!req.session.user) {
       req.flash('error', 'Please log in.');
       req.session.returnTo = req.originalUrl;
-      return res.redirect('/login');
+      return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
   }
   if (!req.user) req.user = req.session.user;
   next();

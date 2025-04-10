@@ -49,6 +49,30 @@ class Role {
             return null;
         }
     }
+
+    /// Static method to find roles by user id
+    static async listUserRoles(userId) {
+        try {
+            const { data, error } = await supabase
+                .from('user_roles')  // From table user_roles
+                .select('roles ( name ) ')   // Select role_id column
+                .eq('user_id', userId); // Where user_id = userId
+            if (error) {
+                console.error('Error fetching user roles:', error.message);
+                return null;
+            }
+            if (data != null)
+            {
+                console.log(data);
+                return data.map((item) => item.roles.name); // Extract role names from the data
+            }
+            return data; // Return the role objects (or null if not found)
+        }
+        catch (error) {
+            console.error('Exception fetching user roles: ', error);
+            return null;
+        }
+    }
 }
 
 module.exports = Role;
