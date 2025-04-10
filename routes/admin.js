@@ -1,51 +1,29 @@
 const express = require('express');
+
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js'); // Import createClient
 
+const adminUserManagementRoutes = require('./admin/usermanagement');
+const adminPolicyRoutes = require('./admin/policies');
+const adminDepartmentRoutes = require('./admin/departments');
+
+/// MIDDLEWARE
+const verifyRoles = require('../middleware/verifyRoles');
+
 // Anon key client (for general reads, respecting RLS)
 const supabase = require('../config/supabaseClient');
+const supabaseAdmin = require('../config/supabaseAdmin');
 
-// --- Service Role Client (for admin actions) ---
-// Ensure environment variables are loaded (e.g., using dotenv in server.js)
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-let supabaseAdmin;
-if (supabaseUrl && supabaseServiceKey) {
-    supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-        auth: {
-            autoRefreshToken: false,
-            persistSession: false
-        }
-    });
-    console.log('Supabase Admin client initialized.');
-} else {
-    console.error('Supabase URL or Service Role Key missing. Supabase Admin client not initialized.');
-    // Optionally throw an error or handle this case appropriately
-    // For now, routes requiring admin client might fail if not initialized.
-}
-// --- End Service Role Client ---
-
-const bcrypt = require('bcrypt'); // Keep temporarily, remove usage later
+// Admin routes - Require login AND admin role
+router.use("/usermanagement", verifyRoles(['admin']), adminUserManagementRoutes);
+router.use("/policies", verifyRoles(['admin']), adminPolicyRoutes);
+router.use("/departments", verifyRoles(['admin']), adminDepartmentRoutes);
 
 let userTimeEntries = {};
 
 function setUserTimeEntries(entries) {
     userTimeEntries = entries;
 }
-
-const checkAdmin = (req, res, next) => {
-    if (!req.session.user || req.session.user.role !== 'admin') {
-        if (req.originalUrl.startsWith('/admin/api')) {
-            return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
-        }
-        return res.status(403).render('error', {
-            message: 'Access denied. Admin privileges required.',
-            activePage: 'error'
-        });
-    }
-    next();
-};
 
 async function getTimesheetData() {
     try {
@@ -152,7 +130,10 @@ async function getTimesheetData() {
     }
 }
 
-router.get('/timesheets', checkAdmin, async (req, res) => {
+//router.get('/admin/usermanagement', verifyRoles(['admin']), async (req, res) => res.render('admin/usermanagement/index'));
+router.use('/admin/usermanagement', verifyRoles(['admin']), adminUserManagementRoutes);
+
+router.get('/timesheets', verifyRoles(['admin']), async (req, res) => {
     try {
         console.log('GET /admin/timesheets called');
         const timesheets = await getTimesheetData();
@@ -163,7 +144,7 @@ router.get('/timesheets', checkAdmin, async (req, res) => {
     }
 });
 
-router.get('/', checkAdmin, async (req, res) => {
+router.get('/', verifyRoles(['admin']), async (req, res) => {
     try {
         console.log('GET /admin called');
         const { data: users, error: usersError } = await supabase
@@ -178,7 +159,7 @@ router.get('/', checkAdmin, async (req, res) => {
 
         const timesheets = await getTimesheetData();
 
-        res.render('admin', {
+        res.render('admin/index', {
             users: users || [],
             timesheets: timesheets || [],
             activePage: 'admin',
@@ -196,7 +177,7 @@ router.get('/', checkAdmin, async (req, res) => {
     }
 });
 
-router.post('/api/users', checkAdmin, async (req, res) => {
+router.post('/api/users', verifyRoles(['admin']), async (req, res) => {
     // Ensure admin client is available
     if (!supabaseAdmin) {
         return res.status(500).json({ message: 'Admin client not configured.' });
@@ -291,7 +272,7 @@ router.post('/api/users', checkAdmin, async (req, res) => {
 });
 
 // Update user route
-router.put('/api/users/:id', checkAdmin, async (req, res) => {
+router.put('/api/users/:id', verifyRoles(['admin']), async (req, res) => {
     // Ensure admin client is available
     if (!supabaseAdmin) {
         return res.status(500).json({ message: 'Admin client not configured.' });
@@ -365,7 +346,7 @@ router.put('/api/users/:id', checkAdmin, async (req, res) => {
     }
 });
 
-router.delete('/api/users/:id', checkAdmin, async (req, res) => {
+router.delete('/api/users/:id', verifyRoles(['admin']), async (req, res) => {
     // Ensure admin client is available
     if (!supabaseAdmin) {
         return res.status(500).json({ message: 'Admin client not configured.' });

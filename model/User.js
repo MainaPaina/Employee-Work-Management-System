@@ -10,7 +10,6 @@ const supabaseAdmin = supabaseServiceKey ?
     createClient(supabaseUrl, supabaseServiceKey, {
         auth: { autoRefreshToken: false, persistSession: false }
     }) : null;
-const bcrypt = require('bcrypt');
 
 class User {
     // Static method to find user profile data by ID (e.g., from users table)
