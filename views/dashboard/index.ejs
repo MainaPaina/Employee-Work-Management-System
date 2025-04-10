@@ -1,0 +1,282 @@
+<head>
+    <title>Dashboard - TimeManager</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dark-mode-fix.css">
+</head>
+
+<div class="dashboard-container">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <h1>Welcome to Your Dashboard</h1>
+        <p class="current-date"><%= new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %></p>
+    </div>
+
+    <!-- Status Summary Row with improved spacing -->
+    <div class="summary-section">
+        <!-- Today's Status Card -->
+        <div class="summary-card status-card">
+            <h3><i class="fas fa-user-clock"></i> Today's Status</h3>
+            <div id="status-content">
+                <% if (dashboardData.activeEntry) { %>
+                    <div class="status-item">
+                        <span class="status-label">Clock In:</span>
+                        <span class="status-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Remaining Time:</span>
+                        <span class="status-value"><%= dashboardData.remainingHours %> hours</span>
+                    </div>
+                    <% if (dashboardData.activeEntry.last_break_start_time && !dashboardData.activeEntry.last_break_end_time) { %>
+                        <div class="status-item">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value status-break">On Break</span>
+                        </div>
+                    <% } else if (dashboardData.activeEntry.last_unavailable_start_time && !dashboardData.activeEntry.last_unavailable_end_time) { %>
+                        <div class="status-item">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value status-unavailable">Unavailable</span>
+                        </div>
+                    <% } else { %>
+                        <div class="status-item">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value status-active">Active</span>
+                        </div>
+                    <% } %>
+                    <a href="/timesheet" class="btn btn-primary">View Timesheet</a>
+                <% } else { %>
+                    <p class="no-active">You haven't clocked in today</p>
+                    <button id="clockInBtn" class="btn btn-success">Clock In Now</button>
+                    <div id="clock-in-message" class="message-container"></div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Leave Balance Card -->
+        <div class="summary-card leave-card">
+            <h3><i class="fas fa-calendar-alt"></i> Leave Balance</h3>
+            <div class="progress-container">
+                <div class="progress-bar" style="width: <%= ((leaveData.leavesUsed / leaveData.totalQuota) * 100) %>%"></div>
+            </div>
+            <p class="leave-balance-text"><%= leaveData.leavesUsed %> days used out of <%= leaveData.totalQuota %></p>
+            <a href="/leave/apply" class="btn btn-outline">View Details</a>
+        </div>
+
+        <!-- Time Tracking Card -->
+        <div class="summary-card action-card">
+            <div class="card-icon"><i class="fas fa-clock"></i></div>
+            <h3>Time Tracking</h3>
+            <p>Manage your work hours and breaks</p>
+            <a href="/timesheet" class="btn btn-primary">Go to Timesheet</a>
+        </div>
+
+        <!-- Leave Management Card -->
+        <div class="summary-card action-card">
+            <div class="card-icon"><i class="fas fa-calendar"></i></div>
+            <h3>Leave Management</h3>
+            <p>Apply for leaves and check your balance</p>
+            <a href="/leave/apply" class="btn btn-secondary">Apply Leave</a>
+        </div>
+
+        <!-- Reports Card -->
+        <div class="summary-card action-card">
+            <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+            <h3>Reports</h3>
+            <p>View your productivity metrics</p>
+            <a href="/timesheet#clock-in-entries" class="btn btn-tertiary">View Reports</a>
+        </div>
+
+    </div>
+
+    <!-- Recent Time Entries with improved margin -->
+    <div class="recent-entries-section">
+        <h2><i class="fas fa-history"></i> Recent Time Entries</h2>
+        <div class="table-responsive">
+            <table class="table" style="background-color: inherit;">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Clock In</th>
+                        <th>Clock Out</th>
+                        <th>Break</th>
+                        <th>Total Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (dashboardData.recentEntries && dashboardData.recentEntries.length > 0) { %>
+                        <% dashboardData.recentEntries.forEach(entry => { %>
+                            <tr>
+                                <td><%= new Date(entry.date).toLocaleDateString() %></td>
+                                <td><%= entry.start_time ? new Date(entry.start_time).toLocaleTimeString() : 'N/A' %></td>
+                                <td><%= entry.end_time ? new Date(entry.end_time).toLocaleTimeString() : 'N/A' %></td>
+                                <td><%= entry.total_break_duration ? (entry.total_break_duration / 60).toFixed(1) + 'h' : '0h' %></td>
+                                <td><%= entry.hours_worked ? entry.hours_worked.toFixed(1) + 'h' : 'N/A' %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="text-center">No recent entries found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Scripts -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const clockInBtn = document.getElementById('clockInBtn');
+    const messageContainer = document.getElementById('clock-in-message');
+
+    if (clockInBtn) {
+        clockInBtn.addEventListener('click', async function() {
+            try {
+                // Disable button and show loading state
+                clockInBtn.disabled = true;
+                clockInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+                const response = await fetch('/api/clock-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add JWT Auth header
+                    }
+                });
+
+                if (response.ok) {
+                    showMessage('success', 'Successfully clocked in! Redirecting to timesheet...');
+                    setTimeout(() => {
+                        window.location.href = '/timesheet';
+                    }, 1500);
+                } else {
+                    const data = await response.json();
+                    showMessage('error', `Error: ${data.error}`);
+                    // Re-enable button
+                    clockInBtn.disabled = false;
+                    clockInBtn.innerHTML = 'Clock In Now';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('error', 'An unexpected error occurred. Please try again.');
+                // Re-enable button
+                clockInBtn.disabled = false;
+                clockInBtn.innerHTML = 'Clock In Now';
+            }
+        });
+    }
+
+    // Helper function to show messages
+    function showMessage(type, message) {
+        if (messageContainer) {
+            messageContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageContainer.innerHTML = '';
+                }, 5000);
+            }
+        }
+    }
+});
+    // Function to apply dark mode styles to Recent Time Entries table
+    function applyDarkModeToRecentEntriesTable() {
+        if (document.body.classList.contains('dark-mode')) {
+            // Get all rows in the table body
+            const rows = document.querySelectorAll('.recent-entries-section .table tbody tr');
+
+            // Apply dark background to each row
+            rows.forEach((row, index) => {
+                // Clear any existing background
+                row.style.backgroundColor = 'transparent';
+
+                // Apply alternating row colors
+                if (index % 2 === 0) {
+                    row.style.backgroundColor = '#1a1a1a';
+                } else {
+                    row.style.backgroundColor = '#121220';
+                }
+
+                // Make sure text is white
+                row.style.color = '#ffffff';
+
+                // Apply styles to all cells in the row
+                const cells = row.querySelectorAll('td');
+                cells.forEach(cell => {
+                    cell.style.backgroundColor = 'transparent';
+                    cell.style.color = '#ffffff';
+                });
+            });
+
+            // Style the table header
+            const headerCells = document.querySelectorAll('.recent-entries-section .table thead th');
+            headerCells.forEach(cell => {
+                cell.style.backgroundColor = '#1a202c';
+                cell.style.color = '#ffffff';
+                cell.style.borderColor = '#2d3748';
+            });
+        }
+    }
+
+    // Apply dark mode styles if dark mode is active
+    applyDarkModeToRecentEntriesTable();
+
+    // Watch for theme changes
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            // Wait a moment for the dark-mode class to be applied/removed
+            setTimeout(applyDarkModeToRecentEntriesTable, 100);
+        });
+    }
+</script>
+
+<!-- Add this to your CSS file or in a style tag -->
+<style>
+.message-container {
+    margin-top: 15px;
+}
+
+.alert {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-break {
+    color: #fd7e14;
+}
+
+.status-unavailable {
+    color: #6c757d;
+}
+
+.status-active {
+    color: #28a745;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.recent-entries-section {
+    margin: 2rem 0;
+}
+
+.recent-entries-section h2 {
+    margin-bottom: 1rem;
+}
+</style>

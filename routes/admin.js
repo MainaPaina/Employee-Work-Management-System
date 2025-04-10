@@ -3,10 +3,6 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js'); // Import createClient
 
-const adminUserManagementRoutes = require('./admin/usermanagement');
-const adminPolicyRoutes = require('./admin/policies');
-const adminDepartmentRoutes = require('./admin/departments');
-
 /// MIDDLEWARE
 const verifyRoles = require('../middleware/verifyRoles');
 
@@ -15,12 +11,15 @@ const supabase = require('../config/supabaseClient');
 const supabaseAdmin = require('../config/supabaseAdmin');
 
 // Admin routes - Require login AND admin role
-router.use("/usermanagement", verifyRoles(['admin']), adminUserManagementRoutes);
-router.use("/policies", verifyRoles(['admin']), adminPolicyRoutes);
-router.use("/departments", verifyRoles(['admin']), adminDepartmentRoutes);
+router.use("/usermanagement", verifyRoles(['admin']), require('./admin/usermanagement'));
+router.use("/policies", verifyRoles(['admin']), require('./admin/policies'));
+router.use("/departments", verifyRoles(['admin']), require('./admin/departments'));
+
+// GET /admin
+router.get('/', verifyRoles(['admin']), async (req, res) => res.render('admin/index'));
 
 let userTimeEntries = {};
-
+/*
 function setUserTimeEntries(entries) {
     userTimeEntries = entries;
 }
@@ -130,8 +129,9 @@ async function getTimesheetData() {
     }
 }
 
-//router.get('/admin/usermanagement', verifyRoles(['admin']), async (req, res) => res.render('admin/usermanagement/index'));
-router.use('/admin/usermanagement', verifyRoles(['admin']), adminUserManagementRoutes);
+
+
+
 
 router.get('/timesheets', verifyRoles(['admin']), async (req, res) => {
     try {
@@ -144,7 +144,8 @@ router.get('/timesheets', verifyRoles(['admin']), async (req, res) => {
     }
 });
 
-router.get('/', verifyRoles(['admin']), async (req, res) => {
+router.get('/', verifyRoles(['admin']), async (req, res) => res.render('admin/index'));*/
+    /*
     try {
         console.log('GET /admin called');
         const { data: users, error: usersError } = await supabase
@@ -175,8 +176,9 @@ router.get('/', verifyRoles(['admin']), async (req, res) => {
             error: `Failed to load admin data: ${error.message}`
         });
     }
-});
-
+    
+});*/
+/*
 router.post('/api/users', verifyRoles(['admin']), async (req, res) => {
     // Ensure admin client is available
     if (!supabaseAdmin) {
@@ -389,6 +391,6 @@ router.delete('/api/users/:id', verifyRoles(['admin']), async (req, res) => {
         res.status(500).json({ message: `Server error deleting user: ${error.message}` });
     }
 });
-
+*/
 // Export the router directly
 module.exports = router;

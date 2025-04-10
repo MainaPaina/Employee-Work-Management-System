@@ -20,7 +20,19 @@
 
         <div class="info-group">
           <label>Role</label>
-          <p><span class="role-badge <%= user.role %>"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span></p>
+          <p>
+            <%
+              if (user.roles && user.roles.length > 0) {
+                user.roles.forEach(role => {
+                  %>
+                  <span class="role-badge role-badge-<%= role %>"><%= role.charAt(0).toUpperCase() + role.slice(1) %></span>
+                  <%
+                });
+              } else {
+                user.role = 'guest'; // Default role if none is assigned
+              }
+            %>
+            <span class="role-badge <%= user.role %>"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span></p>
         </div>
       </div>
     </div>
@@ -184,12 +196,12 @@
   letter-spacing: 0.5px;
 }
 
-.role-badge.admin {
+.role-badge-admin {
   background-color: #7e3bcc;
   color: white;
 }
 
-.role-badge.user {
+.role-badge-employee {
   background-color: #2575fc;
   color: white;
 }
@@ -404,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Send request to change password
-        const response = await fetch('/profile/api/change-password', {
+        const response = await fetch('/account/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -526,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('profileImage', profileImageInput.files[0]);
 
         // Send request to upload profile image
-        const response = await fetch('/profile/upload-image', {
+        const response = await fetch('/account/upload-image', {
           method: 'POST',
           body: formData,
           credentials: 'include' // Include credentials to send cookies

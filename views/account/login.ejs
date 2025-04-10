@@ -17,7 +17,7 @@
         </div>
         <% } %>
 
-        <form id="login-form" class="login-form" action="/auth/login<%= '?return=' + locals.return %>" method="POST">
+        <form id="login-form" class="login-form" action="/account/login<%= '?return=' + locals.return %>" method="POST">
             <div class="form-group">
                 <label for="username">
                     <i class="fas fa-user"></i> Username
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (errorMessageDiv) errorMessageDiv.style.display = 'none';
 
             try {
-                const response = await fetch('/auth/login', {
+                const response = await fetch('/account/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -5,12 +5,12 @@ const verifyRoles = (allowedRoles) =>
         if (!req.session.user) {
         req.flash('error', 'Please log in to access this page.');
         req.session.returnTo = req.originalUrl;
-        return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
+        return res.redirect('/account/login?return=' + encodeURIComponent(req.originalUrl));
         }
         if (!req.session.user.roles) {
         req.flash('error', 'Please log in to access this page.');
         req.session.returnTo = req.originalUrl;
-        return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
+        return res.redirect('/account/login?return=' + encodeURIComponent(req.originalUrl));
         }
         let hasRole = false;
         for (const role of req.session.user.roles) {
@@ -27,7 +27,7 @@ const verifyRoles = (allowedRoles) =>
         if (!req.session.user) {
             req.flash('error', 'Please log in.');
             req.session.returnTo = req.originalUrl;
-            return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
+            return res.redirect('/account/login?return=' + encodeURIComponent(req.originalUrl));
         }
         if (!req.user) req.user = req.session.user;
         next();

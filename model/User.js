@@ -1,15 +1,5 @@
 const supabase = require('../config/supabaseClient');
-
-// Create a Supabase client with the service role key to bypass RLS
-const { createClient } = require('@supabase/supabase-js');
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// Only create the admin client if the service key is available
-const supabaseAdmin = supabaseServiceKey ?
-    createClient(supabaseUrl, supabaseServiceKey, {
-        auth: { autoRefreshToken: false, persistSession: false }
-    }) : null;
+const supabaseAdmin = require('../config/supabaseAdmin'); // Import Supabase admin client
 
 class User {
     // Static method to find user profile data by ID (e.g., from users table)
@@ -61,11 +51,11 @@ class User {
     static async findByUsername(username) {
         if (!username) return null;
         try {
-            console.log('Searching for user with username:', username);
+            //console.log('Searching for user with username:', username);
 
             // Use the admin client if available to bypass RLS
             const client = supabaseAdmin || supabase;
-            console.log('Using', supabaseAdmin ? 'admin client (bypasses RLS)' : 'regular client (respects RLS)');
+            //console.log('Using', supabaseAdmin ? 'admin client (bypasses RLS)' : 'regular client (respects RLS)');
 
             // First, try to get all users to see what's in the database
             const { data: allUsers, error: allUsersError } = await client
@@ -75,7 +65,7 @@ class User {
             if (allUsersError) {
                 console.error('Error fetching all users:', allUsersError.message);
             } else {
-                console.log('All users in database:', JSON.stringify(allUsers, null, 2));
+                //console.log('All users in database:', JSON.stringify(allUsers, null, 2));
             }
 
             // Now try to find the specific user by username

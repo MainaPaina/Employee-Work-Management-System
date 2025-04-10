@@ -28,30 +28,6 @@ const TimeEntry = require('./model/TimeEntry');
 const User = require('./model/User'); // Assuming User model exists
 const Role = require('./model/Role'); // Assuming Role model exists
 
-// Import routes
-const authRoutes = require('./routes/auth');
-const employeeRoutes = require('./routes/employee');
-const timesheetRoutes = require('./routes/timesheet');
-const leaveRoutes = require('./routes/leave');
-const apiRoutes = require('./routes/api'); // Assuming API routes exist
-const adminRoutes = require('./routes/admin');
-const profileRoutes = require('./routes/profile'); // New profile routes
-/// routes for legal pages
-const legalRoutes = require('./routes/legal');
-
-// Initialize Supabase Admin Client (if needed for specific operations)
-/*
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-let supabaseAdmin = null;
-if (supabaseUrl && supabaseServiceKey) {
-  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { autoRefreshToken: false, persistSession: false }
-  });
-  console.log('Supabase Admin client initialized.');
-} else {
-  console.warn('Supabase Admin client not initialized. SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing in .env');
-}*/
 
 // Initialize application
 const app = express(); // *** CRITICAL: Initialize app *** <-- Around line 34
@@ -96,31 +72,7 @@ app.use(session({
 
 // Flash messages middleware
 app.use(flash());
-/*
-const formatTime = (date) => {
-  if (!(date instanceof Date) || isNaN(date)) {
-      return '00:00'; // Return default or throw error
-  }
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${hours}:${minutes}`;
-};
 
-const calculateTimeDiff = (startTime, endTime) => {
-  // Basic diff, might need refinement for crossing midnight etc.
-  const start = new Date(`1970-01-01T${startTime}:00Z`);
-  const end = new Date(`1970-01-01T${endTime}:00Z`);
-  if (isNaN(start) || isNaN(end)) return 0; // Handle invalid time formats
-  return Math.round((end - start) / (1000 * 60));
-};
-
-const formatMinutes = (minutes) => {
-  if (typeof minutes !== 'number' || isNaN(minutes)) return '00:00';
-  const hours = Math.floor(minutes / 60).toString().padStart(2, '0');
-  const mins = Math.round(minutes % 60).toString().padStart(2, '0');
-  return `${hours}:${mins}`;
-};
-*/
 // ============================================================================
 // MIDDLEWARE
 // ============================================================================
@@ -159,34 +111,6 @@ const checkAuth = (req, res, next) => {
   next();
 };
 
-// Admin authorization middleware
-const checkAdmin = (req, res, next) => {
-  if (!req.session.user) {
-    req.flash('error', 'Please log in to access this page.');
-    req.session.returnTo = req.originalUrl;
-    return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
-  }
-  if (!req.session.user.roles) {
-    req.flash('error', 'Please log in to access this page.');
-    req.session.returnTo = req.originalUrl;
-    return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
-  }
-
-  if (!req.session.user.roles.includes('admin')) {
-    req.flash('error', 'Access denied. Admin privileges required.');
-    // Redirect non-admins away from admin pages
-    return res.redirect('/dashboard'); // Or another appropriate non-admin page
-  }
-  // If checkAuth didn't run first, add an extra check
-  if (!req.session.user) {
-      req.flash('error', 'Please log in.');
-      req.session.returnTo = req.originalUrl;
-      return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
-  }
-  if (!req.user) req.user = req.session.user;
-  next();
-};
-
 
 // ============================================================================
 // ROUTE REGISTRATION
@@ -195,62 +119,72 @@ const checkAdmin = (req, res, next) => {
 // Note: Order matters. More specific routes might need to come before general ones
 // if paths overlap, but here the prefixes are distinct.
 
-// Authentication routes (Login/Register POST, Logout GET) - No checkAuth needed here
-app.use('/auth', authRoutes);
+// REVISED 2025-04-10
 
-// API routes - Might have specific auth (like JWT) handled within apiRoutes
-app.use('/api', apiRoutes);
+/// API - might have specific auth (like JWT) handled locally in routes/api
+app.use('/api', require('./routes/api'));
 
-// Admin routes - Require login AND admin role
-app.use('/admin', verifyRoles(['admin']), adminRoutes);
+/// Admin panel routes - require admin role
+app.use('/admin', verifyRoles(['admin']), require('./routes/admin'));
+
+/// Dashboard routes - require Employee role
+app.use('/dashboard', verifyRoles(['employee']), require('./routes/dashboard'));
 
 // Employee specific routes (could be profile, etc.) - Require login
-app.use('/employee', verifyRoles(['employee']), employeeRoutes);
+//app.use('/employee', verifyRoles(['employee']), employeeRoutes);
 
 // Timesheet view/actions - Require login
-app.use('/timesheet', checkAuth, timesheetRoutes);
+app.use('/timesheet', verifyRoles(['employee']), require('./routes/timesheet'));
 
 // Leave related routes - Require login
-app.use('/leave', checkAuth, leaveRoutes);
+app.use('/leave', verifyRoles(['employee']), require('./routes/leave'));
+
+/// Combine account actions into a seperate route /account
+/// Include profile, change password, login, logout, etc.
+app.use('/account', require('./routes/account'));
 
 // Profile related routes - Accessible to authenticated users
-app.use('/profile', checkAuth, profileRoutes);
+app.use('/profile', checkAuth, require('./routes/profile'));
 
 // Legal pages - accessible to all - terms, cookies, privacy
-app.use("/legal", legalRoutes);
+app.use("/legal", require("./routes/legal"));
 
 // Contact us page - Accessible to all
 app.get('/contact', (req, res) => res.render('static/contact', { activePage: 'contact' }));
-// Profile page route - Require login
-app.get('/profile', checkAuth, async (req, res) => {
-  try {
-    // Get user data from session
-    const userId = req.session?.user?.id;
-    if (!userId) {
-      return res.redirect('/login');
-    }
+
+
+
+
+// // Profile page route - Require login
+// app.get('/profile', checkAuth, async (req, res) => {
+//   try {
+//     // Get user data from session
+//     const userId = req.session?.user?.id;
+//     if (!userId) {
+//       return res.redirect('/login');
+//     }
     
-    // Get fresh user data from database to ensure we have the latest profile image
-    const userData = await User.findById(userId) || req.session.user;
+//     // Get fresh user data from database to ensure we have the latest profile image
+//     const userData = await User.findById(userId) || req.session.user;
     
-    // Update session with fresh data if we got user data
-    if (userData) {
-      // Update profile image in session if it exists in the database
-      if (userData.profile_image) {
-        req.session.user.profile_image = userData.profile_image;
-      }
-    }
+//     // Update session with fresh data if we got user data
+//     if (userData) {
+//       // Update profile image in session if it exists in the database
+//       if (userData.profile_image) {
+//         req.session.user.profile_image = userData.profile_image;
+//       }
+//     }
     
-    // Render profile page
-    res.render('profile', { 
-      activePage: 'profile',
-      user: req.session.user
-    });
-  } catch (error) {
-    console.error('Error loading profile page:', error);
-    res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
-  }
-});
+//     // Render profile page
+//     res.render('profile', { 
+//       activePage: 'profile',
+//       user: req.session.user
+//     });
+//   } catch (error) {
+//     console.error('Error loading profile page:', error);
+//     res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
+//   }
+// });
 
 // About us page - accessible to all
 app.get('/about', (req, res) => res.render('static/about', { activePage: 'about'}));
@@ -264,131 +198,58 @@ app.get('/', (req, res) => { // <-- Around line 163
   res.render('index', { activePage: 'home' }); // Pass activePage to the view
 });
 
-// Login and Register GET routes (handled by authRoutes now, but keep GET for direct access)
-app.get('/login', (req, res) => {
-    // If user is already logged in, redirect them from the login page
-    if (req.session.user) {
-        return res.redirect('/dashboard');
-    }
-    res.render('login', { activePage: 'login' }); // Pass activePage
-});
+// // Dashboard route (protected) - Refactored for Supabase
+// app.get('/dashboard', checkAuth, async (req, res) => {
+//   try {
+//     const userId = req.user?.id; // Get user ID from checkAuth middleware
+//     if (!userId) {
+//       // This case should be rare if checkAuth works correctly
+//       console.error('Dashboard access attempt without user ID after checkAuth.');
+//       req.flash('error', 'Authentication error. Please log in again.');
+//       return res.redirect('/login');
+//     }
 
-// Direct logout route for backward compatibility
-app.get('/logout', (req, res) => {
-    console.log('Direct logout route called');
-    try {
-        // Clear Supabase session
-        supabase.auth.signOut().catch(err => console.error("Supabase Sign Out Error:", err));
+//     let activeEntry = null;
+//     let recentEntries = [];
+//     let remainingHours = 0; // Placeholder
 
-        // Destroy express session
-        if (req.session) {
-            req.session.destroy((err) => {
-                if (err) {
-                    console.error("Session destruction error:", err);
-                }
-                // Clear the cookie explicitly
-                res.clearCookie('connect.sid');
-                console.log('User logged out directly.');
-                // Redirect to login page after logout
-                return res.redirect('/login');
-            });
-        } else {
-            // If no session exists, just clear the cookie and redirect
-            res.clearCookie('connect.sid');
-            console.log('No session to destroy, user logged out directly.');
-            return res.redirect('/login');
-        }
-    } catch (error) {
-        console.error('Error during logout:', error);
-        res.clearCookie('connect.sid');
-        return res.redirect('/login');
-    }
-});
+//     // Fetch active entry (end_time is NULL) using TimeEntry model method
+//     activeEntry = await TimeEntry.findActiveEntryByEmployeeId(userId);
 
-// Add a POST route for logout as well
-app.post('/logout', (req, res) => {
-    console.log('Direct logout POST route called');
-    try {
-        // Clear Supabase session
-        supabase.auth.signOut().catch(err => console.error("Supabase Sign Out Error:", err));
-
-        // Destroy express session
-        if (req.session) {
-            req.session.destroy((err) => {
-                if (err) {
-                    console.error("Session destruction error:", err);
-                }
-                // Clear the cookie explicitly
-                res.clearCookie('connect.sid');
-                console.log('User logged out directly (POST).');
-                // Redirect to login page after logout
-                return res.redirect('/login');
-            });
-        } else {
-            // If no session exists, just clear the cookie and redirect
-            res.clearCookie('connect.sid');
-            console.log('No session to destroy, user logged out directly (POST).');
-            return res.redirect('/login');
-        }
-    } catch (error) {
-        console.error('Error during logout (POST):', error);
-        res.clearCookie('connect.sid');
-        return res.redirect('/login');
-    }
-});
-
-// Dashboard route (protected) - Refactored for Supabase
-app.get('/dashboard', checkAuth, async (req, res) => {
-  try {
-    const userId = req.user?.id; // Get user ID from checkAuth middleware
-    if (!userId) {
-      // This case should be rare if checkAuth works correctly
-      console.error('Dashboard access attempt without user ID after checkAuth.');
-      req.flash('error', 'Authentication error. Please log in again.');
-      return res.redirect('/login');
-    }
-
-    let activeEntry = null;
-    let recentEntries = [];
-    let remainingHours = 0; // Placeholder
-
-    // Fetch active entry (end_time is NULL) using TimeEntry model method
-    activeEntry = await TimeEntry.findActiveEntryByEmployeeId(userId);
-
-    // TODO: Implement remainingHours calculation based on activeEntry fields
-    // (start_time, status, break_start_time, total_break_duration etc.)
-    // This logic might belong in the TimeEntry model or a service function.
-    if (activeEntry) {
-        // Placeholder calculation - replace with actual logic
-        // const startTime = new Date(activeEntry.start_time);
-        // const now = new Date();
-        // const elapsedMillis = now - startTime;
-        // const elapsedMinutes = elapsedMillis / (1000 * 60);
-        // const breakMinutes = activeEntry.total_break_duration || 0;
-        // const workedMinutes = elapsedMinutes - breakMinutes;
-        // remainingHours = Math.max(0, (480 - workedMinutes) / 60); // Assuming 8-hour day
-    }
+//     // TODO: Implement remainingHours calculation based on activeEntry fields
+//     // (start_time, status, break_start_time, total_break_duration etc.)
+//     // This logic might belong in the TimeEntry model or a service function.
+//     if (activeEntry) {
+//         // Placeholder calculation - replace with actual logic
+//         // const startTime = new Date(activeEntry.start_time);
+//         // const now = new Date();
+//         // const elapsedMillis = now - startTime;
+//         // const elapsedMinutes = elapsedMillis / (1000 * 60);
+//         // const breakMinutes = activeEntry.total_break_duration || 0;
+//         // const workedMinutes = elapsedMinutes - breakMinutes;
+//         // remainingHours = Math.max(0, (480 - workedMinutes) / 60); // Assuming 8-hour day
+//     }
 
 
-    // Fetch last 3 completed entries using TimeEntry model method
-    recentEntries = await TimeEntry.findRecentEntriesByEmployeeId(userId, 3);
+//     // Fetch last 3 completed entries using TimeEntry model method
+//     recentEntries = await TimeEntry.findRecentEntriesByEmployeeId(userId, 3);
 
 
-    const dashboardData = {
-      activeEntry: activeEntry,
-      remainingHours: remainingHours.toFixed(1), // Use calculated value when available
-      recentEntries: recentEntries
-    };
+//     const dashboardData = {
+//       activeEntry: activeEntry,
+//       remainingHours: remainingHours.toFixed(1), // Use calculated value when available
+//       recentEntries: recentEntries
+//     };
 
-    res.render('dashboard', {
-      dashboardData,
-      activePage: 'dashboard'
-    });
-  } catch (error) {
-    console.error('Error loading dashboard:', error);
-    res.status(500).render('error', { message: 'Failed to load dashboard data.', activePage: 'error' });
-  }
-});
+//     res.render('dashboard', {
+//       dashboardData,
+//       activePage: 'dashboard'
+//     });
+//   } catch (error) {
+//     console.error('Error loading dashboard:', error);
+//     res.status(500).render('error', { message: 'Failed to load dashboard data.', activePage: 'error' });
+//   }
+// });
 
 
 // Timesheet Page GET Route (protected) - Should be handled by timesheetRoutes now
