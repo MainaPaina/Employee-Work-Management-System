@@ -1,207 +1,168 @@
-<%- include('partials/header') %>
+<div class="container main-content">
+    <div class="page-header">
+        <h1><i class="fas fa-calendar-alt"></i> Leave Management</h1>
+        <p class="lead">View and manage your leave requests</p>
+    </div>
 
-<div class="container mt-4">
-    <h2>Leave Requests</h2>
-    
-    <!-- Section for Submitting New Leave Request -->
+    <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <% if (success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <!-- Action Button -->
+    <div class="d-flex justify-content-end mb-4">
+        <a href="/leave/apply" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Apply for Leave
+        </a>
+    </div>
+
+    <!-- Leave Requests Table -->
     <div class="card mb-4">
-        <div class="card-header">
-            Submit New Leave Request
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-history"></i> Your Leave History</h5>
         </div>
         <div class="card-body">
-            <form id="leaveRequestForm">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="startDate" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="startDate" name="startDate" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="endDate" class="form-label">End Date</label>
-                        <input type="date" class="form-control" id="endDate" name="endDate" required>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                     <div class="col-md-6">
-                        <label for="leaveType" class="form-label">Leave Type</label>
-                        <select class="form-select" id="leaveType" name="leaveType" required>
-                            <option value="" selected disabled>Select type...</option>
-                            <option value="Vacation">Vacation</option>
-                            <option value="Sick">Sick Leave</option>
-                            <option value="Personal">Personal</option>
-                            <option value="Unpaid">Unpaid</option>
-                            <!-- Add other types as needed -->
-                        </select>
-                    </div>
-                     <div class="col-md-6">
-                         <label for="totalLeaveDays" class="form-label">Total Days (Optional)</label>
-                         <input type="number" step="0.5" min="0.5" class="form-control" id="totalLeaveDays" name="totalLeaveDays" placeholder="Calculated if blank">
-                         <small class="form-text text-muted">Enter total days if different from date range (e.g., half day).</small>
-                     </div>
-                </div>
-                <div class="mb-3">
-                    <label for="reason" class="form-label">Reason (Optional)</label>
-                    <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Request</button>
-                <div id="formFeedback" class="mt-3"></div> <!-- For success/error messages -->
-            </form>
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-times fa-4x mb-3 text-muted"></i>
+                <h5 class="text-muted">No leave requests found</h5>
+                <p class="text-muted">You haven't submitted any leave requests yet.</p>
+                <a href="/leave/apply" class="btn btn-primary mt-2">
+                    <i class="fas fa-plus-circle"></i> Apply for Leave
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Section for Displaying Existing Leave Requests -->
+    <!-- Leave Policy Information -->
     <div class="card">
-        <div class="card-header">
-            Your Leave History
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Leave Policy Information</h5>
         </div>
         <div class="card-body">
-             <% if (typeof error !== 'undefined' && error) { %>
-                <div class="alert alert-danger" role="alert">
-                    <%= error %>
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="policy-item">
+                        <h6><i class="fas fa-calendar-check"></i> Annual Leave</h6>
+                        <p>Full-time employees are entitled to 25 days of annual leave per year. Part-time employees receive a pro-rated amount based on their working hours.</p>
+                    </div>
                 </div>
-            <% } %>
-            <% if (typeof requests !== 'undefined' && requests.length > 0) { %>
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Request Date</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Reason</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% requests.forEach(request => { %>
-                            <tr>
-                                <td><%= new Date(request.requested_at).toLocaleDateString() %></td>
-                                <td><%= new Date(request.start_date).toLocaleDateString() %></td>
-                                <td><%= new Date(request.end_date).toLocaleDateString() %></td>
-                                <td><%= request.leave_type %></td>
-                                <td>
-                                    <span class="badge bg-<%= request.status === 'Approved' ? 'success' : (request.status === 'Rejected' ? 'danger' : (request.status === 'Cancelled' ? 'secondary' : 'warning')) %>">
-                                        <%= request.status %>
-                                    </span>
-                                </td>
-                                <td><%= request.reason || '-' %></td>
-                                <td>
-                                    <% if (request.status === 'Pending') { %>
-                                        <button class="btn btn-sm btn-danger cancel-request-btn" data-id="<%= request.id %>">Cancel</button>
-                                    <% } else { %>
-                                        -
-                                    <% } %>
-                                </td>
-                            </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            <% } else if (!error) { %>
-                <p>You have no leave requests.</p>
-            <% } %>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="policy-item">
+                        <h6><i class="fas fa-procedures"></i> Sick Leave</h6>
+                        <p>Employees can take up to 10 days of sick leave per year. A doctor's note may be required for absences longer than 3 consecutive days.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="policy-item">
+                        <h6><i class="fas fa-hourglass-half"></i> Notice Period</h6>
+                        <p>Please provide at least 2 weeks' notice for planned leaves. Emergency leaves will be handled on a case-by-case basis.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('leaveRequestForm');
-    const feedbackDiv = document.getElementById('formFeedback');
-    const requestsTableBody = document.querySelector('.table tbody'); // Get table body for potential updates
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle cancel request buttons
+    const cancelButtons = document.querySelectorAll('.cancel-request');
 
-    // Handle Form Submission
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        feedbackDiv.innerHTML = ''; // Clear previous feedback
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const requestId = this.getAttribute('data-request-id');
 
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+            if (confirm('Are you sure you want to cancel this leave request?')) {
+                try {
+                    const response = await fetch(`/leave/${requestId}/cancel`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
 
-        // Basic validation (redundant with required attr, but good practice)
-        if (!data.startDate || !data.endDate || !data.leaveType) {
-             feedbackDiv.innerHTML = '<div class="alert alert-danger">Please fill in all required fields.</div>';
-             return;
-        }
-        if (new Date(data.endDate) < new Date(data.startDate)) {
-             feedbackDiv.innerHTML = '<div class="alert alert-danger">End date cannot be before start date.</div>';
-             return;
-        }
+                    const result = await response.json();
 
-        try {
-            const response = await fetch('/leave', { // POST to /leave (base route)
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // Add CSRF token if needed
-                },
-                body: JSON.stringify({
-                    startDate: data.startDate,
-                    endDate: data.endDate,
-                    leaveType: data.leaveType,
-                    reason: data.reason,
-                    totalLeaveDays: data.totalLeaveDays || null // Send null if empty
-                }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                feedbackDiv.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
-                form.reset();
-                // TODO: Optionally, dynamically add the new request to the table below
-                // Or suggest a page reload: window.location.reload(); 
-                 setTimeout(() => { window.location.reload(); }, 1500); // Simple reload after success
-            } else {
-                feedbackDiv.innerHTML = `<div class="alert alert-danger">Error: ${result.error || 'Failed to submit request.'}</div>`;
+                    if (result.success) {
+                        // Reload the page to show updated status
+                        window.location.href = '/leave?success=Leave request cancelled successfully';
+                    } else {
+                        alert(result.message || 'Failed to cancel leave request');
+                    }
+                } catch (error) {
+                    console.error('Error cancelling leave request:', error);
+                    alert('An unexpected error occurred. Please try again.');
+                }
             }
-        } catch (error) {
-            console.error('Error submitting leave request:', error);
-            feedbackDiv.innerHTML = '<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>';
-        }
+        });
     });
 
-    // Handle Cancel Button Clicks (using event delegation)
-    const historyCardBody = document.querySelector('.card-body .table'); // More specific parent
-    if (historyCardBody) {
-         historyCardBody.addEventListener('click', async (event) => {
-             if (event.target.classList.contains('cancel-request-btn')) {
-                 const button = event.target;
-                 const requestId = button.dataset.id;
-                 
-                 if (!requestId) return;
+    // Check for success or error query parameters and show alert
+    const urlParams = new URLSearchParams(window.location.search);
+    const successMsg = urlParams.get('success');
+    const errorMsg = urlParams.get('error');
 
-                 if (confirm('Are you sure you want to cancel this leave request?')) {
-                     try {
-                        // Disable button temporarily
-                        button.disabled = true;
-                        button.textContent = 'Cancelling...';
-
-                         const response = await fetch(`/leave/${requestId}/cancel`, { 
-                             method: 'PATCH', 
-                             headers: { 'Content-Type': 'application/json' }
-                         });
-                         const result = await response.json();
-
-                         if (response.ok) {
-                             alert('Request cancelled successfully!'); 
-                             window.location.reload(); // Reload to show updated status
-                         } else {
-                             alert(`Error cancelling request: ${result.error || 'Unknown error'}`);
-                             button.disabled = false; // Re-enable button on error
-                             button.textContent = 'Cancel'; 
-                         }
-                     } catch (error) {
-                         console.error('Error cancelling leave request:', error);
-                         alert('An error occurred while trying to cancel the request.');
-                         button.disabled = false; // Re-enable button on error
-                         button.textContent = 'Cancel'; 
-                     }
-                 }
-             }
-         });
+    if (successMsg) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `
+            ${successMsg}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        document.querySelector('.page-header').insertAdjacentElement('afterend', alertDiv);
     }
 
+    if (errorMsg) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `
+            ${errorMsg}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        document.querySelector('.page-header').insertAdjacentElement('afterend', alertDiv);
+    }
 });
 </script>
 
-<%- include('partials/footer') %>
+<style>
+.policy-item {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 15px;
+    height: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.policy-item h6 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.policy-item p {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .policy-item {
+        background-color: var(--card-bg-color, #2a2a2a);
+    }
+
+    .table-light th {
+        background-color: #343a40 !important;
+        color: #fff !important;
+    }
+}
+</style>

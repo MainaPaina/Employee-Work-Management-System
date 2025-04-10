@@ -1,0 +1,298 @@
+<div class="container main-content">
+    <div class="page-header">
+        <h1><i class="fas fa-calendar-alt"></i> Apply for Leave</h1>
+        <p class="lead">Request time off and manage your leave balance</p>
+    </div>
+
+    <% if (success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <div class="row">
+        <!-- Leave Balance Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card leave-balance-card">
+                <div class="card-header">
+                    <h5><i class="fas fa-umbrella-beach"></i> Leave Balance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="leave-quota-display">
+                        <div class="quota-circle">
+                            <div class="quota-number"><%= leaveData.remainingLeaves %></div>
+                            <div class="quota-label">Days<br>Remaining</div>
+                        </div>
+                    </div>
+                    <div class="leave-stats">
+                        <div class="leave-stat">
+                            <span class="stat-label">Total Quota:</span>
+                            <span class="stat-value"><%= leaveData.totalQuota %> days</span>
+                        </div>
+                        <div class="leave-stat">
+                            <span class="stat-label">Used:</span>
+                            <span class="stat-value"><%= leaveData.usedLeaves %> days</span>
+                        </div>
+                        <div class="leave-stat">
+                            <span class="stat-label">Remaining:</span>
+                            <span class="stat-value"><%= leaveData.remainingLeaves %> days</span>
+                        </div>
+                    </div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar" role="progressbar" 
+                            style="width: <%= (leaveData.usedLeaves / leaveData.totalQuota) * 100 %>%;" 
+                            aria-valuenow="<%= leaveData.usedLeaves %>" 
+                            aria-valuemin="0" 
+                            aria-valuemax="<%= leaveData.totalQuota %>">
+                            <%= Math.round((leaveData.usedLeaves / leaveData.totalQuota) * 100) %>%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Request Form -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-file-alt"></i> Leave Request Form</h5>
+                </div>
+                <div class="card-body">
+                    <form id="leaveRequestForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="startDate" class="form-label">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="startDate" name="startDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endDate" class="form-label">End Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="endDate" name="endDate" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="leaveType" class="form-label">Leave Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="leaveType" name="leaveType" required>
+                                    <option value="" selected disabled>Select leave type</option>
+                                    <option value="Vacation">Vacation</option>
+                                    <option value="Sick">Sick Leave</option>
+                                    <option value="Personal">Personal Leave</option>
+                                    <option value="Bereavement">Bereavement</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="totalLeaveDays" class="form-label">Total Days (Optional)</label>
+                                <input type="number" step="0.5" min="0.5" class="form-control" id="totalLeaveDays" name="totalLeaveDays" placeholder="Calculated if blank">
+                                <small class="form-text text-muted">Leave blank to auto-calculate business days</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3" placeholder="Provide details about your leave request"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/leave" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('leaveRequestForm');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const totalLeaveDaysInput = document.getElementById('totalLeaveDays');
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.setAttribute('min', today);
+    endDateInput.setAttribute('min', today);
+    
+    // Update end date min value when start date changes
+    startDateInput.addEventListener('change', function() {
+        endDateInput.setAttribute('min', this.value);
+        if (endDateInput.value && new Date(endDateInput.value) < new Date(this.value)) {
+            endDateInput.value = this.value;
+        }
+        calculateBusinessDays();
+    });
+    
+    // Calculate business days when end date changes
+    endDateInput.addEventListener('change', function() {
+        calculateBusinessDays();
+    });
+    
+    // Function to calculate business days between two dates
+    function calculateBusinessDays() {
+        if (startDateInput.value && endDateInput.value) {
+            const start = new Date(startDateInput.value);
+            const end = new Date(endDateInput.value);
+            
+            // If end date is before start date, reset it
+            if (end < start) {
+                endDateInput.value = startDateInput.value;
+                return;
+            }
+            
+            let count = 0;
+            const curDate = new Date(start.getTime());
+            
+            while (curDate <= end) {
+                const dayOfWeek = curDate.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    count++;
+                }
+                curDate.setDate(curDate.getDate() + 1);
+            }
+            
+            totalLeaveDaysInput.placeholder = count + ' business day(s)';
+        }
+    }
+    
+    // Handle form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Disable submit button to prevent multiple submissions
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+        
+        try {
+            // Collect form data
+            const formData = new FormData(form);
+            const data = {
+                startDate: formData.get('startDate'),
+                endDate: formData.get('endDate'),
+                leaveType: formData.get('leaveType'),
+                reason: formData.get('reason'),
+                totalLeaveDays: formData.get('totalLeaveDays') ? parseFloat(formData.get('totalLeaveDays')) : null
+            };
+            
+            // Validate required fields
+            if (!data.startDate || !data.endDate || !data.leaveType) {
+                alert('Please fill in all required fields.');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Request';
+                return;
+            }
+            
+            // Send request to server
+            const response = await fetch('/leave', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                // Redirect to leave page with success message
+                window.location.href = '/leave?success=Your leave request has been submitted successfully';
+            } else {
+                // Show error message
+                alert(result.error || 'Failed to submit leave request. Please try again.');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Request';
+            }
+        } catch (error) {
+            console.error('Error submitting leave request:', error);
+            alert('An unexpected error occurred. Please try again.');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit Request';
+        }
+    });
+});
+</script>
+
+<style>
+.leave-balance-card {
+    background-color: var(--card-bg-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.leave-quota-display {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.quota-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.quota-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.quota-label {
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.leave-stats {
+    margin-bottom: 15px;
+}
+
+.leave-stat {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: var(--text-muted-color);
+}
+
+.stat-value {
+    font-weight: 600;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .leave-balance-card {
+        background-color: var(--card-bg-color, #2a2a2a);
+    }
+    
+    .quota-circle {
+        background: linear-gradient(135deg, #388E3C, #689F38);
+    }
+    
+    .stat-label {
+        color: var(--text-muted-color, #aaa);
+    }
+}
+</style>
