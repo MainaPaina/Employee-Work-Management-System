@@ -52,23 +52,7 @@
     <script src="/js/bootstrap.bundle.js"></script>
     <script src="/js/dynamicPageSize.js"></script>
 
-    <!-- Mobile Menu Toggle JS -->
-    <script>
-        //document.addEventListener('DOMContentLoaded', function() {
-            //const mobileToggle = document.querySelector('.mobile-menu-toggle');
-            //const navList = document.querySelector('.nav-list');
-
-            //if (mobileToggle) {
-                //mobileToggle.addEventListener('click', function() {
-                    //this.classList.toggle('active');
-                    //navList.classList.toggle('active');
-                    //this.setAttribute('aria-expanded',
-                        //this.getAttribute('aria-expanded') === 'false' ? 'true' : 'false'
-                    //);
-                //});
-            //}
-        //});
-    </script>
+    <!-- Mobile Menu Toggle JS is now handled in dynamicPageSize.js -->
 
     <div class="theme-toggle">
         <button id="themeToggle" aria-label="Toggle dark mode">
@@ -132,7 +116,7 @@
                     // omgjør svaret fra fetch til json
                     const json = await response.json();
                     // sjekk om json.started er ulik startedDate variabel
-                    if (json.started != startedDate) 
+                    if (json.started != startedDate)
                     {
                         // dersom ulik - reload nettleser med forceGet=true for å ignorere cache
                         window.location.reload(true);
@@ -148,7 +132,7 @@
                     // clear recurring interval check
                     clearInterval(reloadInterval);
                 }
-            } 
+            }
         </script>
     <% } %>
 
