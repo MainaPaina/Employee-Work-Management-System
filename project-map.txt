@@ -1,0 +1,171 @@
+# Better Time Management Application - Project Map
+
+## Routes
+
+### Main Routes (server.js)
+- GET / - Homepage (accessible to all)
+- GET /dashboard - Dashboard page (protected by checkAuth)
+- GET /profile - User profile page (protected by checkAuth)
+- GET /contact - Contact page (accessible to all)
+- GET /legal/terms - Terms of Service page (accessible to all)
+- GET /legal/privacy - Privacy Policy page (accessible to all)
+- GET /legal/cookies - Cookies Policy page (accessible to all)
+
+### Authentication Routes (/auth)
+- POST /auth/login - User login
+- GET /auth/logout - User logout
+
+### API Routes (/api)
+- GET /api/status - Get timesheet status (protected by verifyJWT)
+
+### Admin Routes (/admin - protected by checkAuth and checkAdmin)
+- GET /admin - Admin dashboard
+- GET /admin/timesheets - Admin timesheet view
+
+### Employee Routes (/employee - protected by checkAuth)
+- GET /employee - Get all employees
+- GET /employee/:id - Get employee by ID
+- POST /employee - Create new employee
+- PUT /employee/:id - Update employee
+- DELETE /employee/:id - Delete employee
+- GET /employee/:id/timesheets - Get employee timesheets
+- POST /employee/timesheets - Submit timesheet
+
+### Timesheet Routes (/timesheet - protected by checkAuth)
+- GET /timesheet - Timesheet page
+- GET /timesheet/api/all - Get all timesheets (protected by verifyJWT and verifyRoles)
+
+### Leave Routes (/leave - protected by checkAuth)
+- GET /leave - Leave history page
+- GET /leave/apply - Apply for leave page
+- POST /leave/apply - Submit leave application
+
+### Profile Routes (/profile)
+- POST /profile/change-password - Change password (protected by verifyJWT)
+- POST /profile/upload-image - Upload profile image
+
+## Middleware
+
+### Authentication Middleware
+- checkAuth - Checks if user is logged in (session-based)
+- checkAdmin - Checks if user has admin role
+- verifyJWT - Verifies JWT token for API routes
+
+### File Upload Middleware
+- upload - Multer middleware for file uploads
+- processUpload - Processes uploaded images
+
+### Error Handling Middleware
+- errorHandler - Handles errors and logs them
+- logger - Logs HTTP requests
+
+### Role Verification Middleware
+- verifyRoles - Verifies user roles for protected routes
+
+### NFC Middleware
+- NFCGenerator - Generates and validates NFC tags for 2FA
+
+## Models
+
+### TimeEntry Model (model/TimeEntry.js)
+- create(data) - Create a new timesheet entry
+- update(id, data) - Update a timesheet entry
+- findById(id) - Find a timesheet entry by ID
+- findActiveEntryByEmployeeId(employeeId) - Find active entry for an employee
+- findRecentEntriesByEmployeeId(employeeId, limit) - Find recent entries for an employee
+- findEntriesByEmployeeIdAndDate(employeeId, dateString) - Find entries for an employee on a specific date
+- findAllActiveEntriesWithEmployee() - Find all active entries with employee info
+- findAll() - Find all timesheet entries
+- delete(id) - Delete a timesheet entry
+- calculateHoursWorkedForDate(employeeId, dateString) - Calculate hours worked for a specific date
+
+### User Model (model/User.js)
+- findById(id) - Find user by ID
+- findByUsername(username) - Find user by username
+- updateProfileImage(id, image) - Update user profile image
+
+### Leave Model (model/Leave.js)
+- create(leaveData) - Create a leave request
+- findByEmployeeId(employeeId) - Find leave requests by employee ID
+- updateStatus(id, status, reviewedBy) - Update leave request status
+- getLeaveSummary(employeeId) - Get leave summary for an employee
+
+### Employee Model (model/Employee.js)
+- getAll() - Get all employees
+
+### LeaveRequest Model (model/LeaveRequest.js)
+- create(requestData) - Create a new leave request
+- findAll(options) - Find all leave requests
+
+## Controllers
+
+### TimesheetController
+- getTimesheetPageData - Get data for timesheet page
+- getTimesheetStatus - Get timesheet status
+- getAllTimesheets - Get all timesheets
+
+### AdminController
+- getAllTimesheets - Get all timesheets for admin view
+
+### EmployeeController
+- getAllEmployees - Get all employees
+- getEmployeeById - Get employee by ID
+- createEmployee - Create a new employee
+- updateEmployee - Update an employee
+- deleteEmployee - Delete an employee
+- getEmployeeTimesheets - Get employee timesheets
+- submitTimesheet - Submit a timesheet
+
+## Database
+
+The application uses Supabase as the database system with the following tables:
+- users - User information
+- timesheets - Timesheet entries
+- leaves - Leave requests
+
+## Authentication
+
+The application uses two authentication methods:
+1. Session-based authentication for web pages
+2. JWT-based authentication for API routes
+
+## File Structure
+
+```
+Better-Time-Management/
+├── config/              # Configuration files
+│   ├── supabaseClient.js # Supabase client configuration
+│   └── jwtConfig.js     # JWT configuration
+├── controllers/         # Route controllers
+│   ├── authController.js # Authentication logic
+│   ├── timesheetController.js # Timesheet management
+│   └── adminController.js # Admin functionality
+├── middleware/          # Express middleware
+│   ├── auth.js          # Authentication middleware
+│   └── NFC.js           # NFC functionality
+├── model/               # Database models
+│   ├── TimeEntry.js     # Timesheet entry model
+│   ├── User.js          # User model
+│   └── Leave.js         # Leave management model
+├── public/              # Static assets
+│   ├── css/             # CSS files
+│   ├── js/              # JavaScript files
+│   └── images/          # Image files
+├── routes/              # Route definitions
+│   ├── auth.js          # Authentication routes
+│   ├── admin.js         # Admin routes
+│   ├── api.js           # API routes
+│   ├── employee.js      # Employee routes
+│   ├── leave.js         # Leave routes
+│   ├── profile.js       # Profile routes
+│   └── timesheet.js     # Timesheet routes
+├── views/               # EJS templates
+│   ├── admin.ejs        # Admin dashboard
+│   ├── dashboard.ejs    # User dashboard
+│   ├── layout.ejs       # Main layout
+│   ├── login.ejs        # Login page
+│   ├── profile.ejs      # Profile page
+│   └── timesheet.ejs    # Timesheet page
+├── server.js            # Main application file
+└── package.json         # Dependencies and scripts
+```

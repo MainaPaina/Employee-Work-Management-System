@@ -118,16 +118,24 @@ class Leave {
             const currentYear = new Date().getFullYear();
             const startOfYear = `${currentYear}-01-01`;
 
+            // Fetch approved leaves for the employee for the current year
             const { data: approvedLeaves, error: approvedError } = await supabase
-                .from('leaves')
-                .select('days')
-                .eq('employee_id', employeeId)
-                .eq('status', 'approved')
+                .from('leaves') // Query the 'leaves' table
+                .select('start_date, end_date') 
+                .eq('employee_id', employeeId) 
+                .eq('status', 'approved') 
                 .gte('start_date', startOfYear);
 
+            // Throw an error if there was an issue with the query
             if (approvedError) throw approvedError;
 
-            const usedLeaves = approvedLeaves.reduce((sum, leave) => sum + leave.days, 0);
+            // Calculate the total number of used leave days
+            const usedLeaves = approvedLeaves.reduce((sum, leave) => {
+                const start = new Date(leave.start_date); 
+                const end = new Date(leave.end_date); 
+                const duration = (end - start) / (1000 * 60 * 60 * 24) + 1; 
+                return sum + duration; 
+            }, 0);
 
             // Get all leave requests for the current year
             const { data: requests, error: requestsError } = await supabase

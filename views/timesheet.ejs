@@ -21,7 +21,7 @@
                 <i class="fas fa-clock"></i>
             </div>
             <div class="card-content">
-                <h4>Hours Today <i class="fas fa-info-circle" title="Shows hours worked today and remaining time in your 8-hour shift"></i></h4>
+                <h4>Hours Today <i class="fas fa-info-circle" title="Shows total hours worked today (including all clock-ins) and remaining time in your 8-hour shift"></i></h4>
                 <div class="countdown-container">
                     <div class="hours-display">
                         <div class="hours-row">
@@ -59,7 +59,7 @@
     <!-- Timer Display Section -->
     <div class="timer-section card mb-4">
         <div class="card-body">
-            <h5 class="card-title">Today's Progress</h5>
+            <h5 class="card-title">Today's Progress (All Clock-ins)</h5>
             <div class="timer-display">
                 <div class="timer-item">
                     <span class="timer-label">Worked:</span>
@@ -546,10 +546,59 @@ document.addEventListener('DOMContentLoaded', () => {
         const elapsedSeconds = elapsedMilliseconds / 1000;
         const elapsedHours = elapsedSeconds / 3600;
 
-        // Calculate the total hours worked for the day
-        // This includes the base hours (accumulated from previous sessions) plus the elapsed hours in the current session
-        const currentSessionHours = elapsedHours;
-        const currentTotalHours = window.baseHoursWorked + currentSessionHours;
+        // Get the active entry from the status data
+        const activeEntry = window.activeEntry || {};
+
+        // IMPORTANT: We need to be careful about how we calculate the total hours worked
+        // to avoid double-counting. There are two scenarios:
+
+        // 1. If the user has just clocked in, the active entry's hours_worked field already
+        //    includes all accumulated hours from previous clock-ins, and we need to add the
+        //    elapsed hours from the current session.
+        // 2. If the user has clocked out, we should use the hours_worked field directly
+        //    without adding any elapsed hours.
+
+        let currentTotalHours = 0;
+        let currentSessionHours = 0;
+
+        // Check if the user is actively clocked in
+        if (activeEntry.status === 'active' && !activeEntry.end_time) {
+            // User is actively clocked in - calculate elapsed hours for current session
+            currentSessionHours = elapsedHours;
+
+            // Get the accumulated hours from the active entry
+            const accumulatedHours = activeEntry.hours_worked || 0;
+
+            // Calculate the total hours worked for the day
+            currentTotalHours = accumulatedHours + currentSessionHours;
+
+            console.log('User is actively clocked in');
+            console.log('Accumulated hours from active entry:', accumulatedHours);
+            console.log('Current session hours:', currentSessionHours);
+            console.log('Total hours worked today (all clock-ins):', currentTotalHours);
+
+            // Log more details about the accumulated hours
+            console.log('Accumulated hours breakdown:');
+            console.log('- Hours from previous clock-ins (from active entry):', accumulatedHours);
+            console.log('- Hours from current session:', currentSessionHours);
+            console.log('- Total accumulated hours:', currentTotalHours);
+        } else {
+            // User is not actively clocked in - use the hours_worked field directly
+            currentTotalHours = activeEntry.hours_worked || 0;
+
+            console.log('User is not actively clocked in');
+            console.log('Total hours worked today (from active entry):', currentTotalHours);
+
+            // IMPORTANT: When the user is not actively clocked in, we should not add any elapsed hours
+            // to the total hours worked. This prevents the timer from continuing to count up after
+            // the user has clocked out.
+            window.timerRunning = false;
+            if (window.liveTimerIntervalId) {
+                clearInterval(window.liveTimerIntervalId);
+                window.liveTimerIntervalId = null;
+                console.log('Stopped live timer because user is not actively clocked in.');
+            }
+        }
 
         // Store the total hours worked for the day in a global variable
         // This will be used when the page is refreshed or when the user navigates away and back
@@ -655,6 +704,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUI(statusData) {
         const activeEntry = statusData.activeEntry;
         console.log('Updating UI with data:', statusData);
+
+        // Store the active entry in a global variable for use in updateLiveDisplay
+        window.activeEntry = activeEntry;
+        console.log('Stored active entry in global variable:', window.activeEntry);
 
         // Clear previous timer interval if it exists
         if (window.liveTimerIntervalId) {
@@ -781,21 +834,43 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Found stored hours worked from today:', storedHoursWorked);
                 }
 
-                // Store base hours and start time for the live timer
-                // Use the total hours worked for the day as the base, not just the current session
-                // This ensures the timer doesn't reset when clocking in again
-                // Priority: window variable > localStorage > initialHoursWorked
-                window.baseHoursWorked = window.totalHoursWorkedToday !== undefined ? window.totalHoursWorkedToday :
-                                        (lastWorkDate === today ? storedHoursWorked : initialHoursWorked);
+                // IMPORTANT: We need to be careful about how we calculate the total hours worked
+                // to avoid double-counting. When a user is actively clocked in, we should:
+                // 1. Set baseHoursWorked to 0
+                // 2. Use the active entry's hours_worked field as the accumulated hours
+                // 3. Add the elapsed hours from the current session to the accumulated hours
+
+                // ALWAYS set baseHoursWorked to 0 when a user is actively clocked in
+                // This is because the active entry's hours_worked field already includes all accumulated hours
+                window.baseHoursWorked = 0;
+
+                // Get the accumulated hours from the active entry
+                const accumulatedHours = activeEntry.hours_worked || 0;
+
+                // Calculate the remaining hours based on the accumulated hours
+                window.remainingHoursToday = Math.max(0, 8 - accumulatedHours);
+
+                console.log('Set baseHoursWorked to 0 to avoid double-counting accumulated hours');
+                console.log('Accumulated hours from active entry:', accumulatedHours);
+                console.log('Calculated remaining hours:', window.remainingHoursToday);
+
+                // Log more details about the accumulated hours
+                console.log('Accumulated hours breakdown at timer start:');
+                console.log('- Hours from previous clock-ins (from active entry):', accumulatedHours);
+                console.log('- Hours from current session: 0 (just starting)');
+                console.log('- Total accumulated hours (before current session):', accumulatedHours);
 
                 // For the session start time, we need to calculate it based on the current time and the elapsed hours
                 // in the current session to ensure the timer continues correctly
                 const now = new Date();
-                const currentSessionHours = activeEntry.hours_worked || 0;
+
+                // The session start time is the time when the user clocked in most recently
                 const sessionStartTime = activeEntry.start_time ? new Date(activeEntry.start_time) : null;
 
                 // Store the session start time for the timer
                 window.sessionStartTime = sessionStartTime;
+
+                console.log('Session start time set to:', window.sessionStartTime);
 
                 // Update localStorage with the current values
                 localStorage.setItem('lastWorkDate', today);
@@ -804,7 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 console.log('Base hours worked set:', window.baseHoursWorked);
                 console.log('Session start time set:', window.sessionStartTime);
-                console.log('Current session hours:', currentSessionHours);
+                console.log('Current session hours: 0 (just starting)');
 
                 // Start the live timer ONLY if sessionStartTime is valid and no timer is already running
                 // Check both our own timer and the main.js timer
@@ -896,9 +971,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Stored total hours worked today from server:', window.totalHoursWorkedToday);
 
                 // Calculate remaining hours based on total hours worked
+                // This is crucial - we need to subtract the accumulated hours from the standard 8-hour day
                 statusData.remainingHours = Math.max(0, 8 - statusData.hoursWorked);
                 statusData.remainingHoursRaw = statusData.remainingHours;
-                console.log('Calculated remaining hours:', statusData.remainingHours);
+
+                // Store the remaining hours in a global variable for the timer
+                window.remainingHoursToday = statusData.remainingHours;
+                console.log('Calculated and stored remaining hours:', statusData.remainingHours);
 
                 // Store the current date in localStorage to track if it's the same day
                 const today = new Date().toISOString().split('T')[0];
@@ -906,7 +985,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('totalHoursWorkedToday', statusData.hoursWorked.toString());
                 localStorage.setItem('remainingHoursToday', statusData.remainingHours.toString());
                 console.log('Stored work data in localStorage for date:', today);
+
+                // Log the values for debugging
+                console.log('Current timer values:');
+                console.log('- Total hours worked today:', window.totalHoursWorkedToday);
+                console.log('- Remaining hours today:', window.remainingHoursToday);
             }
+
+            // Store the active entry in a global variable for use in other functions
+            window.activeEntry = statusData.activeEntry;
+            console.log('Stored active entry in global variable:', window.activeEntry);
 
             updateUI(statusData);
 
@@ -927,6 +1015,52 @@ document.addEventListener('DOMContentLoaded', () => {
             startUnavailableBtn.disabled = true;
             endUnavailableBtn.disabled = true;
         }
+    }
+
+    // Helper function to send time tracking requests
+    async function sendTimeTrackingRequest(url, method, data = {}) {
+        console.log(`Sending ${method} request to ${url} with data:`, data);
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        // Special handling for 400 status with 'Already actively clocked in' message
+        // This is used for the force clock-in feature
+        if (response.status === 400) {
+            const result = await response.json();
+            if (result.message && result.message.includes('Already actively clocked in') && result.canForceClockIn) {
+                console.log('Detected force clock-in scenario:', result);
+                return result; // Return the result with canForceClockIn flag
+            }
+            // For other 400 errors, throw normally
+            throw new Error(result.message || 'Request failed');
+        }
+
+        // For non-200 responses that aren't the special case above
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage;
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.message || errorJson.error || `Request failed with status ${response.status}`;
+            } catch (e) {
+                errorMessage = `Request failed with status ${response.status}: ${errorText}`;
+            }
+            throw new Error(errorMessage);
+        }
+
+        // For successful responses
+        return await response.json();
     }
 
     // Generic function to handle API calls for other timesheet actions
@@ -1081,25 +1215,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // --- UI Update Logic (Copied from original, check if still relevant) ---
                     if (result.allEntries && result.allEntries.length > 0) {
+                        // Calculate total hours worked from all entries
                         let totalHoursWorked = 0;
                         result.allEntries.forEach(entry => {
                             if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
                                 totalHoursWorked += parseFloat(entry.hours_worked);
                             }
                         });
+
+                        // Store the total hours worked in a global variable
                         window.totalHoursWorkedToday = totalHoursWorked;
                         console.log('Stored total hours worked today:', window.totalHoursWorkedToday);
+
+                        // Calculate remaining hours based on total hours worked
+                        const remainingHours = Math.max(0, 8 - totalHoursWorked);
+                        window.remainingHoursToday = remainingHours;
+                        console.log('Calculated remaining hours today:', window.remainingHoursToday);
+
+                        // Store the active entry in a global variable for use in updateLiveDisplay
+                        window.activeEntry = result.entry;
+                        console.log('Stored active entry in global variable:', window.activeEntry);
+
+                        // IMPORTANT: Set baseHoursWorked to 0 because the accumulated hours are already
+                        // stored in the active entry's hours_worked field. If we use the accumulated hours
+                        // as the base, we'll be double-counting them.
+                        window.baseHoursWorked = 0;
+                        console.log('Set baseHoursWorked to 0 to avoid double-counting accumulated hours');
+
+                        // Log more details about the accumulated hours
+                        console.log('Accumulated hours breakdown after clock-in:');
+                        console.log('- Hours from previous clock-ins (from active entry):', result.entry.hours_worked || 0);
+                        console.log('- Hours from current session: 0 (just starting)');
+                        console.log('- Total accumulated hours:', result.entry.hours_worked || 0);
 
                         const hoursWorkedElement = document.getElementById('hours-worked');
                         const hoursWorkedData = document.getElementById('hours-worked-data');
                         const countdownElement = document.getElementById('countdown-timer');
                         const remainingHoursData = document.getElementById('remaining-hours-data');
-                        const remainingHours = Math.max(0, 8 - totalHoursWorked);
 
-                        if (hoursWorkedElement) hoursWorkedElement.setAttribute('data-total-hours-worked', totalHoursWorked.toString());
-                        if (hoursWorkedData) hoursWorkedData.setAttribute('data-total-hours-worked', totalHoursWorked.toString());
-                        if (countdownElement) countdownElement.setAttribute('data-server-remaining-hours', remainingHours.toString());
-                        if (remainingHoursData) remainingHoursData.setAttribute('data-server-remaining-hours', remainingHours.toString());
+                        // Update data attributes with the calculated values
+                        if (hoursWorkedElement) {
+                            hoursWorkedElement.setAttribute('data-total-hours-worked', totalHoursWorked.toString());
+
+                            // Format hours worked for display
+                            const hours = Math.floor(totalHoursWorked);
+                            const minutes = Math.round((totalHoursWorked % 1) * 60);
+                            const formattedHoursWorked = `${hours}h ${minutes}m`;
+                            hoursWorkedElement.textContent = formattedHoursWorked;
+                            console.log(`Updated hours-worked element to: ${formattedHoursWorked}`);
+                        }
+
+                        if (hoursWorkedData) {
+                            hoursWorkedData.setAttribute('data-total-hours-worked', totalHoursWorked.toString());
+                        }
+
+                        // Update remaining hours display
+                        if (countdownElement) {
+                            countdownElement.setAttribute('data-server-remaining-hours', remainingHours.toString());
+
+                            // Format remaining hours for display
+                            const hours = Math.floor(remainingHours);
+                            const minutes = Math.round((remainingHours % 1) * 60);
+                            const formattedRemainingHours = `${hours}h ${minutes}m`;
+                            countdownElement.textContent = formattedRemainingHours;
+                            console.log(`Updated countdown-timer element to: ${formattedRemainingHours}`);
+                        }
+
+                        if (remainingHoursData) {
+                            remainingHoursData.setAttribute('data-server-remaining-hours', remainingHours.toString());
+                        }
+
+                        // Also update the hours-remaining element if it exists
+                        const hoursRemainingElement = document.getElementById('hours-remaining');
+                        if (hoursRemainingElement) {
+                            const hours = Math.floor(remainingHours);
+                            const minutes = Math.round((remainingHours % 1) * 60);
+                            const formattedRemainingHours = `${hours}h ${minutes}m`;
+                            hoursRemainingElement.textContent = formattedRemainingHours;
+                            console.log(`Updated hours-remaining element to: ${formattedRemainingHours}`);
+                        }
 
                         // Refresh the today's entries table
                         const todayEntriesTable = document.querySelector('.timesheet-table tbody');
@@ -1244,35 +1438,103 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 console.log('Sending clock-out request to /api/clock-out');
-                const response = await fetch('/api/clock-out', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Add JWT to header
-                    },
-                });
+                try {
+                    // Use the sendTimeTrackingRequest function instead of fetch directly
+                    const result = await sendTimeTrackingRequest('/api/clock-out', 'POST');
+                    console.log('Clock-out response data:', result);
 
-                console.log('Clock-out response status:', response.status);
-                const result = await response.json();
-                console.log('Clock-out response data:', result);
-
-                if (response.ok) {
+                    // If we get here, the request was successful
                     console.log('Clock out successful:', result);
                     showNotification('Clocked out successfully!', 'success');
 
+                    // Update the active entry with the result
+                    window.activeEntry = result.entry;
+                    console.log('Updated active entry with clock-out result:', window.activeEntry);
+
+                    // IMPORTANT: Since the user has clocked out, we need to update the UI immediately
+                    // with the correct hours worked value from the server response
+                    if (result.entry && result.entry.hours_worked !== undefined) {
+                        const totalHoursWorked = result.entry.hours_worked;
+                        console.log('Total hours worked from server response:', totalHoursWorked);
+
+                        // Update the hours worked display
+                        const hoursWorkedElement = document.getElementById('hours-worked');
+                        if (hoursWorkedElement) {
+                            const formattedHoursWorked = formatHoursMinutes(totalHoursWorked);
+                            hoursWorkedElement.textContent = formattedHoursWorked;
+                            console.log('Updated hours-worked element to:', formattedHoursWorked);
+                        }
+
+                        // Update the remaining hours display
+                        const remainingHours = Math.max(0, 8 - totalHoursWorked);
+                        const hoursRemainingElement = document.getElementById('hours-remaining');
+                        if (hoursRemainingElement) {
+                            const formattedRemainingHours = formatHoursMinutes(remainingHours);
+                            hoursRemainingElement.textContent = formattedRemainingHours;
+                            console.log('Updated hours-remaining element to:', formattedRemainingHours);
+                        }
+
+                        // Update the timer display
+                        const timerHoursWorkedElement = document.getElementById('timer-hours-worked');
+                        if (timerHoursWorkedElement) {
+                            timerHoursWorkedElement.textContent = formattedHoursWorked;
+                            console.log('Updated timer-hours-worked element to:', formattedHoursWorked);
+                        }
+
+                        // Update the countdown timer
+                        const countdownTimerElement = document.getElementById('countdown-timer');
+                        if (countdownTimerElement) {
+                            countdownTimerElement.textContent = formattedRemainingHours;
+                            console.log('Updated countdown-timer element to:', formattedRemainingHours);
+                        }
+
+                        // Update the progress bars
+                        const percentage = Math.min(100, Math.max(0, (totalHoursWorked / 8) * 100));
+                        const progressBarElement = document.getElementById('work-progress-bar');
+                        if (progressBarElement) {
+                            progressBarElement.style.width = `${percentage}%`;
+                            console.log('Updated work-progress-bar to:', percentage + '%');
+                        }
+
+                        const timerBarElement = document.querySelector('.progress-bar.timer-bar');
+                        if (timerBarElement) {
+                            timerBarElement.style.width = `${percentage}%`;
+                            timerBarElement.setAttribute('aria-valuenow', totalHoursWorked.toString());
+                            console.log('Updated timer-bar to:', percentage + '%');
+                        }
+
+                        // Store the total hours worked in global variables
+                        window.totalHoursWorkedToday = totalHoursWorked;
+                        window.remainingHoursToday = remainingHours;
+
+                        // Update localStorage
+                        const today = new Date().toISOString().split('T')[0];
+                        localStorage.setItem('lastWorkDate', today);
+                        localStorage.setItem('totalHoursWorkedToday', totalHoursWorked.toString());
+                        localStorage.setItem('remainingHoursToday', remainingHours.toString());
+
+                        // Stop any running timers
+                        window.timerRunning = false;
+                        if (window.liveTimerIntervalId) {
+                            clearInterval(window.liveTimerIntervalId);
+                            window.liveTimerIntervalId = null;
+                            console.log('Stopped live timer after clock-out.');
+                        }
+                    }
+
                     // Wait a moment before refreshing the UI to ensure the server has processed the change
                     setTimeout(() => {
-                        fetchAndUpdateStatus(); // Refresh UI
+                        // Refresh UI without referencing any variables from the outer scope
+                        fetchAndUpdateStatus();
                     }, 500);
-                } else {
-                    const errorMessage = result.message || result.error || 'Unknown error';
-                    console.error('Clock out failed:', errorMessage);
+                } catch (error) {
+                    console.error('Clock out failed:', error.message);
 
                     // Handle specific error messages
-                    if (errorMessage.includes('Not clocked in')) {
+                    if (error.message.includes('Not clocked in')) {
                         showNotification('You are not currently clocked in.', 'warning');
                     } else {
-                        showNotification(`Clock out failed: ${errorMessage}`, 'error');
+                        showNotification(`Clock out failed: ${error.message}`, 'error');
                     }
 
                     // Re-enable the button

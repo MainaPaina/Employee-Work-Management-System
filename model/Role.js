@@ -1,4 +1,3 @@
-
 const supabase = require('../config/supabaseClient');
 
 // Create a Supabase client with the service role key to bypass RLS
@@ -24,7 +23,7 @@ class Role {
                 .single();       // Get single record
 
             if (error && error.code !== 'PGRST116') { // Ignore 'No rows found' error, return null
-                console.error('Error fetching role by ID:', error.message);
+                console.error('Error fetching user profile by ID:', error.message);
                 return null;
             }
             return data; // Return the role object (or null if not found)
@@ -56,11 +55,16 @@ class Role {
         try {
             const { data, error } = await supabase
                 .from('user_roles')  // From table user_roles
-                .select('id, role_id')   // Select role_id column
+                .select('roles ( name ) ')   // Select role_id column
                 .eq('user_id', userId); // Where user_id = userId
             if (error) {
                 console.error('Error fetching user roles:', error.message);
                 return null;
+            }
+            if (data != null)
+            {
+                console.log(data);
+                return data.map((item) => item.roles.name); // Extract role names from the data
             }
             return data; // Return the role objects (or null if not found)
         }
@@ -72,4 +76,3 @@ class Role {
 }
 
 module.exports = Role;
-// Export the Role class for use in other modules

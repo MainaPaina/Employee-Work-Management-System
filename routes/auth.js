@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabaseClient'); // Import Supabase client
 const User = require('../model/User'); // Import User model
+const Role = require('../model/Role'); // Import Role model
 const jwt = require('jsonwebtoken');
 require('dotenv').config(); // Ensure JWT_SECRET is loaded
 
@@ -33,7 +34,7 @@ router.post('/login', async (req, res) => {
 
     try {
         // 1. First, look up the user by username to get their email
-        console.log('Looking up user by username:', username);
+        //console.log('Looking up user by username:', username);
         const userData = await User.findByUsername(username);
 
         if (!userData) {
@@ -45,7 +46,7 @@ router.post('/login', async (req, res) => {
         console.log('User found:', { id: userData.id, username: userData.username, email: userData.email });
 
         // 2. Authenticate with Supabase using the email associated with the username
-        console.log('Authenticating with Supabase using email:', userData.email);
+        //console.log('Authenticating with Supabase using email:', userData.email);
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email: userData.email,
             password: password,
@@ -59,7 +60,7 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, error: 'Invalid credentials.' });
         }
 
-        console.log('Authentication successful with user ID:', authData.user.id);
+        //console.log('Authentication successful with user ID:', authData.user.id);
 
         // Ensure user data is returned
         if (!authData || !authData.user) {
@@ -87,12 +88,23 @@ router.post('/login', async (req, res) => {
             return res.status(500).json({ success: false, error: 'Could not retrieve user profile.' });
         }
 
+        // Fetch roles for the user
+        const roles = await Role.listUserRoles(authData.user.id);
+
+        if (!roles) {
+            console.warn('No roles found for user:', authData.user.id);
+            req.flash('error', 'Login failed: No roles assigned user.');
+        } else {
+            console.log('User roles:', roles); // Log roles for debugging
+        }
+
         // 3. Set up session
         const sessionUser = {
             id: user.id,
             email: user.email,
             username: profileData.username, // From users table
-            role: profileData.role || 'employee' // Ensure role exists, default if necessary
+            role: profileData.role || 'employee', // Ensure role exists, default if necessary
+            roles: roles || [],
         };
         req.session.user = sessionUser; // Store user info in session
 

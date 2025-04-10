@@ -10,6 +10,18 @@ const ejs = require('ejs');
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash'); // Needed for flash messages
 
+
+// ============================================================================
+// UTILITY FUNCTIONS (Assuming these were defined before)
+// ============================================================================
+const timeUtils = require('./utils/timeHelpers.js');
+
+// ============================================================================
+// MIDDLEWARE
+// ============================================================================
+// Middleware for handling user role checks
+const verifyRoles = require('./middleware/verifyRoles');
+
 // Import models if used directly in server.js
 const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
@@ -24,8 +36,11 @@ const leaveRoutes = require('./routes/leave');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profile'); // New profile routes
+/// routes for legal pages
+const legalRoutes = require('./routes/legal');
 
 // Initialize Supabase Admin Client (if needed for specific operations)
+/*
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabaseAdmin = null;
@@ -36,7 +51,7 @@ if (supabaseUrl && supabaseServiceKey) {
   console.log('Supabase Admin client initialized.');
 } else {
   console.warn('Supabase Admin client not initialized. SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing in .env');
-}
+}*/
 
 // Initialize application
 const app = express(); // *** CRITICAL: Initialize app *** <-- Around line 34
@@ -62,7 +77,7 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form bodie
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
     console.log(`${req.method} ${req.path}`);
-    console.log('Headers:', JSON.stringify(req.headers));
+    //console.log('Headers:', JSON.stringify(req.headers));
     next();
   });
 }
@@ -81,10 +96,7 @@ app.use(session({
 
 // Flash messages middleware
 app.use(flash());
-
-// ============================================================================
-// UTILITY FUNCTIONS (Assuming these were defined before)
-// ============================================================================
+/*
 const formatTime = (date) => {
   if (!(date instanceof Date) || isNaN(date)) {
       return '00:00'; // Return default or throw error
@@ -108,7 +120,7 @@ const formatMinutes = (minutes) => {
   const mins = Math.round(minutes % 60).toString().padStart(2, '0');
   return `${hours}:${mins}`;
 };
-
+*/
 // ============================================================================
 // MIDDLEWARE
 // ============================================================================
@@ -126,7 +138,7 @@ app.use((req, res, next) => {
   // automatisk reload av nettleser
   if (process.env.NODE_ENV === 'development') {
     // sett reloadRunning til true for å aktivere skript
-    res.locals.reloadRunning = true;
+    res.locals.reloadRunning = false;
     // sett reloadStarted til app variabelen started
     res.locals.reloadStarted = app.get('started');
   }
@@ -149,17 +161,27 @@ const checkAuth = (req, res, next) => {
 
 // Admin authorization middleware
 const checkAdmin = (req, res, next) => {
-  // Assumes checkAuth has already run
-  if (req.session.user && req.session.user.role !== 'admin') {
-     req.flash('error', 'Access denied. Admin privileges required.');
-     // Redirect non-admins away from admin pages
-     return res.redirect('/dashboard'); // Or another appropriate non-admin page
+  if (!req.session.user) {
+    req.flash('error', 'Please log in to access this page.');
+    req.session.returnTo = req.originalUrl;
+    return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
+  }
+  if (!req.session.user.roles) {
+    req.flash('error', 'Please log in to access this page.');
+    req.session.returnTo = req.originalUrl;
+    return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
+  }
+
+  if (!req.session.user.roles.includes('admin')) {
+    req.flash('error', 'Access denied. Admin privileges required.');
+    // Redirect non-admins away from admin pages
+    return res.redirect('/dashboard'); // Or another appropriate non-admin page
   }
   // If checkAuth didn't run first, add an extra check
   if (!req.session.user) {
       req.flash('error', 'Please log in.');
       req.session.returnTo = req.originalUrl;
-      return res.redirect('/login');
+      return res.redirect('/login?return=' + encodeURIComponent(req.originalUrl));
   }
   if (!req.user) req.user = req.session.user;
   next();
@@ -180,10 +202,10 @@ app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 
 // Admin routes - Require login AND admin role
-app.use('/admin', checkAuth, checkAdmin, adminRoutes);
+app.use('/admin', verifyRoles(['admin']), adminRoutes);
 
 // Employee specific routes (could be profile, etc.) - Require login
-app.use('/employee', checkAuth, employeeRoutes);
+app.use('/employee', verifyRoles(['employee']), employeeRoutes);
 
 // Timesheet view/actions - Require login
 app.use('/timesheet', checkAuth, timesheetRoutes);
@@ -192,8 +214,13 @@ app.use('/timesheet', checkAuth, timesheetRoutes);
 app.use('/leave', checkAuth, leaveRoutes);
 
 // Profile related routes - Accessible to authenticated users
-app.use('/profile', profileRoutes);
+app.use('/profile', checkAuth, profileRoutes);
 
+// Legal pages - accessible to all - terms, cookies, privacy
+app.use("/legal", legalRoutes);
+
+// Contact us page - Accessible to all
+app.get('/contact', (req, res) => res.render('static/contact', { activePage: 'contact' }));
 // Profile page route - Require login
 app.get('/profile', checkAuth, async (req, res) => {
   try {
@@ -225,14 +252,8 @@ app.get('/profile', checkAuth, async (req, res) => {
   }
 });
 
-// test roles read
-// maina: 4044700a-8ede-4514-8530-d0bf506fb308
-app.get('/getroles/:id', async (req, res) => {
-  const { id } = req.params;
-  const roles = await Role.listUserRoles(id);
-  //await Role.list();
-  res.json({ 'roles': JSON.stringify(roles) });
-});
+// About us page - accessible to all
+app.get('/about', (req, res) => res.render('static/about', { activePage: 'about'}));
 
 // ============================================================================
 // SPECIFIC PAGE ROUTES (defined directly in server.js)
@@ -313,48 +334,6 @@ app.post('/logout', (req, res) => {
         console.error('Error during logout (POST):', error);
         res.clearCookie('connect.sid');
         return res.redirect('/login');
-    }
-});
-
-// Contact us page - Accessible to all
-app.get('/contact', (req, res) => {
-    res.render('contact', { activePage: 'contact' });
-});
-
-// Terms of Service - accessible to all
-app.get('/legal/terms', (req, res) => {
-    res.render('legal/terms', { activePage: 'terms' });
-});
-
-// Privacy Policy - accessible to all
-app.get('/legal/privacy', (req, res) => {
-    res.render('legal/privacy', { activePage: 'privacy' });
-});
-
-// Cookies Policy - accessible to all
-app.get('/legal/cookies', (req, res) => {
-    res.render('legal/cookies', { activePage: 'cookies' });
-});
-
-// Profile route (protected)
-app.get('/profile', checkAuth, async (req, res) => {
-    try {
-        const userId = req.user?.id;
-        if (!userId) {
-            return res.redirect('/login');
-        }
-
-        // Get user data including profile image
-        const userData = await User.findById(userId);
-        
-        // Render the profile page with user data
-        res.render('profile', { 
-            user: userData,
-            activePage: 'profile' 
-        });
-    } catch (error) {
-        console.error('Error loading profile page:', error);
-        res.status(500).send('Server error');
     }
 });
 
