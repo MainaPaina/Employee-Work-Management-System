@@ -18,7 +18,7 @@ class Role {
         try {
             const { data, error } = await supabase
                 .from('roles')   // From table roles
-                .select('name')  // Select name column
+                .select('id, name')  // Select name column
                 .eq('id', id)    // Where id = id
                 .single();       // Get single record
 
@@ -38,7 +38,7 @@ class Role {
         try {
             const { data, error } = await supabase
                 .from('roles')   // From table roles
-                .select('name');    // Select all columns
+                .select('*');    // Select all columns
             if (error) {
                 console.error('Error fetching roles:', error.message);
                 return null;
@@ -56,7 +56,7 @@ class Role {
                         console.error('Error fetching user count:', countError.message);
                         return null;
                     }
-                    role.userCount = countData.count; // Add user count to the data object
+                    role.userCount = countData.length; // Add user count to the data object
                 }
             }
             return data; // Return the role objects (or null if not found)
@@ -87,6 +87,30 @@ class Role {
         catch (error) {
             console.error('Exception fetching user roles: ', error);
             return null;
+        }
+    }
+
+    static async listRoleUsers(roleId) {
+        try {
+            console.log('listRoleUsers called with roleId:', roleId);
+            const { data, error } = await supabaseAdmin
+                .from('user_roles')  // From table user_roles
+                //.select('user ( * ) ')   // Select role_id column
+                .select('users ( username ) ')
+                .eq('role_id', roleId); // Where id = userId
+
+            if (error) {
+                console.error('Error fetching users in role:', error.message);
+                return null;
+            }
+
+            return data; // Return the role objects (or null if not found)
+        }
+        catch (error) {
+
+            console.error('Exception fetching user roles: ', error);
+            return null;
+
         }
     }
 }

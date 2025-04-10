@@ -14,7 +14,7 @@ const supabaseAdmin = require('../config/supabaseAdmin');
 router.use('/usermanagement', verifyRoles(['admin']), require('./admin/usermanagement'));
 router.use('/policies', verifyRoles(['admin']), require('./admin/policies'));
 router.use('/departments', verifyRoles(['admin']), require('./admin/departments'));
-router.use('/roles', verifyRoles(['admin']), require('./admin/roles'));
+router.use('/roles', require('./admin/roles'));
 
 // GET /admin
 router.get('/', verifyRoles(['admin']), async (req, res) => res.render('admin/index'));

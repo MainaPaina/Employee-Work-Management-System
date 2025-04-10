@@ -5,8 +5,46 @@
 <div class="container main-content">
     <!-- Your existing admin content goes here without the backticks -->
     <div class="page-header">
-        <h1><i class="fas fa-users-between-lines"></i> roles</h1>
-    <p class="lead">Manage roles</p>
-</div>
+        <h1><i class="fas fa-users-between-lines"></i> Role Management</h1>
+        <p class="lead">Add, edit or delete roles - may impact permissions to sections of the website</p>
+    </div>
+    
 
-<%- include('../partials/menu') %>
+    <%- include('../partials/menu') %>
+
+
+
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Users</th>
+                <th>Created</th>
+                <th>
+                    <div class="btn-group btn-group-sm">
+                        <a href="/admin/roles/create"><i class="fas fa-plus"></i> Create</a>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <% roles.forEach(role => { %>
+                <tr>
+                    <td><%= role.id %></td>
+                    <td><%= role.name %></td>
+                    <td><%= role.userCount %></td>
+                    <td><%= (new Date(role.created_at).toLocaleString()) %></td>
+                    <td>
+                        <div class="btn-group brn-group-sm">
+                            <a href="/admin/roles/view/<%= role.id %>" class="btn btn-primary">View</a>
+                            <form action="/admin/roles/delete/<%= role.id %>" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>

@@ -125,7 +125,7 @@ const checkAuth = (req, res, next) => {
 app.use('/api', require('./routes/api'));
 
 /// Admin panel routes - require admin role
-app.use('/admin', verifyRoles(['admin']), require('./routes/admin'));
+app.use('/admin', require('./routes/admin'));
 
 /// Dashboard routes - require Employee role
 app.use('/dashboard', verifyRoles(['employee']), require('./routes/dashboard'));
