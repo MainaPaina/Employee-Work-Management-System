@@ -201,38 +201,7 @@ app.get('/roles', async (req, res) => {
 });
 
 // Profile related routes - Accessible to authenticated users
-app.use('/profile', profileRoutes);
-
-// Profile page route - Require login
-app.get('/profile', checkAuth, async (req, res) => {
-    try {
-        // Get user data from session
-        const userId = req.session?.user?.id;
-        if (!userId) {
-            return res.redirect('/login');
-        }
-    
-        // Get fresh user data from database to ensure we have the latest profile image
-        const userData = await User.findById(userId) || req.session.user;
-    
-        // Update session with fresh data if we got user data
-        if (userData) {
-            // Update profile image in session if it exists in the database
-            if (userData.profile_image) {
-                req.session.user.profile_image = userData.profile_image;
-            }
-        }
-    
-        // Render profile page
-        res.render('profile', { 
-            activePage: 'profile',
-            user: req.session.user
-        });
-    } catch (error) {
-        console.error('Error loading profile page:', error);
-        res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
-    }
-});
+app.use('/profile', checkAuth, profileRoutes);
 
 // Legal pages - accessible to all - terms, cookies, privacy
 app.use("/legal", legalRoutes);
@@ -322,30 +291,6 @@ app.post('/logout', (req, res) => {
         console.error('Error during logout (POST):', error);
         res.clearCookie('connect.sid');
         return res.redirect('/login');
-    }
-});
-
-
-
-// Profile route (protected)
-app.get('/profile', checkAuth, async (req, res) => {
-    try {
-        const userId = req.user?.id;
-        if (!userId) {
-            return res.redirect('/login');
-        }
-
-        // Get user data including profile image
-        const userData = await User.findById(userId);
-        
-        // Render the profile page with user data
-        res.render('profile', { 
-            user: userData,
-            activePage: 'profile' 
-        });
-    } catch (error) {
-        console.error('Error loading profile page:', error);
-        res.status(500).send('Server error');
     }
 });
 

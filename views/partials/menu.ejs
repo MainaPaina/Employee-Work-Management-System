@@ -45,11 +45,11 @@
                     </button>
                     <div class="user-dropdown-content">
                         <a href="/profile"><i class="fas fa-id-card"></i> Profile</a>
-                        <% if (locals.user && user.isinrole('admin')) { %>
-                            <a href="/admin"><i class="fas fa-cog"></i> Admin Settings</a>
+                        <% if (locals.user && user.role === 'manager') { %>
+                            <a href="/admin"><i class="fas fa-cog"></i> Manager</a>
                         <% } %>
                         <% if (locals.user && user.role === 'admin') { %>
-                            <a href="/admin"><i class="fas fa-cog"></i> Admin Settings</a>
+                            <a href="/admin"><i class="fas fa-cog"></i> Admin</a>
                         <% } %>
                         <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
