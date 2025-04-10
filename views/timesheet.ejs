@@ -1457,19 +1457,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         const totalHoursWorked = result.entry.hours_worked;
                         console.log('Total hours worked from server response:', totalHoursWorked);
 
+                        // Format the hours for display
+                        const formattedHoursWorked = formatHoursMinutes(totalHoursWorked);
+                        const remainingHours = Math.max(0, 8 - totalHoursWorked);
+                        const formattedRemainingHours = formatHoursMinutes(remainingHours);
+                        const percentage = Math.min(100, Math.max(0, (totalHoursWorked / 8) * 100));
+
                         // Update the hours worked display
                         const hoursWorkedElement = document.getElementById('hours-worked');
                         if (hoursWorkedElement) {
-                            const formattedHoursWorked = formatHoursMinutes(totalHoursWorked);
                             hoursWorkedElement.textContent = formattedHoursWorked;
                             console.log('Updated hours-worked element to:', formattedHoursWorked);
                         }
 
                         // Update the remaining hours display
-                        const remainingHours = Math.max(0, 8 - totalHoursWorked);
                         const hoursRemainingElement = document.getElementById('hours-remaining');
                         if (hoursRemainingElement) {
-                            const formattedRemainingHours = formatHoursMinutes(remainingHours);
                             hoursRemainingElement.textContent = formattedRemainingHours;
                             console.log('Updated hours-remaining element to:', formattedRemainingHours);
                         }
@@ -1489,7 +1492,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         // Update the progress bars
-                        const percentage = Math.min(100, Math.max(0, (totalHoursWorked / 8) * 100));
                         const progressBarElement = document.getElementById('work-progress-bar');
                         if (progressBarElement) {
                             progressBarElement.style.width = `${percentage}%`;
@@ -1520,6 +1522,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.liveTimerIntervalId = null;
                             console.log('Stopped live timer after clock-out.');
                         }
+                    } else {
+                        console.warn('No hours_worked field found in the response. Using default values.');
+                        // Use default values if hours_worked is not available
+                        fetchAndUpdateStatus(); // Refresh UI to get the latest data
                     }
 
                     // Wait a moment before refreshing the UI to ensure the server has processed the change
