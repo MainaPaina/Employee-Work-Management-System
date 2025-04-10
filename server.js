@@ -21,6 +21,7 @@ const timesheetRoutes = require('./routes/timesheet');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profile'); // New profile routes
+const dashboardRouter = require('./routes/dashboard'); // Dashboard routes
 
 // Initialize Supabase Admin Client (if needed for specific operations)
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -187,6 +188,9 @@ app.use('/timesheet', checkAuth, timesheetRoutes);
 
 // Leave related routes - REMOVED (no longer needed)
 
+// Dashboard routes - Require login
+app.use('/dashboard', checkAuth, dashboardRouter);
+
 // Profile related routes - Accessible to authenticated users
 app.use('/profile', profileRoutes);
 
@@ -344,59 +348,6 @@ app.get('/profile', checkAuth, async (req, res) => {
         console.error('Error loading profile page:', error);
         res.status(500).send('Server error');
     }
-});
-
-// Dashboard route (protected) - Refactored for Supabase
-app.get('/dashboard', checkAuth, async (req, res) => {
-  try {
-    const userId = req.user?.id; // Get user ID from checkAuth middleware
-    if (!userId) {
-      // This case should be rare if checkAuth works correctly
-      console.error('Dashboard access attempt without user ID after checkAuth.');
-      req.flash('error', 'Authentication error. Please log in again.');
-      return res.redirect('/login');
-    }
-
-    let activeEntry = null;
-    let recentEntries = [];
-    let remainingHours = 0; // Placeholder
-
-    // Fetch active entry (end_time is NULL) using TimeEntry model method
-    activeEntry = await TimeEntry.findActiveEntryByEmployeeId(userId);
-
-    // TODO: Implement remainingHours calculation based on activeEntry fields
-    // (start_time, status, break_start_time, total_break_duration etc.)
-    // This logic might belong in the TimeEntry model or a service function.
-    if (activeEntry) {
-        // Placeholder calculation - replace with actual logic
-        // const startTime = new Date(activeEntry.start_time);
-        // const now = new Date();
-        // const elapsedMillis = now - startTime;
-        // const elapsedMinutes = elapsedMillis / (1000 * 60);
-        // const breakMinutes = activeEntry.total_break_duration || 0;
-        // const workedMinutes = elapsedMinutes - breakMinutes;
-        // remainingHours = Math.max(0, (480 - workedMinutes) / 60); // Assuming 8-hour day
-    }
-
-
-    // Fetch last 3 completed entries using TimeEntry model method
-    recentEntries = await TimeEntry.findRecentEntriesByEmployeeId(userId, 3);
-
-
-    const dashboardData = {
-      activeEntry: activeEntry,
-      remainingHours: remainingHours.toFixed(1), // Use calculated value when available
-      recentEntries: recentEntries
-    };
-
-    res.render('dashboard', {
-      dashboardData,
-      activePage: 'dashboard'
-    });
-  } catch (error) {
-    console.error('Error loading dashboard:', error);
-    res.status(500).render('error', { message: 'Failed to load dashboard data.', activePage: 'error' });
-  }
 });
 
 

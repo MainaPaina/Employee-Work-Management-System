@@ -55,9 +55,9 @@
         <div class="summary-card leave-card">
             <h3><i class="fas fa-calendar-alt"></i> Leave Balance</h3>
             <div class="progress-container">
-                <div class="progress-bar" style="width: 60%"></div>
+                <div class="progress-bar" style="width: <%= (leaveData.leavesUsed / leaveData.totalQuota) * 100 %>%"></div>
             </div>
-            <p class="leave-balance-text">15 days used out of 25</p>
+            <p class="leave-balance-text"><%= leaveData.leavesUsed %> days used out of <%= leaveData.totalQuota %></p>
             <a href="/leave/apply" class="btn btn-outline">View Details</a>
         </div>
 
