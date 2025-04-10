@@ -23,7 +23,6 @@ const timeUtils = require('./utils/timeHelpers.js');
 const verifyRoles = require('./middleware/verifyRoles');
 
 // Import models if used directly in server.js
-const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
 const User = require('./model/User'); // Assuming User model exists
 const Role = require('./model/Role'); // Assuming Role model exists
@@ -32,12 +31,12 @@ const Role = require('./model/Role'); // Assuming Role model exists
 const authRoutes = require('./routes/auth');
 const employeeRoutes = require('./routes/employee');
 const timesheetRoutes = require('./routes/timesheet');
-const leaveRoutes = require('./routes/leave');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profile'); // New profile routes
 /// routes for legal pages
 const legalRoutes = require('./routes/legal');
+const dashboardRouter = require('./routes/dashboard'); // Dashboard routes
 
 // Initialize Supabase Admin Client (if needed for specific operations)
 /*
@@ -134,7 +133,7 @@ app.use((req, res, next) => {
   res.locals.info_msg = req.flash('info');
   // Make activePage available globally, default to empty string
   res.locals.activePage = '';
-  
+
   // automatisk reload av nettleser
   if (process.env.NODE_ENV === 'development') {
     // sett reloadRunning til true for å aktivere skript
@@ -142,9 +141,7 @@ app.use((req, res, next) => {
     // sett reloadStarted til app variabelen started
     res.locals.reloadStarted = app.get('started');
   }
-  // 
-  
-  //console.log(req.session.user);
+  //
   next();
 });
 
@@ -212,14 +209,44 @@ app.use('/employee', verifyRoles(['employee']), employeeRoutes);
 // Timesheet view/actions - Require login
 app.use('/timesheet', checkAuth, timesheetRoutes);
 
-// Leave related routes - Require login
-app.use('/leave', checkAuth, leaveRoutes);
+// Leave related routes - REMOVED (no longer needed)
+
+// Dashboard routes - Require login
+app.use('/dashboard', checkAuth, dashboardRouter);
 
 // Profile related routes - Accessible to authenticated users
 app.use('/profile', checkAuth, profileRoutes);
 
-// Legal pages - accessible to all - terms, cookies, privacy
-app.use("/legal", legalRoutes);
+// Profile page route - Require login
+app.get('/profile', checkAuth, async (req, res) => {
+  try {
+    // Get user data from session
+    const userId = req.session?.user?.id;
+    if (!userId) {
+      return res.redirect('/login');
+    }
+
+    // Get fresh user data from database to ensure we have the latest profile image
+    const userData = await User.findById(userId) || req.session.user;
+
+    // Update session with fresh data if we got user data
+    if (userData) {
+      // Update profile image in session if it exists in the database
+      if (userData.profile_image) {
+        req.session.user.profile_image = userData.profile_image;
+      }
+    }
+
+    // Render profile page
+    res.render('profile', {
+      activePage: 'profile',
+      user: req.session.user
+    });
+  } catch (error) {
+    console.error('Error loading profile page:', error);
+    res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
+  }
+});
 
 // Contact us page - Accessible to all
 app.get('/contact', (req, res) => res.render('static/contact', { activePage: 'contact' }));
@@ -309,57 +336,46 @@ app.post('/logout', (req, res) => {
     }
 });
 
-// Dashboard route (protected) - Refactored for Supabase
-app.get('/dashboard', checkAuth, async (req, res) => {
-  try {
-    const userId = req.user?.id; // Get user ID from checkAuth middleware
-    if (!userId) {
-      // This case should be rare if checkAuth works correctly
-      console.error('Dashboard access attempt without user ID after checkAuth.');
-      req.flash('error', 'Authentication error. Please log in again.');
-      return res.redirect('/login');
+// Contact us page - Accessible to all
+app.get('/contact', (req, res) => {
+    res.render('contact', { activePage: 'contact' });
+});
+
+// Terms of Service - accessible to all
+app.get('/legal/terms', (req, res) => {
+    res.render('legal/terms', { activePage: 'terms' });
+});
+
+// Privacy Policy - accessible to all
+app.get('/legal/privacy', (req, res) => {
+    res.render('legal/privacy', { activePage: 'privacy' });
+});
+
+// Cookies Policy - accessible to all
+app.get('/legal/cookies', (req, res) => {
+    res.render('legal/cookies', { activePage: 'cookies' });
+});
+
+// Profile route (protected)
+app.get('/profile', checkAuth, async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.redirect('/login');
+        }
+
+        // Get user data including profile image
+        const userData = await User.findById(userId);
+
+        // Render the profile page with user data
+        res.render('profile', {
+            user: userData,
+            activePage: 'profile'
+        });
+    } catch (error) {
+        console.error('Error loading profile page:', error);
+        res.status(500).send('Server error');
     }
-
-    let activeEntry = null;
-    let recentEntries = [];
-    let remainingHours = 0; // Placeholder
-
-    // Fetch active entry (end_time is NULL) using TimeEntry model method
-    activeEntry = await TimeEntry.findActiveEntryByEmployeeId(userId);
-
-    // TODO: Implement remainingHours calculation based on activeEntry fields
-    // (start_time, status, break_start_time, total_break_duration etc.)
-    // This logic might belong in the TimeEntry model or a service function.
-    if (activeEntry) {
-        // Placeholder calculation - replace with actual logic
-        // const startTime = new Date(activeEntry.start_time);
-        // const now = new Date();
-        // const elapsedMillis = now - startTime;
-        // const elapsedMinutes = elapsedMillis / (1000 * 60);
-        // const breakMinutes = activeEntry.total_break_duration || 0;
-        // const workedMinutes = elapsedMinutes - breakMinutes;
-        // remainingHours = Math.max(0, (480 - workedMinutes) / 60); // Assuming 8-hour day
-    }
-
-
-    // Fetch last 3 completed entries using TimeEntry model method
-    recentEntries = await TimeEntry.findRecentEntriesByEmployeeId(userId, 3);
-
-
-    const dashboardData = {
-      activeEntry: activeEntry,
-      remainingHours: remainingHours.toFixed(1), // Use calculated value when available
-      recentEntries: recentEntries
-    };
-
-    res.render('dashboard', {
-      dashboardData,
-      activePage: 'dashboard'
-    });
-  } catch (error) {
-    console.error('Error loading dashboard:', error);
-    res.status(500).render('error', { message: 'Failed to load dashboard data.', activePage: 'error' });
-  }
 });
 
 
@@ -383,7 +399,7 @@ if (process.env.NODE_ENV == 'development')
       res.json({ 'started': app.get('started') });
     });
   }
-  
+
 
 // ============================================================================
 // ERROR HANDLING
