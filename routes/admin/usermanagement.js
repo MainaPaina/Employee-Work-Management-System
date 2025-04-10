@@ -1,0 +1,46 @@
+const express = require('express');
+
+const router = express.Router();
+const { createClient } = require('@supabase/supabase-js'); // Import createClient
+
+// Anon key client (for general reads, respecting RLS)
+const supabase = require('../../config/supabaseClient');
+const supabaseAdmin = require('../../config/supabaseAdmin');
+
+const verifyRoles = require('../../middleware/verifyRoles');
+
+const User = require('../../model/User');
+const Role = require('../../model/Role');
+
+router.get('/', verifyRoles(['admin']), async (req, res) => {
+    try {
+        console.log('GET /admin/usermanagement called');
+        const { data: users, error: usersError } = await supabase
+            .from('users')
+            .select('id, username, name, role, active, email')
+            .order('name');
+
+        if (usersError) {
+            console.error('Supabase error fetching users for admin page:', usersError);
+            throw usersError;
+        }
+
+        res.render('admin/usermanagement/index', {
+            users: users || [],
+            activePage: 'admin',
+            currentUser: req.session.user
+        });
+    } catch (error) {
+        console.error('Error fetching admin data:', error);
+        res.render('admin', {
+            users: [],
+            timesheets: [],
+            activePage: 'admin',
+            currentUser: req.session.user,
+            error: `Failed to load admin data: ${error.message}`
+        });
+    }
+});
+
+// Export the router directly
+module.exports = router;

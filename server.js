@@ -10,8 +10,17 @@ const ejs = require('ejs');
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash'); // Needed for flash messages
 
-// import middlewares
-const verifyRoles = require('./middleware/verifyRoles'); // Role verification for routes
+
+// ============================================================================
+// UTILITY FUNCTIONS (Assuming these were defined before)
+// ============================================================================
+const timeUtils = require('./utils/timeHelpers.js');
+
+// ============================================================================
+// MIDDLEWARE
+// ============================================================================
+// Middleware for handling user role checks
+const verifyRoles = require('./middleware/verifyRoles');
 
 // Import models if used directly in server.js
 const Leave = require('./model/Leave');
@@ -26,11 +35,13 @@ const timesheetRoutes = require('./routes/timesheet');
 const leaveRoutes = require('./routes/leave');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
+const adminUserManagementRoutes = require('./routes/admin/usermanagement'); // User management routes
 const profileRoutes = require('./routes/profile'); // New profile routes
 /// routes for legal pages
 const legalRoutes = require('./routes/legal');
 
 // Initialize Supabase Admin Client (if needed for specific operations)
+/*
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabaseAdmin = null;
@@ -41,7 +52,7 @@ if (supabaseUrl && supabaseServiceKey) {
   console.log('Supabase Admin client initialized.');
 } else {
   console.warn('Supabase Admin client not initialized. SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing in .env');
-}
+}*/
 
 // Initialize application
 const app = express(); // *** CRITICAL: Initialize app *** <-- Around line 34
@@ -65,11 +76,11 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form bodie
 
 // Request logging middleware - only if NODE_ENV is set to development
 if (process.env.NODE_ENV === 'development') {
-  /*app.use((req, res, next) => {
+  app.use((req, res, next) => {
     console.log(`${req.method} ${req.path}`);
-    console.log('Headers:', JSON.stringify(req.headers));
+    //console.log('Headers:', JSON.stringify(req.headers));
     next();
-  });*/
+  });
 }
 
 // Session configuration
@@ -86,10 +97,7 @@ app.use(session({
 
 // Flash messages middleware
 app.use(flash());
-
-// ============================================================================
-// UTILITY FUNCTIONS (Assuming these were defined before)
-// ============================================================================
+/*
 const formatTime = (date) => {
   if (!(date instanceof Date) || isNaN(date)) {
       return '00:00'; // Return default or throw error
@@ -113,7 +121,7 @@ const formatMinutes = (minutes) => {
   const mins = Math.round(minutes % 60).toString().padStart(2, '0');
   return `${hours}:${mins}`;
 };
-
+*/
 // ============================================================================
 // MIDDLEWARE
 // ============================================================================
@@ -136,6 +144,8 @@ app.use((req, res, next) => {
     res.locals.reloadStarted = app.get('started');
   }
   // 
+  
+  console.log(req.session.user);
   next();
 });
 
@@ -195,10 +205,10 @@ app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 
 // Admin routes - Require login AND admin role
-app.use('/admin', checkAuth, checkAdmin, adminRoutes);
+app.use('/admin', verifyRoles(['admin']), adminRoutes);
 
 // Employee specific routes (could be profile, etc.) - Require login
-app.use('/employee', checkAuth, employeeRoutes);
+app.use('/employee', verifyRoles(['employee']), employeeRoutes);
 
 // Timesheet view/actions - Require login
 app.use('/timesheet', checkAuth, timesheetRoutes);

@@ -1,10 +1,13 @@
 const express = require('express');
+
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js'); // Import createClient
 
+const adminUserManagementRoutes = require('./admin/usermanagement');
+const verifyRoles = require('../middleware/verifyRoles');
+
 // Anon key client (for general reads, respecting RLS)
 const supabase = require('../config/supabaseClient');
-
 // --- Service Role Client (for admin actions) ---
 // Ensure environment variables are loaded (e.g., using dotenv in server.js)
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -26,7 +29,8 @@ if (supabaseUrl && supabaseServiceKey) {
 }
 // --- End Service Role Client ---
 
-const bcrypt = require('bcrypt'); // Keep temporarily, remove usage later
+// Admin routes - Require login AND admin role
+
 
 let userTimeEntries = {};
 
@@ -151,6 +155,8 @@ async function getTimesheetData() {
         return [];
     }
 }
+
+router.use('/admin/usermanagement', verifyRoles(['admin']), adminUserManagementRoutes);
 
 router.get('/timesheets', checkAdmin, async (req, res) => {
     try {
