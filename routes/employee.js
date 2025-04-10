@@ -24,7 +24,7 @@ router.get('/:id/timesheets', (req, res) => employeeController.getEmployeeTimesh
 router.post('/timesheets', (req, res) => employeeController.submitTimesheet(req, res));
 
 // Leave routes
-router.get('/apply-leave', async (req, res) => {
+router.get('/leave/apply', async (req, res) => {
     try {
         const employeeId = req.session.user.id;
         const leaveData = await Leave.getLeaveSummary(employeeId);
