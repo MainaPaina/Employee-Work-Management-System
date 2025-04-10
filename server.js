@@ -14,6 +14,7 @@ const flash = require('connect-flash'); // Needed for flash messages
 const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
 const User = require('./model/User'); // Assuming User model exists
+const Role = require('./model/Role'); // Assuming Role model exists
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -61,11 +62,11 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form bodie
 
 // Request logging middleware - only if NODE_ENV is set to development
 if (process.env.NODE_ENV === 'development') {
-  app.use((req, res, next) => {
+  /*app.use((req, res, next) => {
     console.log(`${req.method} ${req.path}`);
     console.log('Headers:', JSON.stringify(req.headers));
     next();
-  });
+  });*/
 }
 
 // Session configuration
@@ -192,38 +193,45 @@ app.use('/timesheet', checkAuth, timesheetRoutes);
 // Leave related routes - Require login
 app.use('/leave', checkAuth, leaveRoutes);
 
+// test roles read
+app.get('/roles', async (req, res) => {
+    const roles = await Role.list();
+    //await Role.list();
+    res.json({ 'roles': JSON.stringify(roles) });
+});
+
 // Profile related routes - Accessible to authenticated users
 app.use('/profile', profileRoutes);
 
 // Profile page route - Require login
 app.get('/profile', checkAuth, async (req, res) => {
-  try {
-    // Get user data from session
-    const userId = req.session?.user?.id;
-    if (!userId) {
-      return res.redirect('/login');
+    try {
+        // Get user data from session
+        const userId = req.session?.user?.id;
+        if (!userId) {
+            return res.redirect('/login');
+        }
+    
+        // Get fresh user data from database to ensure we have the latest profile image
+        const userData = await User.findById(userId) || req.session.user;
+    
+        // Update session with fresh data if we got user data
+        if (userData) {
+            // Update profile image in session if it exists in the database
+            if (userData.profile_image) {
+                req.session.user.profile_image = userData.profile_image;
+            }
+        }
+    
+        // Render profile page
+        res.render('profile', { 
+            activePage: 'profile',
+            user: req.session.user
+        });
+    } catch (error) {
+        console.error('Error loading profile page:', error);
+        res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
     }
-    
-    // Get fresh user data from database to ensure we have the latest profile image
-    const userData = await User.findById(userId) || req.session.user;
-    
-    // Update session with fresh data if we got user data
-    if (userData) {
-      // Update profile image in session if it exists in the database
-      if (userData.profile_image) {
-        req.session.user.profile_image = userData.profile_image;
-      }
-    }
-    
-    // Render profile page
-    res.render('profile', { 
-      activePage: 'profile',
-      user: req.session.user
-    });
-  } catch (error) {
-    console.error('Error loading profile page:', error);
-    res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
-  }
 });
 
 // Legal pages - accessible to all - terms, cookies, privacy
