@@ -15,6 +15,8 @@ const supabaseAdmin = supabaseServiceKey ?
         auth: { autoRefreshToken: false, persistSession: false }
     }) : null;
 
+console.log('Supabase Admin client initialized.');
+
 // Configure multer for memory storage (we'll process the image before uploading to Supabase)
 const storage = multer.memoryStorage();
 
@@ -70,80 +72,47 @@ const uploadProfileImage = async (req, res, next) => {
     try {
       console.log('Checking if profile-images bucket exists...');
       
-      // First, try to create the bucket if it doesn't exist using admin client
-      if (supabaseAdmin) {
-        try {
-          console.log('Using admin client to create/check bucket');
-          const { data: bucketData, error: bucketError } = await supabaseAdmin.storage.createBucket('profile-images', {
-            public: true
-          });
-          
-          if (bucketError && !bucketError.message?.includes('already exists')) {
-            console.error('Error creating bucket with admin client:', bucketError);
-          } else if (!bucketError) {
-            console.log('Successfully created profile-images bucket');
-          }
-        } catch (bucketCreateError) {
-          console.log('Bucket likely already exists:', bucketCreateError.message);
-        }
-      } else {
-        console.warn('No admin client available, skipping bucket creation');
-      }
-      
-      // Now upload the file using admin client if available
-      console.log('Uploading image to Supabase storage...');
-      
-      // Check if admin client is available
-      if (!supabaseAdmin) {
-        console.error('Admin client not available - cannot upload image');
-        return res.status(500).json({ 
-          success: false, 
-          message: 'Server configuration error: Admin client not available. Check SUPABASE_SERVICE_ROLE_KEY in .env' 
-        });
-      }
-      
-      console.log('Using admin client for upload to bypass RLS');
-      
-      // Use admin client to bypass RLS
-      const { data, error } = await supabaseAdmin.storage
-        .from('profile-images')
-        .upload(filename, processedImageBuffer, {
-          contentType: 'image/jpeg',
-          upsert: true
-        });
-
-      if (error) {
-        console.error('Error uploading to Supabase:', error);
-        // If the bucket doesn't exist, inform the user to create it in Supabase dashboard
-        if (error.message && error.message.includes('Bucket not found')) {
-          return res.status(500).json({ 
-            success: false, 
-            message: 'The profile-images bucket does not exist. Please create it in your Supabase dashboard.' 
-          });
-        }
-        return res.status(500).json({ success: false, message: 'Failed to upload image to storage' });
-      }
-    } catch (uploadError) {
-      console.error('Exception during upload:', uploadError);
-      return res.status(500).json({ success: false, message: 'Error during image upload process' });
+      // Bucket should already exist in Supabase
+    } catch (bucketError) {
+      console.error('Error checking bucket:', bucketError);
     }
 
-    // Get the public URL - use admin client for consistency
+    // Upload to Supabase Storage using admin client to bypass RLS
+    console.log('Uploading image to Supabase storage...');
+    const { data, error } = await supabaseAdmin.storage
+      .from('profile-images')
+      .upload(filename, processedImageBuffer, {
+        contentType: 'image/jpeg',
+        upsert: true
+      });
+
+    if (error) {
+      console.error('Error uploading to Supabase:', error);
+      // If the bucket doesn't exist, inform the user to create it in Supabase dashboard
+      if (error.message && error.message.includes('Bucket not found')) {
+        return res.status(500).json({ 
+          success: false, 
+          message: 'The profile-images bucket does not exist. Please create it in your Supabase dashboard.' 
+        });
+      }
+      return res.status(500).json({ success: false, message: 'Failed to upload image to storage' });
+    }
+
+    // Get public URL
     try {
-      // Use the admin client for getting the URL
-      const { data: urlData } = supabaseAdmin.storage
+      const { data: publicUrlData } = supabaseAdmin.storage
         .from('profile-images')
         .getPublicUrl(filename);
 
-      if (!urlData || !urlData.publicUrl) {
+      if (!publicUrlData || !publicUrlData.publicUrl) {
         console.error('No public URL returned from Supabase');
         return res.status(500).json({ success: false, message: 'Failed to get public URL for uploaded image' });
       }
       
-      console.log('Generated public URL:', urlData.publicUrl);
+      console.log('Generated public URL:', publicUrlData.publicUrl);
       
       // Add the image URL to the request for the next middleware
-      req.profileImageUrl = urlData.publicUrl;
+      req.profileImageUrl = publicUrlData.publicUrl;
     } catch (urlError) {
       console.error('Error getting public URL:', urlError);
       return res.status(500).json({ success: false, message: 'Error generating public URL for uploaded image' });
