@@ -56,6 +56,33 @@
         </div>
     </div>
 
+    <!-- Timer Display Section -->
+    <div class="timer-section card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Today's Progress</h5>
+            <div class="timer-display">
+                <div class="timer-item">
+                    <span class="timer-label">Worked:</span>
+                    <span id="hours-worked" class="timer-value">--:--</span>
+                    <!-- Hidden data attribute for initialization -->
+                    <span id="hours-worked-data" data-total-hours-worked="<%= locals.totalHoursWorkedToday || 0 %>" style="display: none;"></span>
+                </div>
+                <div class="timer-item">
+                    <span class="timer-label">Remaining:</span>
+                    <span id="countdown-timer" class="timer-value">--:--</span>
+                </div>
+            </div>
+            <div class="progress-bar-container mt-3">
+                <div class="progress" style="height: 10px;">
+                    <div class="progress-bar timer-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <!-- Elements for Server-Side Data (optional but good practice) -->
+            <span data-server-hours-worked="<%= locals.totalHoursWorkedToday || 0 %>" style="display: none;"></span>
+            <span data-server-remaining-hours="<%= locals.remainingHoursToday || 8 %>" style="display: none;"></span>
+        </div>
+    </div>
+
     <!-- Time Tracking Panel -->
     <div class="time-tracking-panel card">
         <div class="panel-header">
@@ -466,7 +493,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Cache DOM elements
     const statusTextElement = document.getElementById('statusText');
-    // const clockInTimeText = document.getElementById('clockInTime');
+    const timesheetClockInTimeElement = document.getElementById('clockInTime'); // Renamed variable
     const totalBreakTimeText = document.getElementById('totalBreakTime');
     const clockInBtn = document.getElementById('clockInBtn');
     const clockOutBtn = document.getElementById('clockOutBtn');
@@ -608,16 +635,16 @@ document.addEventListener('DOMContentLoaded', () => {
         startUnavailableBtn.disabled = true;
         endUnavailableBtn.disabled = true;
         statusTextElement.textContent = 'Not Clocked In';
-        // clockInTimeText.textContent = '--:--';
+        timesheetClockInTimeElement.textContent = '--:--'; // Renamed variable
         totalBreakTimeText.textContent = '0 mins';
 
         if (activeEntry) {
             // User is clocked in
             clockOutBtn.disabled = false; // Base state when clocked in
             statusTextElement.textContent = `Status: ${activeEntry.status || 'Unknown'}`; // Default
-            // if (activeEntry.start_time) {
-            //     clockInTimeText.textContent = new Date(activeEntry.start_time).toLocaleTimeString();
-            // }
+            if (activeEntry.start_time) {
+                timesheetClockInTimeElement.textContent = new Date(activeEntry.start_time).toLocaleTimeString(); // Renamed variable
+            }
              if (activeEntry.total_break_duration !== undefined) {
                  totalBreakTimeText.textContent = `${Math.round(activeEntry.total_break_duration)} mins`;
              }
@@ -793,33 +820,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Placeholder function to resolve ReferenceError
-    async function checkAndFixTimesheetState() {
-        console.warn('checkAndFixTimesheetState function is not fully implemented. Returning false.');
-        // In a real implementation, this would:
-        // 1. Fetch the current server state.
-        // 2. Compare with local state/UI.
-        // 3. If inconsistent, send a request to fix it on the server.
-        // 4. Return true if a fix was attempted/successful, false otherwise.
-        return false; // Indicate state was not fixed
-    }
-
     // Check for inconsistent timesheet state on page load
     async function initialStateCheck() {
         try {
-            // First check for inconsistent state
-            const stateFixed = await checkAndFixTimesheetState();
-            if (stateFixed) {
-                console.log('Fixed inconsistent timesheet state on page load');
-                // Wait a moment for the UI to update
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-
-            // Then fetch and update status
+            // Directly fetch and update status - this handles inconsistencies
+            // by showing the actual server state.
             await fetchAndUpdateStatus();
+            console.log('Initial status fetched and UI updated.');
         } catch (error) {
             console.error('Error during initial state check:', error);
-            // Fall back to regular status fetch
+            // Attempt to fetch status even if the initial check had an error
+            // (though with the simplification, this catch block might be less necessary)
             fetchAndUpdateStatus();
         }
     }
@@ -834,16 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!window.timerRunning) {
             console.log('No timer running, safe to refresh status');
             // Also check for inconsistent state during periodic refresh
-            checkAndFixTimesheetState().then(stateFixed => {
-                if (stateFixed) {
-                    console.log('Fixed inconsistent timesheet state during periodic refresh');
-                } else {
-                    fetchAndUpdateStatus();
-                }
-            }).catch(error => {
-                console.error('Error checking timesheet state during periodic refresh:', error);
-                fetchAndUpdateStatus();
-            });
+            initialStateCheck();
         } else {
             console.log('Timer is running, skipping status refresh to avoid conflicts');
         }
@@ -861,34 +863,17 @@ document.addEventListener('DOMContentLoaded', () => {
         clockInBtn.addEventListener('click', async () => {
             console.log('Clock In button clicked');
             try {
-                const token = localStorage.getItem('token');
-                console.log('Using token for clock-in:', token ? (token.substring(0, 20) + '...') : 'No token');
-
-                if (!token) {
-                    console.error('No JWT token found for clock-in');
-                    showNotification('Authentication error. Please log in again.', 'error');
-                    return;
-                }
-
                 // Default is not to force clock in
                 let forceClockIn = false;
+                let result = null;
 
-                console.log('Sending clock-in request to /api/clock-in');
-                const response = await fetch('/api/clock-in', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Add JWT to header
-                    },
-                    body: JSON.stringify({ force: forceClockIn })
-                });
+                // Initial attempt to clock in
+                console.log('Attempting initial clock-in via sendTimeTrackingRequest');
+                result = await sendTimeTrackingRequest('/api/clock-in', 'POST', { force: forceClockIn });
+                console.log('Initial clock-in attempt result:', result);
 
-                console.log('Clock-in response status:', response.status);
-                const result = await response.json();
-                console.log('Clock-in response data:', result);
-
-                // Check if we need to handle a stuck active entry
-                if (response.status === 400 && result.canForceClockIn && result.activeEntry) {
+                // Check if the response indicates an existing active entry that can be forced
+                if (result && result.message && result.message.includes('Already actively clocked in') && result.canForceClockIn && result.activeEntry) {
                     console.log('Detected stuck active entry:', result.activeEntry);
 
                     // Calculate how long the entry has been active
@@ -905,145 +890,64 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
 
                     if (confirmForce) {
-                        console.log('User confirmed force clock in');
-                        // Send another request with force=true
-                        const forceResponse = await fetch('/api/clock-in', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ force: true })
-                        });
-
-                        console.log('Force clock-in response status:', forceResponse.status);
-                        const forceResult = await forceResponse.json();
-                        console.log('Force clock-in response data:', forceResult);
-
-                        // Handle the force response directly instead of updating the original result
-                        if (forceResponse.ok) {
-                            // Show success message
-                            const successMessage = forceResult.message || 'Successfully forced clock in.';
-                            showNotification(successMessage, 'success');
-
-                            // Process the entries if available
-                            if (forceResult.allEntries && forceResult.allEntries.length > 0) {
-                                console.log(`Received ${forceResult.allEntries.length} entries from force clock-in:`, forceResult.allEntries);
-
-                                // Calculate total hours worked from all entries
-                                let totalHoursWorked = 0;
-                                forceResult.allEntries.forEach(entry => {
-                                    if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
-                                        totalHoursWorked += parseFloat(entry.hours_worked);
-                                    }
-                                });
-
-                                console.log('Total hours worked from force clock-in entries:', totalHoursWorked);
-                                window.totalHoursWorkedToday = totalHoursWorked;
-                            }
-
-                            // Refresh the UI and return early
-                            fetchAndUpdateStatus();
-                            return;
-                        } else {
-                            // Show error message and return
-                            showNotification(`Force clock in failed: ${forceResult.message || 'Unknown error'}`, 'error');
-                            return;
-                        }
+                        console.log('User confirmed force clock in. Sending request with force=true.');
+                        // Send the request again with force=true using the helper
+                        result = await sendTimeTrackingRequest('/api/clock-in', 'POST', { force: true });
+                        console.log('Force clock-in attempt result:', result);
                     } else {
                         console.log('User cancelled force clock in');
                         showNotification('Clock in cancelled. Please try again or contact support if the issue persists.', 'warning');
-                        return;
+                        return; // Exit if user cancels
                     }
                 }
 
-                if (response.ok) {
+                // Process the final result (either from initial attempt or forced attempt)
+                // sendTimeTrackingRequest throws an error for non-OK responses unless handled specially (like the 400 force case)
+                // So, if we reach here without an error, it means the operation was successful OR it was the handled 400 force case that the user didn't confirm.
+                // We need to ensure 'result' actually indicates success if it wasn't the cancelled force scenario.
+
+                if (result && result.success) { // Check for a success flag or appropriate data from your API response
                     console.log('Clock in successful:', result);
-                    // Use the message from the server if available, otherwise use a default message
                     const successMessage = result.message || 'Clocked in successfully!';
                     showNotification(successMessage, 'success');
 
-                    // If the server returned all entries for today, log them
+                    // --- UI Update Logic (Copied from original, check if still relevant) ---
                     if (result.allEntries && result.allEntries.length > 0) {
-                        console.log(`Received ${result.allEntries.length} entries for today:`, result.allEntries);
-
-                        // Calculate total hours worked from all entries
                         let totalHoursWorked = 0;
-
-                        // Sum up hours from completed entries
                         result.allEntries.forEach(entry => {
                             if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
                                 totalHoursWorked += parseFloat(entry.hours_worked);
                             }
                         });
-
-                        console.log('Total hours worked from all entries:', totalHoursWorked);
-
-                        // Store the total hours worked for the day in a global variable
-                        // This ensures the timer doesn't reset when clocking in again on the same day
                         window.totalHoursWorkedToday = totalHoursWorked;
                         console.log('Stored total hours worked today:', window.totalHoursWorkedToday);
 
-                        // Update the data attribute with the total hours worked
                         const hoursWorkedElement = document.getElementById('hours-worked');
                         const hoursWorkedData = document.getElementById('hours-worked-data');
                         const countdownElement = document.getElementById('countdown-timer');
                         const remainingHoursData = document.getElementById('remaining-hours-data');
-
-                        // Calculate remaining hours
                         const remainingHours = Math.max(0, 8 - totalHoursWorked);
 
-                        // Update all data attributes with the total hours worked and remaining hours
-                        if (hoursWorkedElement) {
-                            hoursWorkedElement.setAttribute('data-total-hours-worked', totalHoursWorked.toString());
-                            hoursWorkedElement.setAttribute('data-server-hours-worked', totalHoursWorked.toString());
-                        }
+                        if (hoursWorkedElement) hoursWorkedElement.setAttribute('data-total-hours-worked', totalHoursWorked.toString());
+                        if (hoursWorkedData) hoursWorkedData.setAttribute('data-total-hours-worked', totalHoursWorked.toString());
+                        if (countdownElement) countdownElement.setAttribute('data-server-remaining-hours', remainingHours.toString());
+                        if (remainingHoursData) remainingHoursData.setAttribute('data-server-remaining-hours', remainingHours.toString());
 
-                        if (hoursWorkedData) {
-                            hoursWorkedData.setAttribute('data-total-hours-worked', totalHoursWorked.toString());
-                            hoursWorkedData.setAttribute('data-server-hours-worked', totalHoursWorked.toString());
-                        }
-
-                        if (countdownElement) {
-                            countdownElement.setAttribute('data-server-remaining-hours', remainingHours.toString());
-                        }
-
-                        if (remainingHoursData) {
-                            remainingHoursData.setAttribute('data-server-remaining-hours', remainingHours.toString());
-                        }
-
-                        console.log('Updated data attributes - Total hours worked:', totalHoursWorked, 'Remaining hours:', remainingHours);
-
-                        // Refresh the today's entries table without a full page reload
+                        // Refresh the today's entries table
                         const todayEntriesTable = document.querySelector('.timesheet-table tbody');
                         if (todayEntriesTable) {
-                            // Clear existing entries
-                            todayEntriesTable.innerHTML = '';
-
-                            // Add new entries
+                            todayEntriesTable.innerHTML = ''; // Clear existing
                             result.allEntries.forEach((entry, index) => {
-                                // Format times
-                                let clockInTime = 'N/A';
-                                if (entry.start_time) {
-                                    const startTime = new Date(entry.start_time);
-                                    clockInTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                }
-
-                                let clockOutTime = 'N/A';
-                                if (entry.end_time) {
-                                    const endTime = new Date(entry.end_time);
-                                    clockOutTime = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                }
-
-                                // Format hours
+                                let clockInTime = entry.start_time ? new Date(entry.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+                                let clockOutTime = entry.end_time ? new Date(entry.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
                                 let hoursDisplay = 'N/A';
                                 if (entry.hours_worked !== null && entry.hours_worked !== undefined) {
                                     const hours = Math.floor(entry.hours_worked);
                                     const minutes = Math.round((entry.hours_worked % 1) * 60);
                                     hoursDisplay = `${hours}h ${minutes}m`;
                                 }
-
-                                // Create new row
+                                const status = (entry.status || 'Unknown'); // Simplified status fetch
+                                const statusClass = status.toLowerCase();
                                 const newRow = document.createElement('tr');
                                 newRow.innerHTML = `
                                     <td>${index + 1}</td>
@@ -1052,31 +956,33 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <td>${entry.total_break_duration || 0} mins</td>
                                     <td>${entry.total_unavailable_duration || 0} mins</td>
                                     <td>${hoursDisplay}</td>
-                                    <td>
-                                        ${(() => { // IIFE to calculate status and class
-                                            const status = (entry.rawEntry && entry.rawEntry.status) ? entry.rawEntry.status : 'Unknown';
-                                            const statusClass = status.toLowerCase();
-                                            return `<span class="status-badge status-${statusClass}">${status}</span>`;
-                                        })()}
-                                    </td>
+                                    <td><span class="status-badge status-${statusClass}">${status}</span></td>
                                 `;
                                 todayEntriesTable.appendChild(newRow);
                             });
                         }
                     }
+                    // --- End of UI Update Logic ---
 
-                    fetchAndUpdateStatus(); // Refresh UI
+                    // Call status update AFTER processing success
+                     fetchAndUpdateStatus(); // Refresh UI state based on latest data
+
+                } else if (result && result.message && result.message.includes('Already actively clocked in') && result.canForceClockIn) {
+                    // This case handles when the user cancelled the force confirmation
+                    console.log('Clock-in attempt resulted in handled 400, but user cancelled force.');
+                     // No automatic UI refresh needed here as nothing changed server-side yet
                 } else {
-                    const errorMessage = result.message || result.error || 'Unknown error';
-                    console.error('Clock in failed:', errorMessage);
-                    showNotification(`Clock in failed: ${errorMessage}`, 'error');
+                     // If result is null, undefined, or doesn't indicate success, and wasn't the cancelled force scenario
+                    console.error('Clock in final result did not indicate success or was unexpected:', result);
+                    showNotification('Clock in failed. Unexpected response.', 'error');
                 }
+
             } catch (error) {
-                console.error('Error sending clock in request:', error);
-                showNotification('An error occurred while trying to clock in.', 'error');
+                // This catch block now catches errors thrown by sendTimeTrackingRequest for *unhandled* non-OK statuses
+                console.error('Error during clock in process:', error);
+                showNotification(`Clock in failed: ${error.message}`, 'error');
             }
-        });
-    }
+        });    }
 
     // Clock Out with debounce to prevent multiple clicks
     if (clockOutBtn) {
