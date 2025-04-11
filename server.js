@@ -23,7 +23,6 @@ const timeUtils = require('./utils/timeHelpers.js');
 const verifyRoles = require('./middleware/verifyRoles');
 
 // Import models if used directly in server.js
-const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
 const User = require('./model/User'); // Assuming User model exists
 const Role = require('./model/Role'); // Assuming Role model exists
