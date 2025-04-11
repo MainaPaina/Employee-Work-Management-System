@@ -11,7 +11,6 @@ const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash'); // Needed for flash messages
 
 // Import models if used directly in server.js
-const Leave = require('./model/Leave');
 const TimeEntry = require('./model/TimeEntry');
 const User = require('./model/User'); // Assuming User model exists
 const Role = require('./model/Role'); // Assuming Role model exists
@@ -24,6 +23,7 @@ const leaveRoutes = require('./routes/leave');
 const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profile'); // New profile routes
+const dashboardRouter = require('./routes/dashboard'); // Dashboard routes
 
 // Initialize Supabase Admin Client (if needed for specific operations)
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -190,6 +190,9 @@ app.use('/timesheet', checkAuth, timesheetRoutes);
 
 // Leave related routes - Require login
 app.use('/leave', checkAuth, leaveRoutes);
+
+// Dashboard routes - Require login
+app.use('/dashboard', checkAuth, dashboardRouter);
 
 // Profile related routes - Accessible to authenticated users
 app.use('/profile', profileRoutes);
