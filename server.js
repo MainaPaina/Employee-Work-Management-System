@@ -24,6 +24,8 @@ const apiRoutes = require('./routes/api'); // Assuming API routes exist
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profile'); // New profile routes
 const dashboardRouter = require('./routes/dashboard'); // Dashboard routes
+const loginRoutes = require('./routes/login'); // Login routes
+const logoutRoutes = require('./routes/logout'); // Logout routes
 
 // Initialize Supabase Admin Client (if needed for specific operations)
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -194,39 +196,14 @@ app.use('/leave', checkAuth, leaveRoutes);
 // Dashboard routes - Require login
 app.use('/dashboard', checkAuth, dashboardRouter);
 
-// Profile related routes - Accessible to authenticated users
-app.use('/profile', profileRoutes);
+// Logout route
+app.use('/logout', checkAuth, logoutRoutes);
+//Login route
+app.use('/login', loginRoutes);
 
-// Profile page route - Require login
-app.get('/profile', checkAuth, async (req, res) => {
-  try {
-    // Get user data from session
-    const userId = req.session?.user?.id;
-    if (!userId) {
-      return res.redirect('/login');
-    }
-    
-    // Get fresh user data from database to ensure we have the latest profile image
-    const userData = await User.findById(userId) || req.session.user;
-    
-    // Update session with fresh data if we got user data
-    if (userData) {
-      // Update profile image in session if it exists in the database
-      if (userData.profile_image) {
-        req.session.user.profile_image = userData.profile_image;
-      }
-    }
-    
-    // Render profile page
-    res.render('profile', { 
-      activePage: 'profile',
-      user: req.session.user
-    });
-  } catch (error) {
-    console.error('Error loading profile page:', error);
-    res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
-  }
-});
+// Profile related routes - Accessible to authenticated users
+app.use('/profile', checkAuth, profileRoutes);
+
 
 // test roles read
 // maina: 4044700a-8ede-4514-8530-d0bf506fb308
@@ -246,78 +223,10 @@ app.get('/', (req, res) => { // <-- Around line 163
   res.render('index', { activePage: 'home' }); // Pass activePage to the view
 });
 
-// Login and Register GET routes (handled by authRoutes now, but keep GET for direct access)
-app.get('/login', (req, res) => {
-    // If user is already logged in, redirect them from the login page
-    if (req.session.user) {
-        return res.redirect('/dashboard');
-    }
-    res.render('login', { activePage: 'login' }); // Pass activePage
-});
+
 
 // Direct logout route for backward compatibility
-app.get('/logout', (req, res) => {
-    console.log('Direct logout route called');
-    try {
-        // Clear Supabase session
-        supabase.auth.signOut().catch(err => console.error("Supabase Sign Out Error:", err));
 
-        // Destroy express session
-        if (req.session) {
-            req.session.destroy((err) => {
-                if (err) {
-                    console.error("Session destruction error:", err);
-                }
-                // Clear the cookie explicitly
-                res.clearCookie('connect.sid');
-                console.log('User logged out directly.');
-                // Redirect to login page after logout
-                return res.redirect('/login');
-            });
-        } else {
-            // If no session exists, just clear the cookie and redirect
-            res.clearCookie('connect.sid');
-            console.log('No session to destroy, user logged out directly.');
-            return res.redirect('/login');
-        }
-    } catch (error) {
-        console.error('Error during logout:', error);
-        res.clearCookie('connect.sid');
-        return res.redirect('/login');
-    }
-});
-
-// Add a POST route for logout as well
-app.post('/logout', (req, res) => {
-    console.log('Direct logout POST route called');
-    try {
-        // Clear Supabase session
-        supabase.auth.signOut().catch(err => console.error("Supabase Sign Out Error:", err));
-
-        // Destroy express session
-        if (req.session) {
-            req.session.destroy((err) => {
-                if (err) {
-                    console.error("Session destruction error:", err);
-                }
-                // Clear the cookie explicitly
-                res.clearCookie('connect.sid');
-                console.log('User logged out directly (POST).');
-                // Redirect to login page after logout
-                return res.redirect('/login');
-            });
-        } else {
-            // If no session exists, just clear the cookie and redirect
-            res.clearCookie('connect.sid');
-            console.log('No session to destroy, user logged out directly (POST).');
-            return res.redirect('/login');
-        }
-    } catch (error) {
-        console.error('Error during logout (POST):', error);
-        res.clearCookie('connect.sid');
-        return res.redirect('/login');
-    }
-});
 
 // Contact us page - Accessible to all
 app.get('/contact', (req, res) => {
@@ -339,27 +248,6 @@ app.get('/legal/cookies', (req, res) => {
     res.render('legal/cookies', { activePage: 'cookies' });
 });
 
-// Profile route (protected)
-app.get('/profile', checkAuth, async (req, res) => {
-    try {
-        const userId = req.user?.id;
-        if (!userId) {
-            return res.redirect('/login');
-        }
-
-        // Get user data including profile image
-        const userData = await User.findById(userId);
-        
-        // Render the profile page with user data
-        res.render('profile', { 
-            user: userData,
-            activePage: 'profile' 
-        });
-    } catch (error) {
-        console.error('Error loading profile page:', error);
-        res.status(500).send('Server error');
-    }
-});
 
 // Dashboard route (protected) - Refactored for Supabase
 app.get('/dashboard', checkAuth, async (req, res) => {
