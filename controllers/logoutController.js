@@ -1,8 +1,7 @@
-const usersDB = 
-{
-    users : require("../model/users.json"),
-    setUsers : function (data) {this.users = data}
-}
+const userId = req.session?.user?.id;
+      if (!userId) {
+        return res.redirect('/login');
+      }
 
 const fsPromises = require("fs").promises;
 const path = require("path");

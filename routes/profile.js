@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabaseClient');
-const verifyJWT = require('../middleware/verifyJWT');
 const { upload, processUpload } = require('../middleware/uploadProfileImage');
 const User = require('../model/User');
 
@@ -20,7 +19,7 @@ const supabaseAdmin = supabaseServiceKey ?
 // This allows more flexibility in handling different authentication methods
 
 // POST /profile/change-password
-router.post('/change-password', verifyJWT, async (req, res) => {
+router.post('/change-password', async (req, res) => {
     try {
         const userId = req.user?.id;
         if (!userId) {
@@ -161,5 +160,34 @@ router.post('/upload-image', upload, processUpload, async (req, res) => {
       return res.status(500).json({ success: false, message: 'An unexpected error occurred' });
     }
 });
-
+// Profile page route - Require login
+router.get('/profile', async (req, res) => {
+    try {
+      // Get user data from session
+      const userId = req.session?.user?.id;
+      if (!userId) {
+        return res.redirect('/login');
+      }
+      
+      // Get fresh user data from database to ensure we have the latest profile image
+      const userData = await User.findById(userId) || req.session.user;
+      
+      // Update session with fresh data if we got user data
+      if (userData) {
+        // Update profile image in session if it exists in the database
+        if (userData.profile_image) {
+          req.session.user.profile_image = userData.profile_image;
+        }
+      }
+        
+      // Render profile page
+      res.render('profile', { 
+        activePage: 'profile',
+        user: req.session.user, userData
+      });
+    } catch (error) {
+      console.error('Error loading profile page:', error);
+      res.status(500).render('error', { message: 'Failed to load profile data.', activePage: 'error' });
+    }
+  });
 module.exports = router;

@@ -1,5 +1,4 @@
-const Employee = require('../model/Employee');
-const Timesheet = require('../model/Timesheet');
+
 
 class EmployeeController {
     constructor(employeeModel, timesheetModel) {
