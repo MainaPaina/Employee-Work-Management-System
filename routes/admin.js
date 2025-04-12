@@ -3,7 +3,7 @@ const router = express.Router();
 const { createClient } = require('@supabase/supabase-js'); // Import createClient
 
 // Anon key client (for general reads, respecting RLS)
-const supabase = require('../config/supabaseClient');
+const supabase = require('../config/supabase/client');
 
 // --- Service Role Client (for admin actions) ---
 // Ensure environment variables are loaded (e.g., using dotenv in server.js)

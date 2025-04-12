@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../config/supabaseClient'); // Import Supabase client
+const supabase = require('../config/supabase/client'); // Import Supabase client
 const User = require('../model/User'); // Import User model
 const jwt = require('jsonwebtoken');
 require('dotenv').config(); // Ensure JWT_SECRET is loaded

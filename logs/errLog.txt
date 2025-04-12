@@ -1,0 +1,49 @@
+11042025	21:03:36	bf907db5-02b3-4e34-9f60-bd8dab34ccd3	Error: Not Found
+11042025	21:03:36	1d190484-d0c5-4628-ba54-0e61ca8b1cf1	404 Not Found: /404
+11042025	21:05:48	3db046bf-e433-45f6-8bbd-970a92d66286	404 Not Found: /404
+11042025	21:05:48	49061edc-c453-4ca9-89ba-b63d3f8a0d6f	Error: Not Found
+11042025	21:06:28	49c7441d-aaf7-4844-96ed-0d51e8d21a84	404 Not Found: /404
+11042025	21:06:28	c23bb190-2372-4eaa-967c-e9896ed58d13	Error: Not Found
+11042025	21:06:31	dcae517e-9d2e-45d9-b2db-fb92994d907c	404 Not Found: /fgfgdfg
+11042025	21:06:31	c4d21cb7-11a6-4402-93f4-5412eeb42df0	Error: Not Found
+11042025	21:08:05	9a4f541b-9c17-45ce-88e9-5b8fbe209ba9	404 Not Found: /fgfgdfg
+11042025	21:08:05	a526f915-69ee-4a8e-880c-0dad0c9ded5d	Error: Not Found
+11042025	21:08:13	45fa9c59-e88c-490a-9399-321afd6f083c	404 Not Found: /fgfgdfg
+11042025	21:08:13	a5701f30-c90f-41a7-becc-1124cd0ec569	Error: Not Found
+11042025	21:08:19	0834ab78-76c7-402f-821b-8d4c9b48dda4	404 Not Found: /4304
+11042025	21:08:19	85a1f152-d5e3-48af-b359-b29d3812f64e	Error: Not Found
+11042025	21:08:22	f9625133-4c84-4a28-ba3b-730034d1bba8	404 Not Found: /404
+11042025	21:08:22	43d9c482-39a8-486a-b702-0b9276e16cbf	Error: Not Found
+11042025	21:08:44	7a245405-47f4-40e4-abc6-160188050110	404 Not Found: /404
+11042025	21:08:44	2b1df060-3f10-4ebf-bc4f-8f058985528f	Error: Not Found
+11042025	21:09:29	685a7b76-3df5-4c98-bdf1-e1cb3c0f3cfc	404 Not Found: /404
+11042025	21:09:29	7200ff5a-b48f-4368-9c0a-f33262159c53	Error: Not Found
+11042025	21:09:33	1db1507d-69cd-4780-ab20-e45e0e6746a2	404 Not Found: /4304
+11042025	21:09:33	1a20d19b-bfcb-4495-9c44-4ad9bf075355	Error: Not Found
+11042025	21:33:46	ffa8f906-25cf-4f68-93d4-1298c99119de	404 Not Found: /4304
+11042025	21:33:46	80478922-0cb0-4241-adce-9b3550bf7b58	Error: Not Found
+11042025	21:33:50	dc65f7cf-0b7e-4069-9f33-d763410c6578	Error: Failed to lookup view "index" in views directory "D:\Projects\Github\Group B\Better-Time-Management\config\views"
+11042025	21:33:55	4b87abea-aebe-475e-b72e-75ecd4d91399	Error: Failed to lookup view "login" in views directory "D:\Projects\Github\Group B\Better-Time-Management\config\views"
+11042025	21:34:29	6f8ff4f1-db09-4614-b698-b3487e5a6473	404 Not Found: /test-css
+11042025	21:34:29	46d80da9-d77b-43b9-aec8-2ee8bfbea9da	Error: Not Found
+11042025	21:34:30	ee638aab-09c7-46e2-a62e-72160864685a	404 Not Found: /test-css
+11042025	21:34:30	c1dc9ff5-dbc1-438a-bc5a-2eb429aa46e3	Error: Not Found
+11042025	21:34:33	3b6837af-78b5-4b37-abd5-dfd1a4c9f651	Error: Failed to lookup view "index" in views directory "D:\Projects\Github\Group B\Better-Time-Management\config\views"
+11042025	21:39:05	6b3f76c4-64f1-4b0e-be4b-fd429c2266a0	Error: Failed to lookup view "index" in views directory "D:\Projects\Github\Group B\Better-Time-Management\config\views"
+11042025	21:39:23	f05b0678-9903-4a4f-90a1-95d13e0e6ab2	Error: Failed to lookup view "index" in views directory "D:\Projects\Github\Group B\Better-Time-Management\config\views"
+11042025	21:39:24	443b2b42-47e8-444f-b8d9-17d1a9545fea	Error: Failed to lookup view "index" in views directory "D:\Projects\Github\Group B\Better-Time-Management\config\views"
+11042025	21:40:54	0dec7ec5-4358-4e75-92c5-0783818cc023	Error: Not Found
+11042025	21:41:20	393d4b30-398a-4415-bc22-d4d8a95591b0	Error: Not Found
+11042025	21:43:26	0ecdbe54-79a3-4c99-96be-9982a0f30856	Error: Not Found
+11042025	21:44:19	617f37bb-d014-40ab-975c-c9b73b546334	Error: Page Not Found
+11042025	21:45:30	822eba5d-1123-4426-b800-8ea74eea5692	404 Not Found: GET /fsd
+11042025	21:45:30	2ed05ddb-fb8a-41ec-be00-6186d0a551b4	Error: Page Not Found
+11042025	21:46:39	d17f8f1d-ebe1-418b-844b-59b9402c1f25	404 Not Found: GET /fsd from ::ffff:127.0.0.1
+11042025	21:49:33	4711f18e-e081-42e3-87e8-171ccca566aa	404 Not Found: GET /logindsff
+11042025	21:49:33	b7535996-d6b5-4d2b-a5c1-00d0486cc673	Error: Page Not Found
+11042025	21:50:19	fa7251d2-1a28-41fd-86d8-e09d7734ff0e	Error: Page Not Found
+11042025	21:50:35	926355c4-956a-4c47-85b4-d25956a38ae2	404 Not Found: GET /dsfsfd
+11042025	21:50:35	5cffd47b-10cc-4e12-8d60-42e5f80b1366	Error: Page Not Found
+12042025	07:35:16	3ab3e253-c596-4d64-838c-4a32c7a6597c	404 Not Found: GET /home
+12042025	07:35:16	2527365d-4728-477c-b41d-eb56fbf925a5	Error: Page Not Found
+12042025	07:57:48	056d6a00-09e2-45d2-8bdc-cedadb38b242	TypeError: app.use is not a function

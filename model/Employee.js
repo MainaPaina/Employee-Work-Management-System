@@ -1,4 +1,4 @@
-const supabase = require('../config/supabaseClient'); // Use Supabase client
+const supabase = require('../config/supabase/client'); // Use Supabase client
 
 class Employee {
   /**

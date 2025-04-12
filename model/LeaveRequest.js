@@ -1,4 +1,4 @@
-const supabase = require('../config/supabaseClient');
+const supabase = require('../config/supabase/client');
 
 class LeaveRequest {
     // Create a new leave request

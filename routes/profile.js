@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../config/supabaseClient');
+const supabase = require('../config/supabase/client');
 const { upload, processUpload } = require('../middleware/uploadProfileImage');
 const User = require('../model/User');
 
@@ -161,7 +161,7 @@ router.post('/upload-image', upload, processUpload, async (req, res) => {
     }
 });
 // Profile page route - Require login
-router.get('/profile', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
       // Get user data from session
       const userId = req.session?.user?.id;

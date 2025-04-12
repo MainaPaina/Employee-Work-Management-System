@@ -1,5 +1,4 @@
-const supabase = require('../config/supabaseClient');
-const User = require('../model/User');
+const supabase = require('../config/supabase/client');
 const express = require("express");
 const router = express.Router();
 // const logoutController = require("../controllers/logoutController");

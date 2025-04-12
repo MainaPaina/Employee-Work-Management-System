@@ -1,4 +1,4 @@
-const supabase = require('../config/supabaseClient');
+const supabase = require('../config/supabase/client'); // Supabase client for authentication
 const User = require('../model/User'); // User model for profile operations
 
 class AuthController {

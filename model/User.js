@@ -1,4 +1,4 @@
-const supabase = require('../config/supabaseClient');
+const supabase = require('../config/supabase/client');
 
 // Create a Supabase client with the service role key to bypass RLS
 const { createClient } = require('@supabase/supabase-js');

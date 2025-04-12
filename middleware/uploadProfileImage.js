@@ -2,7 +2,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
-const supabase = require('../config/supabaseClient');
+const supabase = require('../config/supabase/client');
 
 // Create a Supabase client with the service role key to bypass RLS
 const { createClient } = require('@supabase/supabase-js');
