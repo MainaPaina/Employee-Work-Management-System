@@ -4,7 +4,6 @@ const router = express.Router();
 
 //Imported Middleware
 const verifyRoles = require('../middleware/verifyRoles');
-const { checkAuth, checkAdmin } = require('../middleware/auth')
 
 // Import routes
 //const adminRoutes = require('./admin');

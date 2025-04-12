@@ -85,10 +85,10 @@ router.post('/login', async (req, res) => {
         const roles = await Role.listUserRoles(authData.user.id);
 
         if (!roles) {
-            console.warn('No roles found for user:', authData.user.id);
+            //console.warn('No roles found for user:', authData.user.id);
             req.flash('error', 'Login failed: No roles assigned user.');
         } else {
-            console.log('User roles:', roles); // Log roles for debugging
+            //console.log('User roles:', roles); // Log roles for debugging
         }
 
         // 3. Set up session
@@ -216,7 +216,7 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
         }
 
         // First, verify the current password
-        console.log('Verifying current password for user ID:', userId);
+        //console.log('Verifying current password for user ID:', userId);
 
         // Get the user's email from the auth database
         const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.getUserById(userId);
@@ -237,7 +237,7 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
             return res.status(500).json({ success: false, message: 'User email not found.' });
         }
 
-        console.log('Found user email:', userEmail);
+        //console.log('Found user email:', userEmail);
 
         // Verify current password using signInWithPassword
         const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -251,7 +251,7 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
         }
 
         // If we get here, the current password is correct, so update the password
-        console.log('Current password verified, updating password for user ID:', userId);
+        //console.log('Current password verified, updating password for user ID:', userId);
 
         // Use the admin client to update the password
         if (!supabaseAdmin) {
@@ -269,7 +269,7 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
             return res.status(500).json({ success: false, message: `Failed to update password: ${updateError.message}` });
         }
 
-        console.log('Password updated successfully for user ID:', userId);
+        //console.log('Password updated successfully for user ID:', userId);
         return res.status(200).json({ success: true, message: 'Password updated successfully.' });
     } catch (error) {
         console.error('Unexpected error in change-password:', error);
@@ -279,7 +279,6 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
 
 // POST /acount/upload-image - Upload profile image
 // Simplified route without authentication middleware for troubleshooting
-router.get('/upload-image', (req, res) => { res.json({ message: 'GET request to /upload-image' }); });
 router.post('/upload-image', upload, processUpload, verifyRoles(['employee','manager','admin']), async (req, res) => {
     try {
         // Get user ID from session
@@ -292,22 +291,22 @@ router.post('/upload-image', upload, processUpload, verifyRoles(['employee','man
 
         // If still no user ID, use a default for testing
         if (!userId) {
-            console.log('No user ID found in request or session, using default for testing');
-            userId = 'test-user-id';
+            console.error('No user ID found in request or session');
+            res.status(400).json({ success: false, message: 'Logged in user is in limbo' });
         }
 
-        console.log('Session user:', req.session?.user);
+        //console.log('Session user:', req.session?.user);
 
-        console.log('Using user ID for profile image upload:', userId);
+        //console.log('Using user ID for profile image upload:', userId);
 
-        console.log('Attempting to update user profile with image URL:', req.profileImageUrl);
+        //console.log('Attempting to update user profile with image URL:', req.profileImageUrl);
 
         try {
             // Update user profile with the new image URL
             const updatedUser = await User.updateProfileImage(userId, req.profileImageUrl);
 
             if (!updatedUser) {
-                console.log('User.updateProfileImage returned null or undefined');
+                console.warn('User.updateProfileImage returned null or undefined');
                 // Even if the database update fails, we can still return the image URL
                 // since it was successfully uploaded to storage
                 return res.status(200).json({
@@ -317,12 +316,12 @@ router.post('/upload-image', upload, processUpload, verifyRoles(['employee','man
                 });
             }
 
-            console.log('Successfully updated user profile with new image URL');
+            //console.log('Successfully updated user profile with new image URL');
 
             // Update the session with the new profile image URL if we have a session
             if (req.session && req.session.user) {
                 req.session.user.profile_image = req.profileImageUrl;
-                console.log('Updated session with new profile image URL');
+                //console.log('Updated session with new profile image URL');
             }
         } catch (dbError) {
             console.error('Error updating user profile in database:', dbError);

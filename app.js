@@ -9,9 +9,6 @@ const app = express();
 // Import configurations
 const configureViewEngine = require('./config/viewEngine');
 
-const supabase = require('./config/supabase/client');
-const supabaseAdmin = require('./config/supabase/admin');
-
 // Import middleware
 const viewLocals = require('./middleware/viewLocals');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
