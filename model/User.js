@@ -1,15 +1,5 @@
 const supabase = require('../config/supabase/client');
-
-// Create a Supabase client with the service role key to bypass RLS
-const { createClient } = require('@supabase/supabase-js');
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// Only create the admin client if the service key is available
-const supabaseAdmin = supabaseServiceKey ?
-    createClient(supabaseUrl, supabaseServiceKey, {
-        auth: { autoRefreshToken: false, persistSession: false }
-    }) : null;
+const supabaseAdmin = require('../config/supabase/admin');
 
 class User {
     // Static method to find user profile data by ID (e.g., from users table)
@@ -70,7 +60,7 @@ class User {
             // First, try to get all users to see what's in the database
             const { data: allUsers, error: allUsersError } = await client
                 .from('users')
-                .select('id, email, username, role');
+                .select('id, email, username');
 
             if (allUsersError) {
                 console.error('Error fetching all users:', allUsersError.message);
@@ -81,7 +71,7 @@ class User {
             // Now try to find the specific user by username
             const { data, error } = await client
                 .from('users')
-                .select('id, email, username, role')
+                .select('id, email, username')
                 .eq('username', username)
                 .maybeSingle(); // Use maybeSingle as username might not exist
 
@@ -99,7 +89,7 @@ class User {
             console.log('No user found by username, trying email as fallback...');
             const { data: emailData, error: emailError } = await client
                 .from('users')
-                .select('id, email, username, role')
+                .select('id, email, username')
                 .eq('email', username) // Try the username as an email
                 .maybeSingle();
 

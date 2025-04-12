@@ -694,3 +694,111 @@
 12042025	12:49:51	300e9668-2b33-4154-ab57-302671e5449b	Error: Page Not Found
 12042025	12:49:51	708b059e-605b-4b39-862d-50146e49b8c5	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
 12042025	12:49:51	d09565cf-9978-4935-9636-f17d9325f44c	Error: Page Not Found
+12042025	12:51:00	cdda7506-6b8e-41d0-99f1-836f14bab024	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:00	69f704c5-81ea-44bf-9ea3-3525270efacc	Error: Page Not Found
+12042025	12:51:00	d9b5ec8b-3ffb-4883-82b6-736e9355ed0c	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:00	47e49ab4-eb05-4ebd-ba35-ea082f7765fd	Error: Page Not Found
+12042025	12:51:01	0c039966-fa68-436e-b685-7f607c791eba	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:01	ec7953e4-c593-475e-a9b1-604113c74485	Error: Page Not Found
+12042025	12:51:01	fdcd0d0d-7c8c-4ae3-b683-7369bf526368	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:01	6c4f302c-be99-4275-a612-f4c72fae7e5b	Error: Page Not Found
+12042025	12:51:02	55dca2fb-bfcf-4a9b-9012-45ee8a29712c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:02	857d4819-1845-4575-8028-565f468d77a2	Error: Page Not Found
+12042025	12:51:02	da60b7f9-2622-4c50-8612-0922754c010c	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:02	303940b0-1c5d-4480-b13c-473d2806bb0f	Error: Page Not Found
+12042025	12:51:04	40d63aef-376a-45a9-b9d0-81d3dd9ebf4b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:04	49bd1b2a-38fe-4d16-b002-7d755ab08845	Error: Page Not Found
+12042025	12:51:04	8de52030-b0ce-43ed-86f2-f26325c57d51	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:04	962ac9b5-9c1c-44e6-bfc0-a17ad566eacb	Error: Page Not Found
+12042025	12:51:07	5feace62-e025-41f2-b732-9770f3e91518	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:07	01f8bae8-1221-4a29-bd0a-89dcd192efd5	Error: Page Not Found
+12042025	12:51:07	d162a10a-7d84-446c-9b64-c44d50f6d20b	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:07	42f31a61-e736-489c-96fe-8a6b91d2bca9	Error: Page Not Found
+12042025	12:51:09	34ce7bc9-f2ac-43c4-90fe-cb3b428bbbdc	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:09	9b858729-5e71-4571-9b7d-19058c698e53	Error: Page Not Found
+12042025	12:51:09	6b8a7af3-553f-4db7-9802-e94b00e4afdd	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:09	7af38364-f2b9-418f-99d5-24371b43cb22	Error: Page Not Found
+12042025	12:51:12	194d4f99-8943-4ae2-a275-a2288162bd79	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:12	fc1e3d25-7a42-4372-a02d-06dc562afbf1	Error: Page Not Found
+12042025	12:51:12	563673de-31b1-4b89-96ce-04f931df65b6	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:12	e5fc4f1a-d3e3-4ef8-95ef-e1c6a234278c	Error: Page Not Found
+12042025	12:51:16	b4d670ab-4408-468a-a15e-a2b35a8c2a1d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:16	5fcbfaef-2818-4c7d-87a3-c919346e735d	Error: Page Not Found
+12042025	12:51:17	5d6a0268-4e0a-41d0-952d-bc414d115d39	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:17	0d5a7e6d-464c-4c64-8f42-865bdc62c5a8	Error: Page Not Found
+12042025	12:51:34	2d1ba5cc-ec85-4fde-9b99-611cca5ac919	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:34	a06b4343-7ac7-4cbd-846c-f906d330923d	Error: Page Not Found
+12042025	12:51:34	6b7492b7-304f-4eb0-88e5-0e9498f14344	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:34	ef522b55-e45f-4591-93d9-f1137e654cb5	Error: Page Not Found
+12042025	12:51:34	e0ab58f5-ab67-428c-91a7-bb47469aef4c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:34	33e8e148-b56a-4816-a658-0e9aacec8095	Error: Page Not Found
+12042025	12:51:34	30094629-e8f3-4a2d-ac38-0440e2b3d12e	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:34	84c11690-4f5f-4731-bcd8-b6f5eb01245d	Error: Page Not Found
+12042025	12:51:39	55a66c10-a62f-43b6-9c77-94cb1fc388c8	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:39	7cae7304-b12e-40a2-a271-24d330bde708	Error: Page Not Found
+12042025	12:51:39	c769604d-6bd0-480b-a92f-36cf3b1a0b88	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:39	c70b852c-faf8-407a-9730-22525c4a2230	Error: Page Not Found
+12042025	12:51:39	1eb005e5-5f2d-455d-aaf9-f9b34329c15e	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:39	e4c07cc2-deaf-411f-b03c-95f08ca9fdd8	Error: Page Not Found
+12042025	12:51:39	639b4bf2-d216-478d-85ff-b8a94c584024	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:39	4486fd2e-1ca6-4253-bf64-adfcd2cad0d4	Error: Page Not Found
+12042025	12:51:41	70149c8a-a8cc-4aa2-a11c-be682d8a821b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:41	69cf3c89-ea67-4a84-b50b-6cf905c4882a	Error: Page Not Found
+12042025	12:51:41	1f5844fa-3013-4154-97ad-7012728f8f06	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:41	832818b6-d43e-45c7-a081-58b0dae39dca	Error: Page Not Found
+12042025	12:51:42	fb3ce2c9-4f5b-4dbc-858e-c2f40299dacb	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:42	e403f107-571f-41e9-80a4-e9ab71d35225	Error: Page Not Found
+12042025	12:51:42	2b7fbe33-2a27-4cec-adea-040be71ddad6	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:42	33774b20-4084-44b4-a8dd-0956e76ecdc8	Error: Page Not Found
+12042025	12:51:43	116aacab-c080-4616-8c36-5e8b31d22b03	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:43	d90d8b10-8f58-41c9-8b1d-130c5ec99187	Error: Page Not Found
+12042025	12:51:43	3356228d-5aed-4d48-9e62-9b48d0c2a86c	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:43	7fb55549-ea2c-4738-b92d-dec70cb5c44d	Error: Page Not Found
+12042025	12:51:44	c76837cc-570a-41c2-a548-b08246911587	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	12:51:44	03c515c0-b0dd-4a75-aaa9-535adbe99428	Error: Page Not Found
+12042025	12:51:44	e2eab483-222d-4c1b-814e-87fc7a290838	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	12:51:44	2b93b1bf-4c38-4c37-86f9-db90c7cc2e68	Error: Page Not Found
+12042025	13:04:19	61c56255-11db-4621-a8cb-e4c21b9faaa9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	13:04:19	5d7db975-d405-43df-8417-a88ce65de0ab	Error: Page Not Found
+12042025	13:04:19	4b254475-cf54-4dc7-be8d-ae5286c49751	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	13:04:19	2443d68f-c709-4a06-a265-be046b6e8d70	Error: Page Not Found
+12042025	13:04:21	a0cd82fb-cdb5-42b1-a0ac-417b199eac34	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	13:04:21	1c6fab47-15f7-42ee-8da1-33e0e7b9afa7	Error: Page Not Found
+12042025	13:04:21	a3b74d7a-82cb-46f6-bcdc-a5e6652a9f17	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	13:04:21	97f6926c-7d29-4131-ae27-d79ed9fd56ec	Error: Page Not Found
+12042025	13:04:24	c9bafb6e-56dc-473e-8b91-2c17bcef24b9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	13:04:24	7d536b20-117f-4f7a-9ffc-40ec2be2e6e7	Error: Page Not Found
+12042025	13:04:24	4ea07ed9-119c-4445-a43b-366bb6daee48	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	13:04:24	054099e2-57a8-47b4-bbf2-9f36ab85d08e	Error: Page Not Found
+12042025	13:04:54	e73b7927-24a9-418d-9ef1-ce98f5b84d49	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	13:04:54	a3127728-9c04-44d5-863e-3a68c4eccb39	Error: Page Not Found
+12042025	13:04:54	3a227f11-2dd9-496d-b883-65b97e67085c	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	13:04:54	4770c60d-cacc-4002-a702-cd50651692d8	Error: Page Not Found
+12042025	13:07:58	f9acc173-ac31-4065-bbaa-afa135e97ff2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	13:07:58	9c7f9443-a9ca-45c9-bacb-4a073a1db6e4	Error: Page Not Found
+12042025	13:07:58	c28ba618-ec4b-4968-ba57-4717680a544a	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	13:07:58	a7311549-7211-4813-8540-211a259364fd	Error: Page Not Found
+12042025	13:08:00	897e8e11-999c-4e8a-bd9a-3d8f865ea6a5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	13:08:00	4c596cfd-a488-4184-88ab-920ef553e086	Error: Page Not Found
+12042025	13:08:00	d8ee9dd0-8de5-481b-84fe-5782bd8b6f54	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	13:08:00	635d43ac-be31-49d4-bb29-a7656b08c44c	Error: Page Not Found
+12042025	13:23:04	2d02fddb-ac13-404b-8888-9c03bfe6bfd7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	13:23:04	b081cd18-562a-412a-933b-8e5b1dd74c73	Error: Page Not Found
+12042025	13:23:04	5aba33e9-55cf-40d1-adf0-27a11d5b1792	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	13:23:04	8e8a98bd-b265-4f02-83a8-98af90d94850	Error: Page Not Found
+12042025	13:23:08	ed3af040-1210-486b-bff9-75b6d08ab341	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	13:23:08	9b750bc9-1d1c-442b-aa0f-d8ff38aff362	Error: Page Not Found
+12042025	13:23:08	64851410-1c7f-45c7-a97f-2f63a04ee021	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	13:23:08	63964ef1-bfa0-404d-86c8-24b46e97a8c6	Error: Page Not Found
+12042025	22:17:54	0a3cc9a6-0d8d-47b4-b6bc-b5c436d33c03	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	22:17:54	b7f4b0e9-29cf-419b-bde2-5641489990b6	Error: Page Not Found
+12042025	22:17:55	98561283-7cf0-40d2-8ab3-f0bdf1ee55cf	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	22:17:55	4a3a581b-cf6c-49c8-9b34-c78e65335938	Error: Page Not Found
+12042025	22:18:56	199796bf-1240-4dfd-b309-3ed10f24d766	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	22:18:56	6c7e3c47-ef70-4d80-a958-aeed4847f925	Error: Page Not Found
+12042025	22:18:56	5c5ef08e-35e8-4303-97ea-840086a446a2	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	22:18:56	1ffd6dc9-88dc-4dcd-8f61-91f85629696d	Error: Page Not Found
+12042025	22:18:58	c7204220-3402-4542-a15d-816b0b813930	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	22:18:58	50229e02-ca43-4f51-a1f9-dfab1935b5be	Error: Page Not Found
+12042025	22:18:58	17605238-2bf3-41ba-90ba-a43b7510e638	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	22:18:58	1346854a-6311-40bd-9f00-dc73b4213894	Error: Page Not Found
