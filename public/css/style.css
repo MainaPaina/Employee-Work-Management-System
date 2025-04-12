@@ -2463,3 +2463,59 @@ body:not(.dark-mode) .theme-toggle button i {
     text-decoration: none;
     padding-left: 2rem;
 }
+
+/* Break Timer Styles */
+.break-timer-container {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: rgba(245, 171, 53, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid var(--warning);
+    transition: all 0.3s ease;
+}
+
+.break-timer-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--warning);
+}
+
+.break-timer-display {
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--warning-dark);
+    padding: 0 5px;
+}
+
+.break-progress-container {
+    height: 8px;
+    background-color: rgba(245, 171, 53, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.break-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--warning), var(--warning-dark));
+    border-radius: 4px;
+    transition: width 1s ease;
+}
+
+/* Pulsing animation for active break timer */
+@keyframes pulse-warning {
+    0% {
+        box-shadow: 0 0 0 0 rgba(245, 171, 53, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(245, 171, 53, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(245, 171, 53, 0);
+    }
+}
+
+.break-timer-active {
+    animation: pulse-warning 2s infinite;
+}

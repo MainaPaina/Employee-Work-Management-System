@@ -401,3 +401,37 @@
 12042025	09:54:44	d27f65ee-5216-4764-b32c-318d0d8e4e10	Error: Page Not Found
 12042025	09:54:44	3ae5bd14-c41f-47e4-b481-f3a3ff595ee3	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
 12042025	09:54:44	f471a746-dfa1-4e48-ac17-2399b9a86245	Error: Page Not Found
+12042025	10:32:42	d07f1309-a739-4205-aaac-26a77d5c3b8f	404 Not Found: GET /manager
+12042025	10:32:42	e7fdd5a2-15d8-4890-a5a5-8b6f4badbab5	Error: Page Not Found
+12042025	10:33:24	0a226881-46be-4dfe-9294-ac00d2b01b81	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:33:24	b217a9df-1184-47ab-b747-97c8a84b746e	Error: Page Not Found
+12042025	10:33:38	015bfe38-cdf7-44e0-a1df-7c99cd207dfb	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:33:38	afb4b9ab-e721-4ec7-86d9-e617f8dbfbd1	Error: Page Not Found
+12042025	10:33:43	0b541a81-d763-4e57-85c8-1f8d8ff518d7	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:33:43	038ccfe8-3d5b-40dc-99b4-4329dcb5c234	Error: Page Not Found
+12042025	10:33:49	ba75f211-2375-457f-b680-7632668d3474	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:33:49	c2574f4c-a281-4b82-9545-232d8a3e5bbb	Error: Page Not Found
+12042025	10:34:30	b675693b-33ba-4806-be9f-c8caf6084b91	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:34:30	fdba2932-5cce-44e4-91bb-ac716b96dba8	Error: Page Not Found
+12042025	10:34:33	ad0bc136-1e39-426b-9f12-33ca2c33e87e	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:34:33	eddc97c0-dbcd-44d7-8b99-d93fe3ffb970	Error: Page Not Found
+12042025	10:34:39	22fa3f50-06ef-493c-8405-313fa2e2b036	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:34:39	859cde10-dbf3-4838-a1c8-0ecb95063673	Error: Page Not Found
+12042025	10:34:48	b48c2c9b-fe30-448e-8dcf-fb2d99ec02a2	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:34:48	16d329e4-b7ae-44b0-bb70-1848777b0848	Error: Page Not Found
+12042025	10:34:51	632507f5-590c-46f7-ac83-8344c591d869	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:34:51	516abebf-26c0-425c-ac0e-eafdb6e88893	Error: Page Not Found
+12042025	10:34:56	a2b63dcd-25ef-42b1-9f83-0ab0b43de41f	404 Not Found: GET /manager
+12042025	10:34:56	bdbb680b-177e-4b53-a5ae-9f0ffa57e3a5	Error: Page Not Found
+12042025	10:34:56	bbe3a026-d6c4-4c05-87b3-427922e3547e	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:34:56	bbe33e4d-2ce7-4bdf-83e7-9d81603d5e49	Error: Page Not Found
+12042025	10:35:45	e1346c85-9d38-4f32-8ac7-858513de0424	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:35:45	01e3eaad-0335-4714-912c-f785c35ad329	Error: Page Not Found
+12042025	10:35:49	f35b9cc3-ebc3-44bf-bf74-2ee253f06a78	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:35:49	aa4d1509-302a-483f-bffe-db8e67af6f0f	Error: Page Not Found
+12042025	10:35:57	ec144abc-9a22-4f24-9575-96a9fee38d80	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:35:57	472dd562-6523-48c8-8ddb-ccd7ce231cb6	Error: Page Not Found
+12042025	10:36:02	7d204075-a223-45a2-b2e2-2cdc1169f794	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	10:36:02	46372706-6a91-442b-a305-fdd747384dea	Error: Page Not Found
+12042025	11:10:26	24eb276c-9f36-44ee-8649-c7b917409739	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	11:10:26	e2e05b1a-f756-458d-92a9-ff1315b6f5e7	Error: Page Not Found
