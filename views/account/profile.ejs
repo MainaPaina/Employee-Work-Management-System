@@ -20,7 +20,17 @@
 
         <div class="info-group">
           <label>Role</label>
-          <p><span class="role-badge <%= user.role %>"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span></p>
+          <p><%
+              if (user.roles && user.roles.length > 0) {
+                user.roles.forEach(role => {
+                  %>
+                  <span class="role-badge role-badge-<%= role %>"><%= role.charAt(0).toUpperCase() + role.slice(1) %></span>
+                  <%
+                });
+              } else {
+                user.role = 'guest'; // Default role if none is assigned
+              }
+            %></p>
         </div>
       </div>
     </div>
@@ -46,12 +56,13 @@
               <small class="form-text text-muted">Max file size: 5MB. Recommended: square image (1:1 ratio).</small>
             </div>
           </div>
+			<div style="text-align: center; margin-top: 1.5rem;">
+				<button form="imageUploadForm" type="submit" class="btn btn-primary" style="min-width: 216px;">
+					<i class="fas fa-upload"></i> Upload Image
+				</button>
+			</div>
         </form>
-        <div style="text-align: center; margin-top: 1.5rem;">
-          <button form="imageUploadForm" type="submit" class="btn btn-primary" style="min-width: 216px;">
-            <i class="fas fa-upload"></i> Upload Image
-          </button>
-        </div>
+        
       </div>
     </div>
     <div class="profile-section">
@@ -90,14 +101,14 @@
             </div>
           </div>
         </div>
+		  <div style="text-align: center; margin-top: 1.5rem;">
+			  <button form="passwordForm" type="submit" class="btn btn-primary" style="min-width: 200px;">
+				  <i class="fas fa-save"></i> Update Password
+			  </button>
+		  </div>
+	  </form>
 
-        </form>
-        <div style="text-align: center; margin-top: 1.5rem;">
-          <button form="passwordForm" type="submit" class="btn btn-primary" style="min-width: 200px;">
-            <i class="fas fa-save"></i> Update Password
-          </button>
-        </div>
-    </div>
+  </div>
   </div>
 </div>
 
@@ -435,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Send request to change password
-        const response = await fetch('/profile/api/change-password', {
+        const response = await fetch('/account/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -546,6 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       // Show loading state
+	  console.log(imageUploadForm);
       const submitButton = imageUploadForm.querySelector('button[type="submit"]');
       const originalButtonText = submitButton.innerHTML;
       submitButton.disabled = true;
@@ -557,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('profileImage', profileImageInput.files[0]);
 
         // Send request to upload profile image
-        const response = await fetch('/profile/upload-image', {
+        const response = await fetch('/account/upload-image', {
           method: 'POST',
           body: formData,
           credentials: 'include' // Include credentials to send cookies

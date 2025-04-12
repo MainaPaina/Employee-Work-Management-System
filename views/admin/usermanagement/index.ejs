@@ -1,0 +1,437 @@
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/dark-mode-fix.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+
+<div class="container main-content">
+    <!-- Your existing admin content goes here without the backticks -->
+    <div class="page-header">
+        <h1><i class="fas fa-users-cog"></i> User Management</h1>
+    <p class="lead">Manage users, and their roles</p>
+</div>
+
+<%- include('../partials/menu') %>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col-md-4 mb-2 mb-md-0">
+                <h5 class="mb-0"><i class="fas fa-users-cog"></i> User Management</h5>
+            </div>
+            <div class="col-md-8">
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                    <div class="input-group input-group-sm" style="max-width: 250px;">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" id="userSearchInput" class="form-control" placeholder="Search users...">
+                    </div>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </button>
+                    <button class="btn btn-sm btn-success" id="exportUsersCsv">
+                        <i class="fas fa-file-export"></i> Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Filter Controls - Improved Layout -->
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-9">
+                <div class="d-flex flex-wrap gap-2">
+                    <div style="min-width: 120px;">
+                        <label for="userRoleFilter" class="form-label small mb-1">Role</label>
+                        <select class="form-select form-select-sm" id="userRoleFilter">
+                            <option value="all">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="employee">Employee</option>
+                        </select>
+                    </div>
+                    <div style="min-width: 120px;">
+                        <label for="userStatusFilter" class="form-label small mb-1">Status</label>
+                        <select class="form-select form-select-sm" id="userStatusFilter">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div style="min-width: 150px;">
+                        <label for="userDepartmentFilter" class="form-label small mb-1">Department</label>
+                        <select class="form-select form-select-sm" id="userDepartmentFilter">
+                            <option value="all">All Departments</option>
+                            <!-- Department options will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="userSortBy" class="form-label small mb-1">Sort By</label>
+                <select class="form-select form-select-sm" id="userSortBy">
+                    <option value="name">Sort by Name</option>
+                    <option value="username">Sort by Username</option>
+                    <option value="role">Sort by Role</option>
+                    <option value="status">Sort by Status</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- User Table -->
+        <div class="table-responsive">
+            <table class="table table-hover" id="usersTable" style="background-color: inherit;">
+                <thead class="table-dark">
+                    <tr>
+                        <th><input type="checkbox" id="selectAllUsers" class="form-check-input"></th>
+                        <th><i class="fas fa-id-badge"></i> Username</th>
+                        <th><i class="fas fa-user"></i> Full Name</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-user-tag"></i> Roles</th>
+                        <th><i class="fas fa-sitemap"></i> Department</th>
+                        <th><i class="fas fa-clock"></i> Status</th>
+                        <th><i class="fas fa-calendar"></i> Last Login</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof users !== 'undefined' && users.length > 0) { %>
+                        <% users.forEach(user => { %>
+                            <tr data-user-id="<%= user.id %>" data-role="<%= user.role %>" data-status="<%= user.active ? 'active' : 'inactive' %>">
+                                <td><input type="checkbox" class="user-select form-check-input"></td>
+                                <td><%= user.username %></td>
+                                <td><%= user.name %></td>
+                                <td><%= user.email %></td>
+                                <td>
+                                    <%
+                                    if (user.roles && user.roles.length > 0) {
+                                        user.roles.forEach(role => {
+                                        %>
+                                        <span class="badge <%= (role === 'admin' ? 'bg-danger' : (role === 'manager' ? 'bg-warning' : 'bg-info')) %>"><%= role.charAt(0).toUpperCase() + role.slice(1) %></span>
+                                        <%
+                                        });
+                                    } else {
+                                        user.role = 'guest'; // Default role if none is assigned
+                                    }
+                                    %>
+                                </td>
+                                <td><%= user.department || 'Not Assigned' %></td>
+                                <td>
+                                    <span class="badge <%= user.active ? 'bg-success' : 'bg-secondary' %>">
+                                        <%= user.active ? 'Active' : 'Inactive' %>
+                                    </span>
+                                </td>
+                                <td><%= user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never' %></td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="/admin/usermanagement/view/<%= user.id %>" class="btn btn-info edit-user" title="Show user details">
+                                            <i class="fas fa-user-pen"></i>
+                                        </a>
+                                        <button class="btn btn-danger delete-user" 
+                                        data-user-id="<%= user.id %>" 
+                                        data-user-name="<%= user.name %>"
+                                        title="Delete user">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="9" class="text-center">No users found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table Actions and Pagination -->
+        <div class="row mt-3 align-items-center">
+            <div class="col-md-6 mb-2 mb-md-0">
+                <div class="btn-group" id="bulkActionDropdown">
+                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                        <i class="fas fa-tasks"></i> Bulk Actions
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item bulk-activate" href="#"><i class="fas fa-toggle-on"></i> Activate</a></li>
+                        <li><a class="dropdown-item bulk-deactivate" href="#"><i class="fas fa-toggle-off"></i> Deactivate</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item bulk-delete text-danger" href="#"><i class="fas fa-trash"></i> Delete</a></li>
+                    </ul>
+                </div>
+                <span class="ms-3 text-muted small" id="selectedCount">0 users selected</span>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-md-end align-items-center">
+                    <div class="me-3">
+                        <select id="userPageSize" class="form-select form-select-sm">
+                            <option value="10">10 rows</option>
+                            <option value="25">25 rows</option>
+                            <option value="50">50 rows</option>
+                            <option value="100">100 rows</option>
+                        </select>
+                    </div>
+                    <nav aria-label="User table pagination">
+                        <ul class="pagination pagination-sm mb-0" id="usersPagination">
+                            <!-- Pagination will be generated dynamically -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Replace the existing Add User Modal with this enhanced version -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel"><i class="fas fa-user-plus"></i> Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addUserForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="fullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="role" required>
+                                <option value="employee">Employee</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <select class="form-select" id="department">
+                                <option value="">Select Department</option>
+                                <option value="HR">Human Resources</option>
+                                <option value="IT">IT Department</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Marketing">Marketing</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Initial Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-primary" type="button" id="generatePassword">
+                                <i class="fas fa-key"></i> Generate
+                            </button>
+                        </div>
+                        <div class="form-text">Password must be at least 8 characters with letters, numbers, and symbols.</div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="sendWelcomeEmail" checked>
+                        <label class="form-check-label" for="sendWelcomeEmail">Send welcome email with login details</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel"><i class="fas fa-user-edit"></i> Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-3">
+                        <label for="editUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="editUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="editFullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRole" class="form-label">Role</label>
+                        <select class="form-select" id="editRole" required>
+                            <option value="employee">Employee</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStatus" class="form-label">Status</label>
+                        <select class="form-select" id="editStatus" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="resetPassword">
+                        <label class="form-check-label" for="resetPassword">Reset Password</label>
+                    </div>
+                    <div class="mb-3 password-reset-fields" style="display: none;">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="newPassword">
+                            <button class="btn btn-outline-secondary" type="button" id="toggleEditPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Confirmation Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteUserModalLabel"><i class="fas fa-exclamation-triangle"></i> Delete User</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete user <strong id="deleteUserName"></strong>?</p>
+                <p class="text-danger"><small>This action cannot be undone.</small></p>
+                <input type="hidden" id="deleteUserId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script for Admin page specific functionality -->
+<script src="/js/admin-client.js"></script>
+
+<!-- Script to fix dark mode table rows -->
+<script>
+    // Function to apply dark mode styles to user management table
+    function applyDarkModeToUserTable() {
+        if (document.body.classList.contains('dark-mode')) {
+            // Get all rows in the table body
+            const rows = document.querySelectorAll('#usersTable tbody tr');
+
+            // Apply dark background to each row
+            rows.forEach((row, index) => {
+                // Clear any existing background
+                row.style.backgroundColor = 'transparent';
+
+                // Apply alternating row colors
+                if (index % 2 === 0) {
+                    row.style.backgroundColor = '#1a1a1a';
+                } else {
+                    row.style.backgroundColor = '#121220';
+                }
+
+                // Make sure text is white
+                row.style.color = '#ffffff';
+
+                // Apply styles to all cells in the row
+                const cells = row.querySelectorAll('td');
+                cells.forEach(cell => {
+                    cell.style.backgroundColor = 'transparent';
+                    cell.style.color = '#ffffff';
+                });
+            });
+        }
+    }
+
+    // Function to apply dark mode styles to employee activity table
+    function applyDarkModeToActivityTable() {
+        if (document.body.classList.contains('dark-mode')) {
+            // Get all rows in the table body
+            const rows = document.querySelectorAll('#employeeActivityTable tbody tr');
+
+            // Apply dark background to each row
+            rows.forEach((row, index) => {
+                // Skip rows with special status classes
+                if (row.classList.contains('table-danger') ||
+                    row.classList.contains('table-secondary') ||
+                    row.classList.contains('table-success') ||
+                    row.classList.contains('table-info')) {
+                    // Just ensure text is white
+                    row.style.color = '#ffffff';
+
+                    // Apply styles to all cells in the row
+                    const cells = row.querySelectorAll('td');
+                    cells.forEach(cell => {
+                        cell.style.color = '#ffffff';
+                    });
+                    return;
+                }
+
+                // Clear any existing background
+                row.style.backgroundColor = 'transparent';
+
+                // Apply alternating row colors
+                if (index % 2 === 0) {
+                    row.style.backgroundColor = '#1a1a1a';
+                } else {
+                    row.style.backgroundColor = '#121220';
+                }
+
+                // Make sure text is white
+                row.style.color = '#ffffff';
+
+                // Apply styles to all cells in the row
+                const cells = row.querySelectorAll('td');
+                cells.forEach(cell => {
+                    cell.style.backgroundColor = 'transparent';
+                    cell.style.color = '#ffffff';
+                });
+            });
+        }
+    }
+
+    // Function to apply dark mode to all tables
+    function applyDarkModeToTables() {
+        applyDarkModeToUserTable();
+        applyDarkModeToActivityTable();
+    }
+
+    // Run when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Apply dark mode styles if dark mode is active
+        applyDarkModeToTables();
+
+        // Watch for theme changes
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                // Wait a moment for the dark-mode class to be applied/removed
+                setTimeout(applyDarkModeToTables, 100);
+            });
+        }
+    });
+</script>

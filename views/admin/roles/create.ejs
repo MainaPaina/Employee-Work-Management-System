@@ -1,0 +1,37 @@
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/dark-mode-fix.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+
+<div class="container main-content">
+    <!-- Your existing admin content goes here without the backticks -->
+    <div class="page-header">
+        <h1><i class="fas fa-users-between-lines"></i> Role Management</h1>
+        <p class="lead">Add, edit or delete roles - may impact permissions to sections of the website</p>
+    </div>
+    
+
+    <%- include('../partials/menu') %>
+
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-plus"></i> Create Role</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="role_name" class="form-label">Name</label>
+                    <input type="text" class="form-control" name="name" id="role_name" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 btn-group">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+
+</div>

@@ -1,38 +1,85 @@
-<ul class="nav-menu">
-    <li class="nav-item">
-        <a href="/" class="nav-link <%= activePage === 'home' ? 'active' : '' %>">Home</a>
-    </li>
-    <li class="nav-item">
-        <a href="/dashboard" class="nav-link <%= activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
-    </li>
-    <li class="nav-item">
-        <a href="/timesheet" class="nav-link <%= activePage === 'timesheet' ? 'active' : '' %>">Timesheet</a>
-    </li>
-    <% if (locals.user && locals.user.role === 'admin') { %>
-        <li class="nav-item">
-            <a href="/admin" class="nav-link <%= activePage === 'admin' ? 'active' : '' %>">Admin</a>
-        </li>
-    <% } %>
+<nav class="navbar">
+	<div class="container navbar-container">
+		<a href="/" class="navbar-logo">
+			<i class="fas fa-clock logo-icon"></i>
+			<span>TimeManager</span>
+		</a>
 
-    <li class="nav-item">
-        <a href="/profile" class="nav-link <%= activePage === 'profile' ? 'active' : '' %>">Profile</a>
-    </li>
-</ul>
-<div class="auth-buttons">
-    <% if (locals.isAuthenticated) { %>
-        <a href="#" id="logoutBtn" class="logout-btn">Logout</a>
-        <script>
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Create a form and submit it to the logout endpoint
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/logout';
-                document.body.appendChild(form);
-                form.submit();
-            });
-        </script>
-    <% } else { %>
-        <a href="/login" class="login-btn">Login</a>
-    <% } %>
-</div>
+		<button class="mobile-menu-toggle" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="toggle-bar"></span>
+			<span class="toggle-bar"></span>
+			<span class="toggle-bar"></span>
+		</button>
+
+		<ul class="nav-list">
+			<li class="nav-item">
+				<a href="/" class="nav-link"
+					<%= (typeof activePage !== 'undefined' && activePage === 'home') ? 'active' : '' %>">
+					<i class="fas fa-home"></i> Home
+				</a>
+			</li>
+			<li class="nav-item">
+				<a href="/contact" class="nav-link"
+					<%= (typeof activePage !== 'undefined' && activePage === 'contact') ? 'active' : '' %>">
+					<i class="fas fa-envelope"></i> Contact Us
+				</a>
+			</li>
+			<% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+			<!-- Navigation for authenticated users -->
+			<li class="nav-item">
+				<a href="/dashboard" class="nav-link"
+					<%= (typeof activePage !== 'undefined' && activePage === 'dashboard') ? 'active' : '' %>">
+					<i class="fas fa-tachometer-alt"></i> Dashboard
+				</a>
+			</li>
+
+			<li class="nav-item">
+				<a href="/timesheet" class="nav-link"
+					<%= (typeof activePage !== 'undefined' && activePage === 'timesheet') ? 'active' : '' %>">
+					<i class="fas fa-clock"></i> TimeSheet
+				</a>
+			</li>
+			<li class="nav-item ml-auto">
+				<div class="user-dropdown">
+					<button class="user-dropdown-btn">
+						<div class="user-avatar">
+							<i class="fas fa-user"></i>
+						</div>
+						<span class="user-name">
+							<%= locals.user ? user.username : 'User' %>
+						</span>
+						<i class="fas fa-chevron-down"></i>
+					</button>
+					<div class="user-dropdown-content">
+						<a href="/account/profile">
+							<i class="fas fa-id-card"></i> Profile
+						</a>
+						<% if (locals.user && user.roles.includes('manager')) { %>
+						<a href="/manager">
+							<i class="fas fa-cog"></i> Manager
+						</a>
+						<% } %>
+                                <% if (locals.user && user.roles.includes('admin')) { %>
+						<a href="/admin">
+							<i class="fas fa-cog"></i> Admin
+						</a>
+						<% } %>
+                                <a href="/account/logout">
+							<i class="fas fa-sign-out-alt"></i> Logout
+						</a>
+					</div>
+				</div>
+			</li>
+			<% } else { %>
+                    <!-- Show login button for non-authenticated users -->
+			<li class="nav-item login-nav-item">
+				<a href="/account/login" class="nav-link login-nav-link"
+					<%= (typeof activePage !== 'undefined' && activePage === 'login') ? 'active' : '' %>">
+					<i class="fas fa-sign-in-alt"></i> Login
+				</a>
+			</li>
+			<% } %>
+		</ul>
+
+	</div>
+</nav>

@@ -1,0 +1,43 @@
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/dark-mode-fix.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+
+<div class="container main-content">
+    <!-- Your existing admin content goes here without the backticks -->
+    <div class="page-header">
+        <h1><i class="fas fa-users-between-lines"></i> Role Management</h1>
+        <p class="lead">Add, edit or delete roles - may impact permissions to sections of the website</p>
+    </div>
+    
+
+    <%- include('../partials/menu') %>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>View role <%= role.name %></h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Id:</strong> <%= role.id %></p>
+            <p><strong>Name:</strong> <%= role.name %></p>
+            <p><strong>Users:</strong> 
+                <% 
+                for (let i = 0; i < users.length; i++) { %> 
+                    <% if (i > 0) { %>, <% } %> 
+                    <span class="badge bg-info"><%= users[i].users.username %></span>
+                <% } %>
+            </p>
+            <p><strong>Created:</strong> <%= (new Date(role.created_at).toLocaleString()) %></p>
+            <div class="btn-group btn-group-sm">
+                <a href="/admin/roles" class="btn btn-secondary">Back</a>
+                <% if (role.name !== 'admin' && role.name !== 'employee' && role.name !== 'manager') { %>
+                    <a href="/admin/roles/edit/<%= role.id %>" class="btn btn-primary">Edit</a>
+                    <form action="/admin/roles/delete/<%= role.id %>" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+
+</div>

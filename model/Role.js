@@ -1,16 +1,6 @@
 
-const supabase = require('../config/supabaseClient');
-
-// Create a Supabase client with the service role key to bypass RLS
-const { createClient } = require('@supabase/supabase-js');
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// Only create the admin client if the service key is available
-const supabaseAdmin = supabaseServiceKey ?
-    createClient(supabaseUrl, supabaseServiceKey, {
-        auth: { autoRefreshToken: false, persistSession: false }
-    }) : null;
+const supabase = require('../config/supabase/client');
+const supabaseAdmin = require('../config/supabase/admin');
 
 class Role {
     /// Static method to find role by Id
@@ -56,17 +46,45 @@ class Role {
         try {
             const { data, error } = await supabase
                 .from('user_roles')  // From table user_roles
-                .select('id, role_id')   // Select role_id column
+                .select('roles ( name ) ')   // Select role_id column
                 .eq('user_id', userId); // Where user_id = userId
             if (error) {
                 console.error('Error fetching user roles:', error.message);
                 return null;
+            }
+            if (data != null) {
+                //console.log(data);
+                return data.map((item) => item.roles.name); // Extract role names from the data
             }
             return data; // Return the role objects (or null if not found)
         }
         catch (error) {
             console.error('Exception fetching user roles: ', error);
             return null;
+        }
+    }
+
+    static async listRoleUsers(roleId) {
+        try {
+            console.log('listRoleUsers called with roleId:', roleId);
+            const { data, error } = await supabaseAdmin
+                .from('user_roles')  // From table user_roles
+                //.select('user ( * ) ')   // Select role_id column
+                .select('users ( username ) ')
+                .eq('role_id', roleId); // Where id = userId
+
+            if (error) {
+                console.error('Error fetching users in role:', error.message);
+                return null;
+            }
+
+            return data; // Return the role objects (or null if not found)
+        }
+        catch (error) {
+
+            console.error('Exception fetching user roles: ', error);
+            return null;
+
         }
     }
 }

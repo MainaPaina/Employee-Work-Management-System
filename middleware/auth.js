@@ -1,4 +1,4 @@
-// Checks to see if visitor has admin role
+/*// Checks to see if visitor has admin role
 exports.checkAdmin = function(req, res, next) {
     // Assumes checkAuth has already run
     if (req.user && req.user.role !== 'admin') {
@@ -26,4 +26,4 @@ exports.checkAuth = function(req, res, next) {
     // Add user object to req for easier access in subsequent middleware/routes if not already done
     if (!req.user) req.user = req.session.user;
     next();
-};
+};*/

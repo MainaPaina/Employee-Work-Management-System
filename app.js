@@ -36,7 +36,7 @@ sessionConfig(app); */
 
 // Development middleware
 if (process.env.NODE_ENV === 'development') {
-    app.use(reqLogger);
+    //app.use(reqLogger);
 }
 
 // Flash middleware (must be after session)

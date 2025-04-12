@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
         if (!user || !user.id) {
             console.error('Dashboard access attempt without user ID.');
             req.flash('error', 'Authentication error. Please log in again.');
-            return res.redirect('/login');
+            return res.redirect('/account/login');
         }
 
         const employeeId = user.id;

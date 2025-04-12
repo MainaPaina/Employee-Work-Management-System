@@ -3,44 +3,47 @@ const express = require('express');
 const router = express.Router();
 
 //Imported Middleware
+const verifyRoles = require('../middleware/verifyRoles');
 const { checkAuth, checkAdmin } = require('../middleware/auth')
 
 // Import routes
-const authRoutes = require('../routes/auth');
+//const adminRoutes = require('./admin');
+//const accountRoutes = require('./account');
+
+//const authRoutes = require('../routes/auth');
 const employeeRoutes = require('../routes/employee');
 const timesheetRoutes = require('../routes/timesheet');
 const leaveRoutes = require('../routes/leave');
 const apiRoutes = require('../routes/api'); // Assuming API routes exist
-const adminRoutes = require('../routes/admin');
-const profileRoutes = require('../routes/profile'); // New profile routes
+//const profileRoutes = require('../routes/profile'); // New profile routes
 const dashboardRouter = require('../routes/dashboard'); // Dashboard routes
-const loginRoutes = require('../routes/login'); // Login routes
-const logoutRoutes = require('../routes/logout'); // Logout routes
+//const loginRoutes = require('../routes/login'); // Login routes
+//const logoutRoutes = require('../routes/logout'); // Logout routes
 
 
 
 // 1. Public Authentication Routes (No auth required)
-router.use('/login', loginRoutes);
-router.use('/auth', authRoutes);
+//    and Account Management
+router.use('/account', require('./account'));
 
 // 2. API Routes (Separate auth handling)
 router.use('/api', apiRoutes);
 
 // 3. Protected Routes (Require authentication)
 // User Management
-router.use('/logout', checkAuth, logoutRoutes);
-router.use('/profile', checkAuth, profileRoutes);
+//router.use('/logout', verifyRoles(['employee','manager','admin']), logoutRoutes);
+//router.use('/profile', verifyRoles(['employee', 'manager', 'admin']), profileRoutes);
 
 // Core Application Routes
 // Note: These routes require authentication but not necessarily admin privileges
-router.use('/dashboard', checkAuth, dashboardRouter);
-router.use('/timesheet', checkAuth, timesheetRoutes);
-router.use('/leave', checkAuth, leaveRoutes);
+router.use('/dashboard', verifyRoles(['employee']), dashboardRouter);
+router.use('/timesheet', verifyRoles(['employee', 'manager', 'admin']), timesheetRoutes);
+router.use('/leave', verifyRoles(['employee', 'manager', 'admin']), leaveRoutes);
 
 // Role-specific Routes
 // Note: These routes require authentication and role checks
-router.use('/admin', checkAuth, checkAdmin, adminRoutes);
-router.use('/employee', checkAuth, employeeRoutes);
+router.use('/admin', require('./admin'));
+router.use('/employee', verifyRoles(['employee']), employeeRoutes);
 
 
 
@@ -71,5 +74,6 @@ router.get('/legal/privacy', (req, res) => {
 router.get('/legal/cookies', (req, res) => {
     res.render('legal/cookies', { activePage: 'cookies' });
 });
+
 
 module.exports = router;

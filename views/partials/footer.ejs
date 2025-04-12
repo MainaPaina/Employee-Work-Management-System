@@ -1,12 +1,87 @@
-<footer class="site-footer">
-    <div class="footer-container">
-        <div class="footer-content">
-            <p>&copy; <%= new Date().getFullYear() %> TimeTrack App. All rights reserved.</p>
-        </div>
-        <div class="footer-links">
-            <a href="/contact">Contact Us</a>
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
-        </div>
-    </div>
+<footer>
+	<div class="container">
+		<div class="footer-content">
+			<div class="footer-section">
+				<div class="footer-logo">
+					<i class="fas fa-clock logo-icon"></i>
+					<span>TimeManager</span>
+				</div>
+				<p class="footer-desc">A modern solution for time management and productivity tracking in the workplace.</p>
+				<div class="footer-social">
+					<a href="#" class="social-icon">
+						<i class="fab fa-facebook-f"></i>
+					</a>
+					<a href="#" class="social-icon">
+						<i class="fab fa-twitter"></i>
+					</a>
+					<a href="#" class="social-icon">
+						<i class="fab fa-linkedin-in"></i>
+					</a>
+					<a href="#" class="social-icon">
+						<i class="fab fa-instagram"></i>
+					</a>
+				</div>
+			</div>
+
+			<div class="footer-section">
+				<h3 class="footer-title">Quick Links</h3>
+				<ul class="footer-links">
+					<li>
+						<a href="/">
+							<i class="fas fa-home"></i> Home
+						</a>
+					</li>
+					<% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+					<li>
+						<a href="/dashboard">
+							<i class="fas fa-tachometer-alt"></i> Dashboard
+						</a>
+					</li>
+					<% } %>
+                        <li>
+						<a href="/contact">
+							<i class="fas fa-envelope"></i> Contact
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<i class="fas fa-info-circle"></i> About
+						</a>
+					</li>
+					<li>
+						<a href="/contact">
+							<i class="fas fa-question-circle"></i> FAQ
+						</a>
+					</li>
+				</ul>
+			</div>
+
+			<div class="footer-section">
+				<h3 class="footer-title">Legal</h3>
+				<ul class="footer-links">
+					<li>
+						<a href="/legal/privacy">
+							<i class="fas fa-shield"></i> Privacy Policy
+						</a>
+					</li>
+					<li>
+						<a href="/legal/terms">
+							<i class="fas fa-file-contract"></i> Terms of Service
+						</a>
+					</li>
+					<li>
+						<a href="/legal/cookies">
+							<i class="fas fa-cookie"></i> Cookie Policy
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="footer-bottom">
+			<p>
+				&copy; <%= new Date().getFullYear() %> TimeManager. All rights reserved.
+			</p>
+		</div>
+	</div>
 </footer>
