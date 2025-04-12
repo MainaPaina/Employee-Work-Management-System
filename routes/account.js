@@ -13,17 +13,19 @@ require('dotenv').config(); // Ensure JWT_SECRET is loaded
 // Login and Register GET routes (handled by authRoutes now, but keep GET for direct access)
 // GET /account/login
 router.get('/login', (req, res) => {
+    const returnUrl = req.query.return || '/dashboard'; // Default to dashboard if no return URL is provided
     // If user is already logged in, redirect them from the login page
     if (req.session.user) {
-        return res.redirect('/dashboard');
+        return res.redirect(returnUrl);
     }
-    res.render('account/login', { activePage: 'login' }); // Pass activePage
+    res.render('account/login', { activePage: 'login', return: returnUrl }); // Pass activePage
 });
 
 // Login Route (POST)
 // POST /account/login
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    const returnUrl = req.query.return || '/dashboard'; // Default to dashboard if no return URL is provided
 
     if (!username || !password) {
         // Using flash messages for server-rendered forms is common
@@ -34,13 +36,12 @@ router.post('/login', async (req, res) => {
 
     try {
         // 1. First, look up the user by username to get their email
+        
         const userData = await User.findByUsername(username);
-
         if (!userData) {
             req.flash('error', 'Invalid username or password.');
             return res.status(401).json({ success: false, error: 'Invalid credentials.' });
         }
-
         // 2. Authenticate with Supabase using the email associated with the username
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email: userData.email,
@@ -58,28 +59,46 @@ router.post('/login', async (req, res) => {
         // Ensure user data is returned
         if (!authData || !authData.user) {
             console.error("Supabase Auth: No user data returned after successful sign in.");
-            req.flash('error', 'Login failed. Please try again later.');
-            return res.status(500).json({ success: false, error: 'Login failed internally.' });
+            req.flash('error', 'Invalid username or password.');
+            return res.status(401).json({ success: false, error: 'Invalid credentials.' });
         }
 
         const user = authData.user;
 
         // 2. Fetch user profile/role (using the 'users' table linked by user.id)
-        // Adjust table/column names as needed
-        const { data: profileData, error: profileError } = await supabase
-            .from('users') // Changed 'profiles' to 'users'
-            .select('id, username, profile_image') // Select necessary fields, especially 'role'
-            .eq('id', user.id)
-            .single();
-
-        if (profileError || !profileData) {
-            console.error("Supabase User Table Fetch Error:", profileError?.message || "User data not found in users table"); // Updated error message
-            // Decide if login should fail or proceed with default role
-            req.flash('error', 'Could not retrieve user profile.');
-            // Log out the Supabase session if profile is critical
-            await supabase.auth.signOut();
-            return res.status(500).json({ success: false, error: 'Could not retrieve user profile.' });
+        // Load user by using the model/User class
+        let profileData = await User.findById(user.id); // This should be a method to fetch user profile by ID)
+        // verify that profileData has data
+        if (!profileData) {
+            console.error("Could not find user with ID:", user.id);
+            // consistent error
+            req.flash('error', 'Invalid username or password.');
+            return res.status(401).json({ success: false, error: 'Invalid credentials.' });
         }
+        // Adjust table/column names as needed
+        //const { data: profileData, error: profileError } = await supabase
+        //    .from('users') // Changed 'profiles' to 'users'
+        //    .select('id, username, profile_image, lastlogin_at') // Select necessary fields, especially 'role'
+        //    .eq('id', user.id)
+        //    .single();
+
+        //if (profileError || !profileData) {
+        //    console.error("Supabase User Table Fetch Error:", profileError?.message || "User data not found in users table"); // Updated error message
+        //    // Decide if login should fail or proceed with default role
+        //    req.flash('error', 'Could not retrieve user profile.');
+        //    // Log out the Supabase session if profile is critical
+        //    await supabase.auth.signOut();
+        //    return res.status(500).json({ success: false, error: 'Could not retrieve user profile.' });
+        //}
+        // update last login date
+        //const { error: updateLogin } = await supabase
+        //    .from('users')
+        //    .update({ lastlogin_at: new Date().toISOString() })
+        //    .eq('id', user.id);
+        //if (updateLogin) {
+        //    console.error("Supabase User Table Update Error:", updateLogin.message);
+        //}
+        console.log('User profile data:', profileData); // Log profile data for debugging)
 
         // Fetch roles for the user
         const roles = await Role.listUserRoles(authData.user.id);
@@ -126,7 +145,7 @@ router.post('/login', async (req, res) => {
             message: 'Login successful!',
             accessToken: accessToken, // Send token to client
             user: sessionUser, // Send user info (optional, but useful)
-            redirectUrl: '/dashboard' // Suggest redirect URL
+            redirectUrl: returnUrl // Suggest redirect URL
         });
         // If handling traditional form POST without JS, you'd use:
         // req.flash('success', 'Login successful!');

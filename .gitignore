@@ -1,8 +1,13 @@
 # Dependencies
 package-lock.json
+node_modules/
 node_modules/*
+
+# Visual Studio 2015 cache/options directory
+.vs/
 .vs/*
 
+.git/
 
 # Environment variables and configuration
 .env

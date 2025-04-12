@@ -10,7 +10,6 @@ const supabaseAdmin = supabaseServiceKey ?
     createClient(supabaseUrl, supabaseServiceKey, {
         auth: { autoRefreshToken: false, persistSession: false }
     }) : null;
-const bcrypt = require('bcrypt');
 
 class User {
     // Static method to find user profile data by ID (e.g., from users table)
@@ -19,7 +18,7 @@ class User {
         try {
             const { data, error } = await supabase
                 .from('users') // Changed from 'employees'
-                .select('*')       // Select necessary profile fields (adjust as needed)
+                .select('id, username, profile_image, lastlogin_at')       // Select necessary profile fields (adjust as needed)
                 .eq('id', id)      // Match Supabase Auth user ID
                 .single();
 
