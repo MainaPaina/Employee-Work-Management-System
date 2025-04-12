@@ -26,12 +26,10 @@ const dashboardRouter = require('../routes/dashboard'); // Dashboard routes
 router.use('/account', require('./account'));
 
 // 2. API Routes (Separate auth handling)
-router.use('/api', apiRoutes);
+router.use('/api', require('../routes/api'));
 
 // 3. Protected Routes (Require authentication)
 // User Management
-//router.use('/logout', verifyRoles(['employee','manager','admin']), logoutRoutes);
-//router.use('/profile', verifyRoles(['employee', 'manager', 'admin']), profileRoutes);
 
 // Core Application Routes
 // Note: These routes require authentication but not necessarily admin privileges

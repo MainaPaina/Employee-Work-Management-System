@@ -96,9 +96,10 @@ router.post('/login', async (req, res) => {
             id: user.id,
             email: user.email,
             username: profileData.username, // From users table
-            profile_image: user.profile_image, // Ensure role exists, default if necessary
+            profile_image: profileData.profile_image, // Ensure role exists, default if necessary
             roles: roles || [],
         };
+        console.log('Session user:', sessionUser); // Log session user for debugging)
         req.session.user = sessionUser; // Store user info in session
 
         // 4. Create JWT
