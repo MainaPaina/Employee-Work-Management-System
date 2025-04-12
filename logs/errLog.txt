@@ -401,3 +401,7 @@
 12042025	09:54:44	d27f65ee-5216-4764-b32c-318d0d8e4e10	Error: Page Not Found
 12042025	09:54:44	3ae5bd14-c41f-47e4-b481-f3a3ff595ee3	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
 12042025	09:54:44	f471a746-dfa1-4e48-ac17-2399b9a86245	Error: Page Not Found
+12042025	09:58:19	1939ff86-94fe-4a5a-8555-e52172be7173	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	09:58:19	06e881df-68e9-4da5-8c36-52f2313e2a49	Error: Page Not Found
+12042025	09:58:19	9c0a2646-f63b-49b7-8a43-ef7a73b10b8d	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	09:58:19	46393cc7-c228-4a04-b178-7f6e03320f5b	Error: Page Not Found
