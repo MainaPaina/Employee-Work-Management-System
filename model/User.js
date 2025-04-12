@@ -8,7 +8,7 @@ class User {
         try {
             const { data, error } = await supabase
                 .from('users') // Changed from 'employees'
-                .select('id, username, profile_image, lastlogin_at')       // Select necessary profile fields (adjust as needed)
+                .select('id, name, username, profile_image, lastlogin_at')       // Select necessary profile fields (adjust as needed)
                 .eq('id', id)      // Match Supabase Auth user ID
                 .single();
 

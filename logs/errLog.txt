@@ -802,3 +802,11 @@
 12042025	22:18:58	50229e02-ca43-4f51-a1f9-dfab1935b5be	Error: Page Not Found
 12042025	22:18:58	17605238-2bf3-41ba-90ba-a43b7510e638	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
 12042025	22:18:58	1346854a-6311-40bd-9f00-dc73b4213894	Error: Page Not Found
+12042025	22:25:23	e8f85cd2-1c4f-4e07-8e07-0ea5283284fb	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	22:25:23	ccd4019b-06ae-41de-bcd4-fc6c4fcf834f	Error: Page Not Found
+12042025	22:25:23	10f09365-01be-4270-871a-a114b9d1567f	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	22:25:23	2651e0d4-a4e6-47d6-9eb3-2ec235b6e1b0	Error: Page Not Found
+12042025	22:25:26	691e44c2-4c4a-4bd1-b207-e2d2ff05932c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+12042025	22:25:26	e1c9a452-01cc-400e-9822-6af71e64860c	Error: Page Not Found
+12042025	22:25:26	2d206acb-4855-4f38-9bbe-12dbe4b275eb	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
+12042025	22:25:26	f371b3e0-ddb6-4599-b635-c9a4f41703de	Error: Page Not Found
