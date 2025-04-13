@@ -810,3 +810,36 @@
 12042025	22:25:26	e1c9a452-01cc-400e-9822-6af71e64860c	Error: Page Not Found
 12042025	22:25:26	2d206acb-4855-4f38-9bbe-12dbe4b275eb	404 Not Found: GET /css/bootstrap/bootstrap.min.css.map
 12042025	22:25:26	f371b3e0-ddb6-4599-b635-c9a4f41703de	Error: Page Not Found
+12042025	22:54:22	f0806cca-5ac2-42dd-a08b-b67ca48fd007	404 Not Found: GET /login
+12042025	22:54:22	37f7e15d-eab7-43ba-a137-0c4392c5c597	Error: Page Not Found
+12042025	23:02:16	d2b39bf7-1750-47d2-8f63-b88d9640a3a4	404 Not Found: GET /css/theme/darkTheme.css
+12042025	23:02:16	65e912c6-c896-437d-9ee8-459191dd9f24	Error: Page Not Found
+12042025	23:02:16	1733b7ac-6482-40e8-8ce5-03a658adeb5f	Error: Page Not Found
+12042025	23:02:16	df08c69a-6170-4dbf-94c8-6af9de7f4f6d	404 Not Found: GET /css/theme/lightTheme.css
+12042025	23:03:11	490ffd49-1034-4f45-975a-b89708a78d81	404 Not Found: GET /css/theme/lightTheme.css
+12042025	23:03:11	8d46ac7b-609c-4f32-af93-422dc37d6f3c	Error: Page Not Found
+12042025	23:03:11	797495b3-49e7-45cf-a0a9-bd9904e83fb4	404 Not Found: GET /css/theme/darkTheme.css
+12042025	23:03:11	dca16644-9313-4896-87a8-ecdefa8128dc	Error: Page Not Found
+12042025	23:18:41	77a3c654-667d-4d46-a8e3-060391b08696	404 Not Found: GET /css/theme/darkTheme.css
+12042025	23:18:41	40ba968a-8fba-4453-accc-d429acd9aabc	Error: Page Not Found
+12042025	23:18:41	6d5fef82-f55a-4f51-97c8-ab07db9dd903	404 Not Found: GET /js/themeToggle.js
+12042025	23:18:41	8b0ccc23-913c-4870-9426-580588333bec	Error: Page Not Found
+12042025	23:18:41	23d4d88e-0458-425f-bb3c-1c7b0c2e114a	404 Not Found: GET /css/theme/lightTheme.css
+12042025	23:18:41	71ff9d9d-aec9-4779-8456-c89cfd5dc899	Error: Page Not Found
+12042025	23:25:48	e5b535ec-fb61-4cc7-b1aa-8cbdff52ea1d	404 Not Found: GET /favicon.ico
+12042025	23:25:48	d502e442-5992-449c-9083-dca5be37a69c	Error: Page Not Found
+13042025	00:44:31	1f612956-bbf7-488c-a39a-965943e6277c	404 Not Found: GET /css/theme/input.css
+13042025	00:44:31	e4cb9b9a-bc17-419a-966f-d29a1fb3bdb0	Error: Page Not Found
+13042025	00:44:33	26db7187-881b-4106-a4a6-417b6933a5a0	404 Not Found: GET /css/theme/input.css
+13042025	00:44:33	f1b17b30-94c5-461f-a348-1f5d8231692d	Error: Page Not Found
+13042025	00:44:54	7b8a3d0c-105a-4127-b9dc-627b3f3aa50c	404 Not Found: GET /css/theme/input.css
+13042025	00:44:54	0d9eba84-0088-45c9-b87a-978e477c3475	Error: Page Not Found
+13042025	02:12:30	fa88fb47-ad5d-4187-9ca4-94cce02790e9	ReferenceError: C:\Users\maina_95qyd0v\source\repos\Better-Time-Management2\Better-2\views\dashboard.ejs:20
+    18|                 <div class="card-item">
+    19|                     <div class="card-item-label">Clock In:</div>
+ >> 20|                     <div class="card-item-value"><%= clockInTime ? clockInTime.toLocaleTimeString() : 'N/A' %></div>
+    21|                 </div>
+    22|                 <div class="card-item">
+    23|                     <div class="card-item-label">Clock In:</div>
+
+clockInTime is not defined
