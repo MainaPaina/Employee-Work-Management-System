@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Leave = require('../model/Leave');
 const TimeEntry = require('../model/TimeEntry');
+const verifyRoles = require('../middleware/verifyRoles');
 
 // Dashboard route (main dashboard page, not /apply)
-router.get("/", async (req, res) => {
+router.get("/", verifyRoles(['employee']), async (req, res) => {
     try {
         const user = req.session.user;
         if (!user || !user.id) {

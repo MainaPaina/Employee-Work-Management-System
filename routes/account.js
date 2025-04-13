@@ -13,17 +13,19 @@ require('dotenv').config(); // Ensure JWT_SECRET is loaded
 // Login and Register GET routes (handled by authRoutes now, but keep GET for direct access)
 // GET /account/login
 router.get('/login', (req, res) => {
+    const returnUrl = req.query.return || '/dashboard'; // Default to dashboard if no return URL is provided
     // If user is already logged in, redirect them from the login page
     if (req.session.user) {
-        return res.redirect('/dashboard');
+        return res.redirect(returnUrl);
     }
-    res.render('account/login', { activePage: 'login' }); // Pass activePage
+    res.render('account/login', { activePage: 'login', return: returnUrl }); // Pass activePage
 });
 
 // Login Route (POST)
 // POST /account/login
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    const returnUrl = req.query.return || '/dashboard'; // Default to dashboard if no return URL is provided
 
     if (!username || !password) {
         // Using flash messages for server-rendered forms is common
@@ -34,13 +36,12 @@ router.post('/login', async (req, res) => {
 
     try {
         // 1. First, look up the user by username to get their email
+        
         const userData = await User.findByUsername(username);
-
         if (!userData) {
             req.flash('error', 'Invalid username or password.');
             return res.status(401).json({ success: false, error: 'Invalid credentials.' });
         }
-
         // 2. Authenticate with Supabase using the email associated with the username
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email: userData.email,
@@ -58,37 +59,55 @@ router.post('/login', async (req, res) => {
         // Ensure user data is returned
         if (!authData || !authData.user) {
             console.error("Supabase Auth: No user data returned after successful sign in.");
-            req.flash('error', 'Login failed. Please try again later.');
-            return res.status(500).json({ success: false, error: 'Login failed internally.' });
+            req.flash('error', 'Invalid username or password.');
+            return res.status(401).json({ success: false, error: 'Invalid credentials.' });
         }
 
         const user = authData.user;
 
         // 2. Fetch user profile/role (using the 'users' table linked by user.id)
-        // Adjust table/column names as needed
-        const { data: profileData, error: profileError } = await supabase
-            .from('users') // Changed 'profiles' to 'users'
-            .select('id, username, profile_image') // Select necessary fields, especially 'role'
-            .eq('id', user.id)
-            .single();
-
-        if (profileError || !profileData) {
-            console.error("Supabase User Table Fetch Error:", profileError?.message || "User data not found in users table"); // Updated error message
-            // Decide if login should fail or proceed with default role
-            req.flash('error', 'Could not retrieve user profile.');
-            // Log out the Supabase session if profile is critical
-            await supabase.auth.signOut();
-            return res.status(500).json({ success: false, error: 'Could not retrieve user profile.' });
+        // Load user by using the model/User class
+        let profileData = await User.findById(user.id); // This should be a method to fetch user profile by ID)
+        // verify that profileData has data
+        if (!profileData) {
+            console.error("Could not find user with ID:", user.id);
+            // consistent error
+            req.flash('error', 'Invalid username or password.');
+            return res.status(401).json({ success: false, error: 'Invalid credentials.' });
         }
+        // Adjust table/column names as needed
+        //const { data: profileData, error: profileError } = await supabase
+        //    .from('users') // Changed 'profiles' to 'users'
+        //    .select('id, username, profile_image, lastlogin_at') // Select necessary fields, especially 'role'
+        //    .eq('id', user.id)
+        //    .single();
+
+        //if (profileError || !profileData) {
+        //    console.error("Supabase User Table Fetch Error:", profileError?.message || "User data not found in users table"); // Updated error message
+        //    // Decide if login should fail or proceed with default role
+        //    req.flash('error', 'Could not retrieve user profile.');
+        //    // Log out the Supabase session if profile is critical
+        //    await supabase.auth.signOut();
+        //    return res.status(500).json({ success: false, error: 'Could not retrieve user profile.' });
+        //}
+        // update last login date
+        //const { error: updateLogin } = await supabase
+        //    .from('users')
+        //    .update({ lastlogin_at: new Date().toISOString() })
+        //    .eq('id', user.id);
+        //if (updateLogin) {
+        //    console.error("Supabase User Table Update Error:", updateLogin.message);
+        //}
+        console.log('User profile data:', profileData); // Log profile data for debugging)
 
         // Fetch roles for the user
         const roles = await Role.listUserRoles(authData.user.id);
 
         if (!roles) {
-            console.warn('No roles found for user:', authData.user.id);
+            //console.warn('No roles found for user:', authData.user.id);
             req.flash('error', 'Login failed: No roles assigned user.');
         } else {
-            console.log('User roles:', roles); // Log roles for debugging
+            //console.log('User roles:', roles); // Log roles for debugging
         }
 
         // 3. Set up session
@@ -96,9 +115,10 @@ router.post('/login', async (req, res) => {
             id: user.id,
             email: user.email,
             username: profileData.username, // From users table
-            profile_image: user.profile_image, // Ensure role exists, default if necessary
+            profile_image: profileData.profile_image, // Ensure role exists, default if necessary
             roles: roles || [],
         };
+        console.log('Session user:', sessionUser); // Log session user for debugging)
         req.session.user = sessionUser; // Store user info in session
 
         // 4. Create JWT
@@ -125,7 +145,7 @@ router.post('/login', async (req, res) => {
             message: 'Login successful!',
             accessToken: accessToken, // Send token to client
             user: sessionUser, // Send user info (optional, but useful)
-            redirectUrl: '/dashboard' // Suggest redirect URL
+            redirectUrl: returnUrl // Suggest redirect URL
         });
         // If handling traditional form POST without JS, you'd use:
         // req.flash('success', 'Login successful!');
@@ -216,7 +236,7 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
         }
 
         // First, verify the current password
-        console.log('Verifying current password for user ID:', userId);
+        //console.log('Verifying current password for user ID:', userId);
 
         // Get the user's email from the auth database
         const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.getUserById(userId);
@@ -237,7 +257,7 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
             return res.status(500).json({ success: false, message: 'User email not found.' });
         }
 
-        console.log('Found user email:', userEmail);
+        //console.log('Found user email:', userEmail);
 
         // Verify current password using signInWithPassword
         const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -251,7 +271,7 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
         }
 
         // If we get here, the current password is correct, so update the password
-        console.log('Current password verified, updating password for user ID:', userId);
+        //console.log('Current password verified, updating password for user ID:', userId);
 
         // Use the admin client to update the password
         if (!supabaseAdmin) {
@@ -269,7 +289,7 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
             return res.status(500).json({ success: false, message: `Failed to update password: ${updateError.message}` });
         }
 
-        console.log('Password updated successfully for user ID:', userId);
+        //console.log('Password updated successfully for user ID:', userId);
         return res.status(200).json({ success: true, message: 'Password updated successfully.' });
     } catch (error) {
         console.error('Unexpected error in change-password:', error);
@@ -279,7 +299,6 @@ router.post('/change-password', verifyRoles(['employee', 'manager', 'admin']), a
 
 // POST /acount/upload-image - Upload profile image
 // Simplified route without authentication middleware for troubleshooting
-router.get('/upload-image', (req, res) => { res.json({ message: 'GET request to /upload-image' }); });
 router.post('/upload-image', upload, processUpload, verifyRoles(['employee','manager','admin']), async (req, res) => {
     try {
         // Get user ID from session
@@ -292,22 +311,22 @@ router.post('/upload-image', upload, processUpload, verifyRoles(['employee','man
 
         // If still no user ID, use a default for testing
         if (!userId) {
-            console.log('No user ID found in request or session, using default for testing');
-            userId = 'test-user-id';
+            console.error('No user ID found in request or session');
+            res.status(400).json({ success: false, message: 'Logged in user is in limbo' });
         }
 
-        console.log('Session user:', req.session?.user);
+        //console.log('Session user:', req.session?.user);
 
-        console.log('Using user ID for profile image upload:', userId);
+        //console.log('Using user ID for profile image upload:', userId);
 
-        console.log('Attempting to update user profile with image URL:', req.profileImageUrl);
+        //console.log('Attempting to update user profile with image URL:', req.profileImageUrl);
 
         try {
             // Update user profile with the new image URL
             const updatedUser = await User.updateProfileImage(userId, req.profileImageUrl);
 
             if (!updatedUser) {
-                console.log('User.updateProfileImage returned null or undefined');
+                console.warn('User.updateProfileImage returned null or undefined');
                 // Even if the database update fails, we can still return the image URL
                 // since it was successfully uploaded to storage
                 return res.status(200).json({
@@ -317,12 +336,12 @@ router.post('/upload-image', upload, processUpload, verifyRoles(['employee','man
                 });
             }
 
-            console.log('Successfully updated user profile with new image URL');
+            //console.log('Successfully updated user profile with new image URL');
 
             // Update the session with the new profile image URL if we have a session
             if (req.session && req.session.user) {
                 req.session.user.profile_image = req.profileImageUrl;
-                console.log('Updated session with new profile image URL');
+                //console.log('Updated session with new profile image URL');
             }
         } catch (dbError) {
             console.error('Error updating user profile in database:', dbError);

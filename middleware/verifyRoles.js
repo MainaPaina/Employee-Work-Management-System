@@ -15,7 +15,8 @@ const verifyRoles = (allowedRoles) => {
         for (const role of req.session.user.roles) {
             //console.log('User role:', role); // Log the user role)
             if (allowedRoles.includes(role)) {
-                hasRole = true;
+                hasRole = true; // Set hasRole to true if the user has one of the allowed roles
+                break; // Exit the loop if a matching role is found
             }
         }
         if (!hasRole) {

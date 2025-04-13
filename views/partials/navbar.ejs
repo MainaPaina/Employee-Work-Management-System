@@ -43,7 +43,11 @@
 				<div class="user-dropdown">
 					<button class="user-dropdown-btn">
 						<div class="user-avatar">
-							<i class="fas fa-user"></i>
+							<% if (user.profile_image) { %>
+								<img src="<%= user.profile_image %>" alt="User Avatar" class="user-avatar-img">
+							<% } else { %>
+								<i class="fas fa-user"></i>
+							<% } %>
 						</div>
 						<span class="user-name">
 							<%= locals.user ? user.username : 'User' %>
@@ -73,7 +77,7 @@
 			<% } else { %>
                     <!-- Show login button for non-authenticated users -->
 			<li class="nav-item login-nav-item">
-				<a href="/account/login" class="nav-link login-nav-link"
+				<a href="/account/login" class="btn btn-primary nav-link login-nav-link"
 					<%= (typeof activePage !== 'undefined' && activePage === 'login') ? 'active' : '' %>">
 					<i class="fas fa-sign-in-alt"></i> Login
 				</a>

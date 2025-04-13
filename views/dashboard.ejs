@@ -1,91 +1,109 @@
 <head>
     <title>Dashboard - TimeManager</title>
-    <link rel="stylesheet" href="/css/dashboard.css">
+    <!-- <link rel="stylesheet" href="/css/dashboard.css"> -->
     <link rel="stylesheet" href="/css/dark-mode-fix.css">
 </head>
 
-<div class="dashboard-container">
-    <!-- Welcome Banner -->
-    <div class="welcome-banner">
-        <h1>Welcome to Your Dashboard</h1>
-        <p class="current-date"><%= new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %></p>
+<div class="container container-full-width">
+
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Welcome to your Dashboard </h1>
+        <p class="page-subtitle"><%= new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %></p>
     </div>
 
-    <!-- Status Summary Row with improved spacing -->
-    <div class="summary-section">
-        <!-- Today's Status Card -->
-        <div class="summary-card status-card">
-            <h3><i class="fas fa-user-clock"></i> Today's Status</h3>
-            <div id="status-content">
-                <% if (dashboardData.activeEntry) { %>
-                    <div class="status-item">
-                        <span class="status-label">Clock In:</span>
-                        <span class="status-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></span>
+    <section class="cards cards-small">
+
+        <div class="card">
+            <h4><div class="card-icon"><i class="fas fa-user-clock"></i></div> Today's Status </h4>
+            <div class="card-body">
+                <div class="card-item">
+                    <div class="card-item-label">Clock In:</div>
+                    <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+                </div>
+                <div class="card-item">
+                    <div class="card-item-label">Remaining Time:</div>
+                    <div class="card-item-value"><%= dashboardData.remainingHours %> hours</div>
+                </div>
+                <% if (dashboardData.activeEntry.last_break_start_time && !dashboardData.activeEntry.last_break_end_time) { %>
+                    <div class="card-item">
+                        <span class="card-item-label">Status:</span>
+                        <span class="card-item-value status-break">On Break</span>
                     </div>
-                    <div class="status-item">
-                        <span class="status-label">Remaining Time:</span>
-                        <span class="status-value"><%= dashboardData.remainingHours %> hours</span>
+                <% } else if (dashboardData.activeEntry.last_unavailable_start_time && !dashboardData.activeEntry.last_unavailable_end_time) { %>
+                    <div class="card-item">
+                        <span class="card-item-label">Status:</span>
+                        <span class="card-item-value status-unavailable">Unavailable</span>
                     </div>
-                    <% if (dashboardData.activeEntry.last_break_start_time && !dashboardData.activeEntry.last_break_end_time) { %>
-                        <div class="status-item">
-                            <span class="status-label">Status:</span>
-                            <span class="status-value status-break">On Break</span>
-                        </div>
-                    <% } else if (dashboardData.activeEntry.last_unavailable_start_time && !dashboardData.activeEntry.last_unavailable_end_time) { %>
-                        <div class="status-item">
-                            <span class="status-label">Status:</span>
-                            <span class="status-value status-unavailable">Unavailable</span>
-                        </div>
-                    <% } else { %>
-                        <div class="status-item">
-                            <span class="status-label">Status:</span>
-                            <span class="status-value status-active">Active</span>
-                        </div>
-                    <% } %>
-                    <a href="/timesheet" class="btn btn-primary">View Timesheet</a>
                 <% } else { %>
-                    <p class="no-active">You haven't clocked in today</p>
-                    <button id="clockInBtn" class="btn btn-success">Clock In Now</button>
-                    <div id="clock-in-message" class="message-container"></div>
+                    <div class="card-item">
+                        <span class="card-item-label">Status:</span>
+                        <span class="card-item-value status-active">Active</span>
+                    </div>
                 <% } %>
             </div>
-        </div>
-
-        <!-- Leave Balance Card -->
-        <div class="summary-card leave-card">
-            <h3><i class="fas fa-calendar-alt"></i> Leave Balance</h3>
-            <div class="progress-container">
-                <div class="progress-bar" style="width: <%= (leaveData.leavesUsed / leaveData.totalQuota) * 100 %>%"></div>
+            <div class="card-footer">
+                <div class="button-group">
+                    <a href="/timesheet" class="btn btn-primary"> View Timesheet </a>
+                </div>
             </div>
-            <p class="leave-balance-text"><%= leaveData.leavesUsed %> days used out of <%= leaveData.totalQuota %></p>
-            <a href="/leave/apply" class="btn btn-outline">View Details</a>
         </div>
 
-        <!-- Time Tracking Card -->
-        <div class="summary-card action-card">
-            <div class="card-icon"><i class="fas fa-clock"></i></div>
-            <h3>Time Tracking</h3>
-            <p>Manage your work hours and breaks</p>
-            <a href="/timesheet" class="btn btn-primary">Go to Timesheet</a>
+        <div class="card">
+            <h4><div class="card-icon"><i class="fas fa-clock"></i></div> Time Tracking </h4>
+            <div class="card-body">
+                <p>Manage your work hours and breaks</p>
+            </div>
+            <div class="card-footer">
+                <div class="button-group">
+                    <a href="/timesheet" class="btn btn-primary"> Go to Timesheet </a>
+                </div>
+            </div>
         </div>
 
-        <!-- Leave Management Card -->
-        <div class="summary-card action-card">
-            <div class="card-icon"><i class="fas fa-calendar"></i></div>
-            <h3>Leave Management</h3>
-            <p>Apply for leaves and check your balance</p>
-            <a href="/leave/apply" class="btn btn-secondary">Apply Leave</a>
+        <div class="card">
+            <h4><div class="card-icon"><i class="fas fa-calendar-alt"></i></div> Leave Balance </h4>
+            <div class="card-body">
+                <div class="card-item">
+                    <div class="card-item-label">Leaves Used:</div>
+                    <div class="card-item-value"><%= leaveData.leavesUsed %></div>
+                </div>
+                <div class="card-item">
+                    <div class="card-item-label">Total Quota:</div>
+                    <div class="card-item-value"><%= leaveData.totalQuota %></div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="button-group">
+                    <a href="/leave/apply" class="btn btn-primary"> View Details </a>
+                </div>
+            </div>
         </div>
 
-        <!-- Reports Card -->
-        <div class="summary-card action-card">
-            <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-            <h3>Reports</h3>
-            <p>View your productivity metrics</p>
-            <a href="/timesheet#clock-in-entries" class="btn btn-tertiary">View Reports</a>
+        <div class="card">
+            <h4><div class="card-icon"><i class="fas fa-calendar"></i></div> Leave </h4>
+            <div class="card-body">
+                <p>Apply for leaves and check your balance</p>
+            </div>
+            <div class="card-footer">
+                <div class="button-group">
+                    <a href="/leave/apply" class="btn btn-primary"> Apply Leave </a>
+                </div>
+            </div>
         </div>
 
-    </div>
+        <div class="card">
+            <h4><div class="card-icon"><i class="fas fa-chart-line"></i></div> Reports </h4>
+            <div class="card-body">
+                <p>View your productivity metrics</p>
+            </div>
+            <div class="card-footer">
+                <div class="button-group">
+                    <a href="/timesheet#clock-in-entries" class="btn btn-primary"> View Report </a>
+                </div>
+            </div>
+        </div>
+
+    </section>
 
     <!-- Recent Time Entries with improved margin -->
     <div class="recent-entries-section">
