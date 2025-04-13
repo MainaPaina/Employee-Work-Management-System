@@ -1,0 +1,49 @@
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid var(--new-border-color);
+    background-color: var(--dark-color);
+    color: var(--text-muted);
+    border-radius: 5px;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+}
+
+.password-input-group {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.5rem;
+    position: relative;
+    bottom: 1rem;
+}

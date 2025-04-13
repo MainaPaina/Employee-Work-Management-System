@@ -1,13 +1,13 @@
 <div class="login-container">
     <div class="login-card">
-        <div class="login-header">
+        <!-- <div class="login-header">
             <h2><i class="fas fa-clock"></i> TimeManager</h2>
             <p>Sign in to your account</p>
-        </div>
+        </div> -->
 
         <% if (locals.error) { %>
         <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle"></i> <%= error %>
+            <i class="fas fa-exclamation-circle"></i> <span id="error-message" class="error-message hidden"></span><%= error %>
         </div>
         <% } %>
 
@@ -38,13 +38,15 @@
                     <i class="fas fa-lock"></i> Password
                 </label>
                 <div class="password-input-group">
-                    <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    class="form-control"
-                    autocomplete="current-password">
-
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-control" 
+                        placeholder="Your password" 
+                        autocomplete="password" 
+                        required>
+                        
                     <button type="button" id="togglePassword" class="password-toggle">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -56,19 +58,13 @@
                 <label class="form-check-label" for="remember">Remember me</label>
             </div>
 
-            <!-- Add this hidden input to pass the returnUrl to the POST handler -->
-            <input type="hidden" name="returnUrl" value="<%= typeof returnUrl !== 'undefined' ? returnUrl : '/dashboard' %>">
-
             <button type="submit" class="btn btn-primary btn-block">
                 <i class="fas fa-sign-in-alt"></i> Login
             </button>
         </form>
 
-        <div id="error-message" style="display: none;"></div>
-
         <div class="login-footer">
-            <p>Don't have an account? click here to create one</p>
-            <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <p>Don't have an account? Please contact your manager</p>
         </div>
     </div>
 </div>

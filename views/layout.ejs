@@ -3,34 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Page Title -->
     <title>Time Management App</title>
-    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css">
+    
+    <!-- Favorite icon-->
     <link rel="icon" type="image/icon" href="/img/logo.ico">
-    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Theme CSS-->
+    <link rel="stylesheet" href="/css/theme/dark.css">
+    <link rel="stylesheet" href="/css/theme/light.css">
+    <link rel="stylesheet" href="/css/theme/page.css">
+    <link rel="stylesheet" href="/css/theme/inputs.css">
+
+    <!-- Font Awesome Icons-->
     <link rel="stylesheet" href="/css/fontawesome/all.min.css">
+
+    <!-- Google Fonts-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+    <!-- Javascript Functions-->
+    <script src="/js/toggleTheme.js"></script>
 
-        main {
-            flex: 1 0 auto;
-        }
-
-        footer {
-            flex-shrink: 0;
-        }
-    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -46,90 +42,14 @@
     
 
     <!-- Local JS files -->
-    <script src="/js/bootstrap.bundle.js"></script>
+    <!-- <script src="/js/bootstrap.bundle.js"></script> -->
     <script src="/js/dynamicPageSize.js"></script>
 
     <div class="theme-toggle">
-        <button id="themeToggle" aria-label="Toggle dark mode">
-            <i class="fas fa-moon"></i>
+        <button id="themeToggle" aria-label="Toggle light or dark mode">
+            <i class="fas fa-sun"></i>
         </button>
     </div>
-
-    <script>
-    // Theme toggle functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const themeToggle = document.getElementById('themeToggle');
-        const moonIcon = '<i class="fas fa-moon"></i>';
-        const sunIcon = '<i class="fas fa-sun"></i>';
-
-        // Check for saved theme preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeToggle.innerHTML = sunIcon;
-        }
-
-        // Toggle theme
-        themeToggle.addEventListener('click', function() {
-            if (document.body.classList.contains('dark-mode')) {
-                // Switch to light mode
-                document.body.classList.remove('dark-mode');
-                localStorage.setItem('theme', 'light');
-                themeToggle.innerHTML = moonIcon;
-            } else {
-                // Switch to dark mode
-                document.body.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark');
-                themeToggle.innerHTML = sunIcon;
-            }
-        });
-    });
-    </script>
-
-
-    <% if (typeof reloadRunning !== 'undefined' && reloadRunning) { %>
-        <!-- SKRIPT FOR Å HÅNDTERE AUTOMATISK RELOAD AV NETTLESER -->
-        <script>
-            // reload script running under development
-            // set to reloadStarted variable
-            const startedDate = `<%= (reloadStarted) %>`;
-            const reloadCheckInterval = 2000; // 1000 ms = 1sec
-            // start timeout interval
-            let reloadInterval = setInterval(reloadCallback, reloadCheckInterval);
-            // funksjonen for å sjekke siste tid server ble startet
-            async function reloadCallback() {
-                try {
-                    // reload path - standard er /reload
-                    const response = await fetch('/reload');
-                    // dersom svar ikke er OK - gi en feilmelding og avslutt reload intervallet
-                    if (!response.ok) {
-                        // throw an error to client
-                        throw new Error(`Response status: ${response.status}`);
-                        // clear recurring interval check
-                        clearInterval(reloadInterval);
-                    }
-                    // omgjør svaret fra fetch til json
-                    const json = await response.json();
-                    // sjekk om json.started er ulik startedDate variabel
-                    if (json.started != startedDate) 
-                    {
-                        // dersom ulik - reload nettleser med forceGet=true for å ignorere cache
-                        window.location.reload(true);
-                    }
-                    else
-                    {
-                        // valgfri, rapporter ingen endring - for debugging
-                        console.log(`no change in started date ${json.started} - ${startedDate}`);
-                    }
-                } catch (error) {
-                    // annen feil, rapporter
-                    console.error(error.message);
-                    // clear recurring interval check
-                    clearInterval(reloadInterval);
-                }
-            } 
-        </script>
-    <% } %>
 
     <!-- Include the main JavaScript file -->
     <script src="/js/main.js"></script>
