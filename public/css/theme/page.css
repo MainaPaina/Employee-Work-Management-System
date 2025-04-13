@@ -27,9 +27,11 @@ footer {
     flex-shrink: 0;
 }
 
+
+
 /*
 =========================================================
-Achor tag styles
+Anchor tag styles
 ========================================================= 
 */
 
@@ -39,7 +41,53 @@ a {
     transition: color 0.3s ease;
 }
 
+/*
+=========================================================
+Helper classes for text
+========================================================= 
+*/
 
+.text-center {
+    text-align: center;
+}
+
+/*
+=========================================================
+Helper classes for margins
+========================================================= 
+*/
+
+.mb-1 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-2 {
+    margin-bottom: 1rem;
+}
+
+.mb-3 {
+    margin-bottom: 1.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 2rem;
+}
+
+.mt-1 {
+    margin-top: 0.5rem;
+}
+
+.mt-2 {
+    margin-top: 1rem;
+}
+
+.mt-3 {
+    margin-top: 1.5rem;
+}
+
+.mt-4 {
+    margin-top: 2rem;
+}
 
 /*
 =========================================================
@@ -96,16 +144,20 @@ Page Header styles
 
 .page-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 4rem;
     position: relative;
     padding-bottom: 15px;
+}
+
+.page-header.mid {
+    margin-top: 4rem;
 }
 
 .page-title {
     font-size: 2.5rem;
     font-weight: 600;
     margin-bottom: 10px;
-    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    background: var(--page-title);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -123,9 +175,9 @@ Page Header styles
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 60px;
+    width: 560px;
     height: 3px;
-    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    background: var(--page-title-underline);
     border-radius: 3px;
 }
 
@@ -244,10 +296,13 @@ General purpose cards
 ========================================================= 
 */
 
+
 .cards {
     display: grid;
     justify-content: center;
     grid-template-columns: repeat(auto-fill, minmax(1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .cards.cards-small {
@@ -256,35 +311,88 @@ General purpose cards
 @media (max-width: 1000px) {
     .cards.cards-small {
         grid-template-columns: repeat(auto-fill, minmax(25%, 1fr));
-        /*grid-template-columns: repeat(auto-fill, minmax(200px, 25%));*/
+        grid-template-columns: repeat(auto-fill, minmax(200px, 25%));
     }
 }
 @media (max-width: 768px) {
     .cards.cards-small {
         grid-template-columns: 50%, 50%;
-        /*grid-template-columns: repeat(auto-fill, minmax(200px, 25%));*/
+        grid-template-columns: repeat(auto-fill, minmax(200px, 25%));
     }
 }
 
-.cards.cards-medium {
-    grid-template-columns: repeat(auto-fill, minmax(360px, 25%));
+.cards.cards-1 {
+    grid-template-columns: 1fr;
 }
+
+.cards-1-2 {
+    grid-template-columns: 1fr 2fr;
+}
+
+.cards-1-3 {
+    grid-template-columns: 1fr 3fr;
+}
+
+.cards-1-4 {
+    grid-template-columns: 1fr 4fr;
+}
+
+.cards.cards-2 {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+.cards.cards-3 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.cards.cards-4 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.cards.cards-5 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
 .cards.cards-tiny {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
 .cards .card {
-    background-color: var(--dark-accent);
+    /*background-color: var(--dark-accent);*/
+    /*box-shadow: var(--box-shadow);*/
+    padding: 20px;
+    border-radius: 16px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.cards-small .card, .cards-medium .card, .cards-tiny .card {
-    margin: 1rem;
+.cards .card:has(.card-header) {
+    padding: 0;
+}
+
+.cards .card:has(.card-header) .card-body {
+    padding: 0 2rem;
+}
+
+.cards .card:has(.card-header) .card-footer {
+    padding: 1rem 2rem;
+    height: 5rem;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.card-header h2 {
+    margin: 0 !important;
 }
 
 .card-icon {
     width: 60px;
     height: 60px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 15px;
@@ -293,12 +401,14 @@ General purpose cards
     position: relative;
     z-index: 1;
 }
+
 .cards-small .card-icon {
     width: 45px;
     height: 45px;
     border-radius: 10px;
     display: inline-flex;
 }
+
 .cards-tiny .card-icon {
     width: 20px;
     height: 20px;
@@ -313,6 +423,7 @@ General purpose cards
     border-radius: 7px;
     font-size: 1rem;
 }
+
 .cards-medium .card-icon {
     border-radius: 15px;
     display: inline-flex;
@@ -323,11 +434,13 @@ General purpose cards
     font-size: 0.9rem;
     font-weight: 500;
 }
+
 .cards-tiny .button-group .btn {
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
     font-weight: 400;
 }
+
 .cards-tiny h5 {
     font-size: 1rem;
     font-weight: 600;
@@ -359,6 +472,14 @@ General purpose cards
     bottom: 1rem;
     right: 1rem;
 }
+.card-footer .button-group-center {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: end;
+    height: 100%;
+}
 
 .card-item {
     display: flex;
@@ -367,6 +488,56 @@ General purpose cards
     margin-bottom: 1rem;
 }
 
+.btn-no-glow {
+    box-shadow: none !important;
+}
+
+/*
+=========================================================
+TABLE STYLES
+========================================================= 
+*/
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--text-muted);
+    position: relative;
+}
+
+table thead {
+    background: var(--gradient-light);
+    -moz-background-clip: text;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+table th {
+    text-align: center;
+    padding: 15px;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+table td {
+    text-align: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+table tr {
+    transition: all 0.3s ease;
+}
+
+table tr:hover {
+    background-color: rgba(74, 108, 253, 0.05);
+}
+
+table tbody tr:last-child td {
+    border-bottom: none;
+}
 
 /*
 =========================================================
@@ -464,7 +635,9 @@ NAV - User Dropdwon menu
 }
 
 .login-card {
-    background: var(--dark-accent);
+    background-color: rgba(18, 25, 43, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 10px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     width: 100%;
