@@ -1216,73 +1216,11 @@ function setupTimeTracking() {
     // Clock Out button is handled in timesheet.ejs
     // We don't add an event listener here to avoid duplicate requests
 
-    // Start Break button
-    const startBreakBtn = document.getElementById('startBreakBtn');
-    if (startBreakBtn) {
-        startBreakBtn.addEventListener('click', () => {
-            sendTimeTrackingRequest('/api/start-break')
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Break started!', 'warning');
-                        reloadPage();
-                    }
-                })
-                .catch(error => {
-                    showNotification(error, 'error');
-                });
-        });
-    }
+    // Start Break and End Break buttons are handled in timesheet.ejs
+    // We don't add event listeners here to avoid duplicate requests
 
-    // End Break button
-    const endBreakBtn = document.getElementById('endBreakBtn');
-    if (endBreakBtn) {
-        endBreakBtn.addEventListener('click', () => {
-            sendTimeTrackingRequest('/api/end-break')
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Break ended!', 'success');
-                        reloadPage();
-                    }
-                })
-                .catch(error => {
-                    showNotification(error, 'error');
-                });
-        });
-    }
-
-    // Start Unavailable button
-    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
-    if (startUnavailableBtn) {
-        startUnavailableBtn.addEventListener('click', () => {
-            sendTimeTrackingRequest('/api/start-unavailable')
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Marked as unavailable!', 'warning');
-                        reloadPage();
-                    }
-                })
-                .catch(error => {
-                    showNotification(error, 'error');
-                });
-        });
-    }
-
-    // End Unavailable button
-    const endUnavailableBtn = document.getElementById('endUnavailableBtn');
-    if (endUnavailableBtn) {
-        endUnavailableBtn.addEventListener('click', () => {
-            sendTimeTrackingRequest('/api/end-unavailable')
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Marked as available!', 'success');
-                        reloadPage();
-                    }
-                })
-                .catch(error => {
-                    showNotification(error, 'error');
-                });
-        });
-    }
+    // Start Unavailable and End Unavailable buttons are handled in timesheet.ejs
+    // We don't add event listeners here to avoid duplicate requests
 
     // Auto-refresh timesheet status more frequently to keep the timer in sync
     if (document.querySelector('.time-tracking-panel')) {

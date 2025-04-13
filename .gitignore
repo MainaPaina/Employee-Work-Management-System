@@ -7,6 +7,7 @@ node_modules/*
 # Environment variables and configuration
 .env
 .qodo
+.env copy
 
 # Test and development files
 scripts/*

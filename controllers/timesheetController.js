@@ -168,6 +168,7 @@ class TimesheetController {
             // Prepare data for the view
             const viewData = {
                 title: 'Timesheet Dashboard',
+                page: 'timesheet', // Add page identifier for the head.ejs template
                 user: req.user, // Pass user info
                 entries: timesheetData.entries, // Formatted recent entries
                 hoursWorkedToday: formattedHoursWorked,
@@ -199,6 +200,7 @@ class TimesheetController {
             // Redirect to dashboard or show an error page
             res.render('timesheet', {
                 title: 'Timesheet Dashboard',
+                page: 'timesheet', // Add page identifier for the head.ejs template
                 user: req.user,
                 entries: [],
                 hoursWorkedToday: 'Error',

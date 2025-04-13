@@ -1,3 +1,6 @@
+<!-- Include the break timer script -->
+<script src="/js/breakTimer.js"></script>
+
 <div class="container">
     <div class="page-header">
         <h1 class="page-title">My Timesheet</h1>
@@ -494,6 +497,24 @@
             box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
         }
     }
+
+    /* Break countdown message styles */
+    .break-countdown-message {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--danger);
+        margin-top: 8px;
+        padding: 5px;
+        border-radius: 3px;
+        text-align: center;
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        0% { opacity: 0.7; }
+        50% { opacity: 1; }
+        100% { opacity: 0.7; }
+    }
 </style>
 
 <script>
@@ -509,15 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startUnavailableBtn = document.getElementById('startUnavailableBtn');
     const endUnavailableBtn = document.getElementById('endUnavailableBtn');
 
-    // Break timer elements
-    const breakTimerContainer = document.getElementById('breakTimerContainer');
-    const breakTimerDisplay = document.getElementById('breakTimerDisplay');
-    const breakProgressBar = document.getElementById('breakProgressBar');
-
-    // Break timer variables
-    let breakTimerInterval = null;
-    let breakStartTime = null;
-    let breakDuration = 0; // in seconds
+    // Break timer elements are now handled by breakTimer.js
 
     // Get elements needed for live updates
     const hoursWorkedElement = document.getElementById('hours-worked');
@@ -541,7 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to update the display live (will be called by setInterval)
-    function updateLiveDisplay() {
+    // Make it globally accessible so it can be called from the break timer
+    window.updateLiveDisplay = function() {
         // Check if the main.js timer is running
         if (window.timerRunning && !window.timesheetTimerRunning) {
             console.log('Main.js timer is running. Stopping timesheet timer.');
@@ -841,8 +855,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusTextElement.textContent = 'Active - Currently Working';
 
                 // If the break timer is running, stop it
-                if (breakTimerInterval) {
-                    stopBreakTimer();
+                if (window.breakTimer) {
+                    window.breakTimer.stop();
                 }
 
                 // Check if we have stored values in localStorage from the same day
@@ -926,19 +940,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     clockOutBtn.disabled = true;
                     statusTextElement.textContent = 'On Break';
 
-                    // Check if the break timer is running
-                    if (!breakTimerInterval) {
-                        // If there's a stored break start time, use it
-                        const storedBreakStartTime = localStorage.getItem('breakStartTime');
-                        if (storedBreakStartTime) {
-                            breakStartTime = new Date(storedBreakStartTime);
-                        } else {
-                            // Otherwise, start a new break timer
-                            breakStartTime = new Date();
-                            localStorage.setItem('breakStartTime', breakStartTime.toISOString());
-                        }
-                        // Start the break timer
-                        startBreakTimer();
+                    // Start the break timer if it's not already running
+                    if (window.breakTimer) {
+                        window.breakTimer.start();
                     }
                 } else if (activeEntry.status === 'unavailable') {
                     endUnavailableBtn.disabled = false;
@@ -948,8 +952,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     statusTextElement.textContent = 'Unavailable';
 
                     // If the break timer is running, stop it
-                    if (breakTimerInterval) {
-                        stopBreakTimer();
+                    if (window.breakTimer) {
+                        window.breakTimer.stop();
                     }
                 } else {
                      // Handle any other potential statuses or fallback
@@ -974,8 +978,8 @@ document.addEventListener('DOMContentLoaded', () => {
              if (hoursRemainingElement) hoursRemainingElement.textContent = formatHoursMinutes(8);
 
              // If the break timer is running, stop it
-             if (breakTimerInterval) {
-                 stopBreakTimer();
+             if (window.breakTimer) {
+                 window.breakTimer.stop();
              }
         }
     }
@@ -1184,46 +1188,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Check for existing break when the page loads
+    // Check for existing break when the page loads - now handled by breakTimer.js
     function checkForExistingBreak() {
-        // Check if there's a stored break start time in localStorage
-        const storedBreakStartTime = localStorage.getItem('breakStartTime');
-        if (storedBreakStartTime) {
-            // Check if the user is actually on break according to the server
-            const currentStatus = statusTextElement.textContent.toLowerCase();
-            if (currentStatus.includes('on break')) {
-                console.log('Resuming break timer from stored start time:', storedBreakStartTime);
-                // Restore the break timer
-                breakStartTime = new Date(storedBreakStartTime);
-                // Start the break timer without pausing the work timer again
-                // (it should already be paused if the user is on break)
-                console.log('Starting break timer without pausing work timer');
-                // Show the break timer container
-                breakTimerContainer.style.display = 'block';
-                breakTimerContainer.classList.add('break-timer-active');
-                // Update the timer display immediately
-                updateBreakTimerDisplay();
-                // Start the interval to update the timer every second
-                breakTimerInterval = setInterval(updateBreakTimerDisplay, 1000);
-            } else {
-                // User is not on break according to the server, clear the stored break start time
-                console.log('Stored break start time found but user is not on break. Clearing stored time.');
-                localStorage.removeItem('breakStartTime');
-                // Also clear any paused timer state
-                localStorage.removeItem('timerPausedAt');
-                localStorage.removeItem('timerWasRunning');
-                localStorage.removeItem('timesheetTimerWasRunning');
-            }
+        // This function is now handled by the breakTimer module
+        if (window.breakTimer) {
+            window.breakTimer.checkForExisting();
         } else {
-            // No break in progress, check if there's a paused timer that needs to be resumed
-            const pausedAtString = localStorage.getItem('timerPausedAt');
-            const currentStatus = statusTextElement.textContent.toLowerCase();
-
-            // Only resume the timer if the user is active (not on break or unavailable)
-            if (pausedAtString && currentStatus.includes('active')) {
-                console.log('Found paused timer but user is active. Resuming timer.');
-                resumeWorkTimer();
-            }
+            console.error('Break timer module not loaded');
         }
     }
 
@@ -1249,10 +1220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clean up interval when page is unloaded
     window.addEventListener('beforeunload', () => {
         clearInterval(statusRefreshInterval);
-        // Also clear the break timer interval if it's running
-        if (breakTimerInterval) {
-            clearInterval(breakTimerInterval);
-        }
+        // The break timer cleanup is now handled by the breakTimer module
     });
 
     // --- Event Listeners ---
@@ -1655,191 +1623,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Break timer functions
-    function startBreakTimer() {
-        console.log('Starting break timer');
-        // Reset and initialize break timer
-        breakStartTime = new Date();
-        breakDuration = 0;
-
-        // Show the break timer container
-        breakTimerContainer.style.display = 'block';
-        breakTimerContainer.classList.add('break-timer-active');
-
-        // Update the timer display immediately
-        updateBreakTimerDisplay();
-
-        // Start the interval to update the timer every second
-        breakTimerInterval = setInterval(updateBreakTimerDisplay, 1000);
-
-        // Store the break start time in localStorage for persistence
-        localStorage.setItem('breakStartTime', breakStartTime.toISOString());
-
-        // Pause the main work timer
-        pauseWorkTimer();
-    }
-
-    // Function to pause the main work timer
-    function pauseWorkTimer() {
-        console.log('Pausing work timer');
-
-        // Store the current state of the timer for resuming later
-        window.timerPausedAt = new Date();
-        localStorage.setItem('timerPausedAt', window.timerPausedAt.toISOString());
-
-        // Clear the main.js timer interval if it's running
-        if (window.timerRunning) {
-            console.log('Main timer was running, pausing it');
-            window.timerWasRunning = true;
-            window.timerRunning = false;
-            localStorage.setItem('timerWasRunning', 'true');
-        } else {
-            window.timerWasRunning = false;
-            localStorage.setItem('timerWasRunning', 'false');
-        }
-
-        // Clear the timesheet.ejs timer interval if it's running
-        if (window.timesheetTimerRunning && window.liveTimerIntervalId) {
-            console.log('Timesheet timer was running, pausing it');
-            window.timesheetTimerWasRunning = true;
-            window.timesheetTimerRunning = false;
-            clearInterval(window.liveTimerIntervalId);
-            window.liveTimerIntervalId = null;
-            localStorage.setItem('timesheetTimerWasRunning', 'true');
-        } else {
-            window.timesheetTimerWasRunning = false;
-            localStorage.setItem('timesheetTimerWasRunning', 'false');
-        }
-    }
-
-    function updateBreakTimerDisplay() {
-        if (!breakStartTime) return;
-
-        const now = new Date();
-        breakDuration = Math.floor((now - breakStartTime) / 1000); // in seconds
-
-        // Format the time as HH:MM:SS
-        const hours = Math.floor(breakDuration / 3600);
-        const minutes = Math.floor((breakDuration % 3600) / 60);
-        const seconds = breakDuration % 60;
-
-        const formattedTime =
-            String(hours).padStart(2, '0') + ':' +
-            String(minutes).padStart(2, '0') + ':' +
-            String(seconds).padStart(2, '0');
-
-        // Update the display
-        breakTimerDisplay.textContent = formattedTime;
-
-        // Update the progress bar (assuming a 15-minute standard break)
-        const standardBreakDuration = 15 * 60; // 15 minutes in seconds
-        const progressPercentage = Math.min(100, (breakDuration / standardBreakDuration) * 100);
-        breakProgressBar.style.width = `${progressPercentage}%`;
-
-        // Change color if break exceeds standard time
-        if (breakDuration > standardBreakDuration) {
-            breakTimerContainer.style.borderLeftColor = 'var(--danger)';
-            breakTimerDisplay.style.color = 'var(--danger)';
-        }
-    }
-
-    function stopBreakTimer() {
-        console.log('Stopping break timer');
-        // Clear the interval
-        if (breakTimerInterval) {
-            clearInterval(breakTimerInterval);
-            breakTimerInterval = null;
-        }
-
-        // Hide the break timer container
-        breakTimerContainer.style.display = 'none';
-        breakTimerContainer.classList.remove('break-timer-active');
-
-        // Reset the timer display
-        breakTimerDisplay.textContent = '00:00:00';
-        breakProgressBar.style.width = '0%';
-
-        // Reset the colors
-        breakTimerContainer.style.borderLeftColor = 'var(--warning)';
-        breakTimerDisplay.style.color = 'var(--warning-dark)';
-
-        // Clear the break start time from localStorage
-        localStorage.removeItem('breakStartTime');
-
-        // Resume the main work timer
-        resumeWorkTimer();
-
-        return breakDuration; // Return the break duration in seconds
-    }
-
-    // Function to resume the main work timer
-    function resumeWorkTimer() {
-        console.log('Resuming work timer');
-
-        // Check if the timer was running before the break
-        const timerWasRunning = localStorage.getItem('timerWasRunning') === 'true';
-        const timesheetTimerWasRunning = localStorage.getItem('timesheetTimerWasRunning') === 'true';
-        const pausedAtString = localStorage.getItem('timerPausedAt');
-
-        if (pausedAtString) {
-            const pausedAt = new Date(pausedAtString);
-            const now = new Date();
-            const elapsedDuringBreak = (now - pausedAt) / 1000; // in seconds
-
-            console.log(`Timer was paused at: ${pausedAt.toLocaleTimeString()}`);
-            console.log(`Current time: ${now.toLocaleTimeString()}`);
-            console.log(`Elapsed during break: ${elapsedDuringBreak} seconds`);
-
-            // Clear the paused state
-            localStorage.removeItem('timerPausedAt');
-            localStorage.removeItem('timerWasRunning');
-            localStorage.removeItem('timesheetTimerWasRunning');
-
-            // Resume the appropriate timer
-            if (timerWasRunning) {
-                console.log('Resuming main.js timer');
-                window.timerRunning = true;
-
-                // Trigger the main timer to restart
-                if (typeof window.updateCountdown === 'function') {
-                    setTimeout(() => {
-                        window.updateCountdown();
-                    }, 100);
-                }
-            } else if (timesheetTimerWasRunning) {
-                console.log('Resuming timesheet.ejs timer');
-                window.timesheetTimerRunning = true;
-
-                // Restart the live timer
-                if (window.sessionStartTime && !window.liveTimerIntervalId) {
-                    updateLiveDisplay(); // Initial update
-                    window.liveTimerIntervalId = setInterval(updateLiveDisplay, 1000);
-                }
-            }
-        } else {
-            console.log('No timer pause information found. Timer will not be resumed.');
-        }
-    }
+    // Break timer functions have been moved to breakTimer.js
 
     // Event listeners using the generic handler
     if (startBreakBtn) {
         startBreakBtn.addEventListener('click', async () => {
             console.log('Start Break button clicked');
+            // Prevent multiple clicks
+            if (startBreakBtn.disabled) {
+                console.log('Start break button is already disabled, ignoring click');
+                return;
+            }
+
+            // Disable the button immediately to prevent double-clicks
+            startBreakBtn.disabled = true;
+
             // First check if we're already on break
             const currentStatus = statusTextElement.textContent.toLowerCase();
             if (currentStatus.includes('on break')) {
                 console.log('Already on break');
                 showNotification('You are already on break.', 'warning');
+                startBreakBtn.disabled = false; // Re-enable the button
                 return;
             }
 
             try {
                 // Send the API request to start break
-                const result = await sendTimeTrackingRequest('/api/start-break', 'POST');
+                console.log('Sending start-break request to server');
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+
+                const response = await fetch('/api/start-break', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage;
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage = errorJson.message || errorJson.error || `Request failed with status ${response.status}`;
+                    } catch (e) {
+                        errorMessage = `Request failed with status ${response.status}: ${errorText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const result = await response.json();
+                console.log('Start break response:', result);
+
                 if (result.success) {
-                    // Start the break timer
-                    startBreakTimer();
-                    showNotification('Break started successfully!', 'warning');
+                    console.log('Break started successfully');
 
                     // Update UI without full page reload
                     statusTextElement.textContent = 'On Break';
@@ -1847,10 +1687,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     endBreakBtn.disabled = false;
                     startUnavailableBtn.disabled = true;
                     clockOutBtn.disabled = true;
+
+                    // Start the break timer using our module
+                    if (window.breakTimer) {
+                        window.breakTimer.start();
+                    } else {
+                        console.error('Break timer module not available');
+                    }
+
+                    // Show notification
+                    showNotification('Break started successfully!', 'warning');
+                } else {
+                    console.error('Server returned success: false');
+                    showNotification('Failed to start break. Please try again.', 'error');
+                    startBreakBtn.disabled = false; // Re-enable the button
                 }
             } catch (error) {
                 console.error('Failed to start break:', error);
                 showNotification(`Failed to start break: ${error.message}`, 'error');
+                startBreakBtn.disabled = false; // Re-enable the button
             }
         });
     }
@@ -1858,28 +1713,71 @@ document.addEventListener('DOMContentLoaded', () => {
     if (endBreakBtn) {
         endBreakBtn.addEventListener('click', async () => {
             console.log('End Break button clicked');
+            // Prevent multiple clicks
+            if (endBreakBtn.disabled) {
+                console.log('End break button is already disabled, ignoring click');
+                return;
+            }
+
+            // Disable the button immediately to prevent double-clicks
+            endBreakBtn.disabled = true;
+
             // First check if we're actually on break
             const currentStatus = statusTextElement.textContent.toLowerCase();
             if (!currentStatus.includes('on break')) {
                 console.log('Not on break');
                 showNotification('You are not currently on break.', 'warning');
+                endBreakBtn.disabled = false; // Re-enable the button
                 return;
             }
 
             try {
-                // Stop the break timer and get the duration
-                const breakDurationSeconds = stopBreakTimer();
+                // Stop the break timer and get the duration using our module
+                let breakDurationSeconds = 0;
+                if (window.breakTimer) {
+                    breakDurationSeconds = window.breakTimer.stop();
+                } else {
+                    console.error('Break timer module not available');
+                }
                 console.log(`Break ended. Duration: ${breakDurationSeconds} seconds`);
 
                 // Send the API request to end break
-                const result = await sendTimeTrackingRequest('/api/end-break', 'POST');
+                console.log('Sending end-break request to server');
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+
+                const response = await fetch('/api/end-break', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage;
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage = errorJson.message || errorJson.error || `Request failed with status ${response.status}`;
+                    } catch (e) {
+                        errorMessage = `Request failed with status ${response.status}: ${errorText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const result = await response.json();
+                console.log('End break response:', result);
+
                 if (result.success) {
+                    console.log('Break ended successfully');
+
                     // Update the total break time display
                     if (result.entry && result.entry.total_break_duration !== undefined) {
                         totalBreakTimeText.textContent = `${Math.round(result.entry.total_break_duration)} mins`;
                     }
-
-                    showNotification('Break ended successfully!', 'success');
 
                     // Update UI without full page reload
                     statusTextElement.textContent = 'Active - Currently Working';
@@ -1887,10 +1785,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     endBreakBtn.disabled = true;
                     startUnavailableBtn.disabled = false;
                     clockOutBtn.disabled = false;
+
+                    // Show notification
+                    showNotification('Break ended successfully!', 'success');
+                } else {
+                    console.error('Server returned success: false');
+                    showNotification('Failed to end break. Please try again.', 'error');
+                    endBreakBtn.disabled = false; // Re-enable the button
                 }
             } catch (error) {
                 console.error('Failed to end break:', error);
                 showNotification(`Failed to end break: ${error.message}`, 'error');
+                endBreakBtn.disabled = false; // Re-enable the button
             }
         });
     }
@@ -1899,6 +1805,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (endUnavailableBtn) {
         endUnavailableBtn.addEventListener('click', () => handleTimesheetAction('end-unavailable', 'Marked as available!', 'Failed to mark as available'));
+    }
+
+    // Initialize the break timer
+    if (window.breakTimer) {
+        window.breakTimer.init({
+            breakTimerContainer: document.getElementById('breakTimerContainer'),
+            breakTimerDisplay: document.getElementById('breakTimerDisplay'),
+            breakProgressBar: document.getElementById('breakProgressBar'),
+            statusTextElement: document.getElementById('statusText')
+        });
+
+        // Make the pause/resume work timer functions available to the break timer
+        window.pauseWorkTimer = function() {
+            console.log('Main timer paused by break timer');
+            // Store the current time as the pause time
+            localStorage.setItem('timerPausedAt', new Date().toISOString());
+
+            // Stop the live timer if it's running
+            if (window.liveTimerIntervalId) {
+                clearInterval(window.liveTimerIntervalId);
+                window.liveTimerIntervalId = null;
+                window.timesheetTimerRunning = false;
+            }
+        };
+
+        window.resumeWorkTimer = function() {
+            console.log('Main timer resumed by break timer');
+            const pausedAtString = localStorage.getItem('timerPausedAt');
+            if (pausedAtString) {
+                // Clear the pause time
+                localStorage.removeItem('timerPausedAt');
+
+                // Restart the live timer
+                if (window.sessionStartTime && !window.liveTimerIntervalId) {
+                    updateLiveDisplay(); // Initial update
+                    window.liveTimerIntervalId = setInterval(updateLiveDisplay, 1000);
+                    window.timesheetTimerRunning = true;
+                }
+            }
+        };
+    } else {
+        console.error('Break timer module not loaded');
     }
 
 });
@@ -2045,5 +1993,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 </style>
+
+<script>
+    // Initialize the break timer when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.breakTimer) {
+            console.log('Initializing break timer');
+            window.breakTimer.init({
+                breakTimerContainer: document.getElementById('breakTimerContainer'),
+                breakTimerDisplay: document.getElementById('breakTimerDisplay'),
+                breakProgressBar: document.getElementById('breakProgressBar'),
+                statusTextElement: document.getElementById('statusText')
+            });
+
+            // Make the pause/resume work timer functions available to the break timer
+            window.pauseWorkTimer = function() {
+                console.log('Main timer paused by break timer');
+                // Store the current time as the pause time
+                localStorage.setItem('timerPausedAt', new Date().toISOString());
+
+                // Stop the live timer if it's running
+                if (window.liveTimerIntervalId) {
+                    clearInterval(window.liveTimerIntervalId);
+                    window.liveTimerIntervalId = null;
+                    window.timesheetTimerRunning = false;
+                }
+            };
+
+            window.resumeWorkTimer = function() {
+                console.log('Main timer resumed by break timer');
+                const pausedAtString = localStorage.getItem('timerPausedAt');
+                if (pausedAtString) {
+                    // Clear the pause time
+                    localStorage.removeItem('timerPausedAt');
+
+                    // Restart the live timer
+                    if (window.sessionStartTime && !window.liveTimerIntervalId) {
+                        window.updateLiveDisplay(); // Initial update
+                        window.liveTimerIntervalId = setInterval(window.updateLiveDisplay, 1000);
+                        window.timesheetTimerRunning = true;
+                    }
+                }
+            };
+        } else {
+            console.error('Break timer module not loaded');
+        }
+    });
+</script>
 </body>
 </html>
