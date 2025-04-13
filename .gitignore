@@ -7,6 +7,9 @@ node_modules/*
 .vs/
 .vs/*
 
+logs/
+logs/*
+
 .git/
 
 # Environment variables and configuration
