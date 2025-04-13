@@ -57,6 +57,11 @@ router.get('/contact', (req, res) => {
     res.render('contact', { activePage: 'contact' });
 });
 
+// About us page - Accessible to all
+router.get('/about', (req, res) => {
+    res.render('about', { activePage: 'about' });
+});
+
 // Terms of Service - accessible to all
 router.get('/legal/terms', (req, res) => {
     res.render('legal/terms', { activePage: 'terms' });
