@@ -27,6 +27,12 @@
     <!-- Javascript Functions-->
     <script src="/js/toggleTheme.js"></script>
 
+    <% if (typeof activePage !== 'undefined' && activePage == 'admin') { %>
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="/css/theme/admin.css">
+    <!-- Admin JS -->
+    <script src="/js/admin/admin-client.js"></script>
+    <% } %>
 </head>
 <body>
     <!-- Navigation Bar -->

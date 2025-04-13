@@ -1,12 +1,9 @@
-<link rel="stylesheet" href="/css/admin.css">
-<link rel="stylesheet" href="/css/dark-mode-fix.css">
-<link rel="stylesheet" href="/css/dashboard.css">
 
 <div class="container main-content">
     <!-- Your existing admin content goes here without the backticks -->
     <div class="page-header">
-        <h1><i class="fas fa-users-between-lines"></i> Role Management</h1>
-        <p class="lead">Add, edit or delete roles - may impact permissions to sections of the website</p>
+        <h1 class="page-title"><i class="fas fa-users-between-lines"></i> Role Management</h1>
+        <p class="page-subtitle">Add, edit or delete roles - may impact permissions to sections of the website</p>
     </div>
     
 
@@ -38,9 +35,7 @@
                     <td>
                         <div class="btn-group brn-group-sm">
                             <a href="/admin/roles/view/<%= role.id %>" class="btn btn-primary">View</a>
-                            <form action="/admin/roles/delete/<%= role.id %>" method="POST" style="display:inline;">
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
+                            <button type="button" class="btn btn-danger" onclick="roleDeletionConfirmation(this);" data-role-id="<%= role.id %>" data-role-name="<%=role.name%>">Delete</button>
                         </div>
                     </td>
                 </tr>

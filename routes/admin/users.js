@@ -1,8 +1,5 @@
 const express = require('express');
-
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js'); // Import createClient
-
 // Anon key client (for general reads, respecting RLS)
 const supabase = require('../../config/supabase/client');
 const supabaseAdmin = require('../../config/supabase/admin');
@@ -12,12 +9,12 @@ const verifyRoles = require('../../middleware/verifyRoles');
 const User = require('../../model/User');
 const Role = require('../../model/Role');
 
-router.get('/', verifyRoles(['admin']), async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        console.log('GET /admin/usermanagement called');
-        const { data: users, error: usersError } = await supabase
+        console.log('GET /admin/users called');
+        const { data: users, error: usersError } = await supabaseAdmin
             .from('users')
-            .select('id, username, name, role, active, email')
+            .select('id, username, name, active, email')
             .order('name');
 
         if (usersError) {
@@ -31,7 +28,7 @@ router.get('/', verifyRoles(['admin']), async (req, res) => {
             users[i].roles = roles;
         }
 
-        res.render('admin/usermanagement/index', {
+        res.render('admin/users/index', {
             users: users || [],
             activePage: 'admin',
             currentUser: req.session.user
@@ -48,9 +45,9 @@ router.get('/', verifyRoles(['admin']), async (req, res) => {
     }
 });
 
-router.get('/view/:id', verifyRoles(['admin']), async (req, res) => {
+router.get('/view/:id', async (req, res) => {
     try {
-        console.log('GET /admin/usermanagement/:id called');
+        console.log('GET /admin/users/:id called');
         const { id } = req.params;
 
         let selectedUser = await User.findById(id);
@@ -64,7 +61,7 @@ router.get('/view/:id', verifyRoles(['admin']), async (req, res) => {
             throw new Error('User not found');
         }
 
-        res.render('admin/usermanagement/view', {
+        res.render('admin/users/view', {
             selectedUser: selectedUser || {},
             activePage: 'admin',
             currentUser: req.session.user

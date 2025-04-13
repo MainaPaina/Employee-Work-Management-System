@@ -9,7 +9,7 @@ class Role {
         try {
             const { data, error } = await supabase
                 .from('roles')   // From table roles
-                .select('name')  // Select name column
+                .select('name,id,created_at')  // Select name column
                 .eq('id', id)    // Where id = id
                 .single();       // Get single record
 
@@ -29,7 +29,7 @@ class Role {
         try {
             const { data, error } = await supabase
                 .from('roles')   // From table roles
-                .select('name');    // Select all columns
+                .select('id,name,created_at');    // Select all columns
             if (error) {
                 console.error('Error fetching roles:', error.message);
                 return null;

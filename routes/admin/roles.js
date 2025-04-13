@@ -1,8 +1,6 @@
 const express = require('express');
 
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js'); // Import createClient
-
 // Anon key client (for general reads, respecting RLS)
 const supabase = require('../../config/supabase/client');
 const supabaseAdmin = require('../../config/supabase/admin');
@@ -11,7 +9,6 @@ const verifyRoles = require('../../middleware/verifyRoles');
 
 const Role = require('../../model/Role');
 
-//router.get('/', verifyRoles(['admin']), async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         console.log('GET /admin/roles called');
@@ -36,7 +33,6 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/view/:id', async (req, res) => {
-    //router.get('/view/:id', verifyRoles(['admin']), async (req, res) => {
     try {
         console.log('GET /admin/view/:id called');
         const { id } = req.params;
@@ -102,6 +98,30 @@ router.post('/create', async (req, res) => {
             activePage: 'admin',
             currentUser: req.session.user,
             error: `Failed to create role: ${error.message}`
+        });
+    }
+});
+
+router.post('delete/:id', async (req, res) => {
+    console.log('POST /admin/roles/delete/:id called');
+    const { id } = req.params;
+    try {
+        // Delete the role from the database
+        const { data, error } = await supabaseAdmin
+            .from('roles')
+            .delete()
+            .eq('id', id);
+        if (error) {
+            console.error('Error deleting role:', error.message);
+            throw new Error('Failed to delete role');
+        }
+        res.redirect('/admin/roles');
+    } catch (error) {
+        console.error('Error deleting role:', error);
+        res.render('admin/roles/index', {
+            activePage: 'admin',
+            currentUser: req.session.user,
+            error: `Failed to delete role: ${error.message}`
         });
     }
 });
