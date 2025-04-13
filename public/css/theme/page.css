@@ -39,9 +39,7 @@ a {
     transition: color 0.3s ease;
 }
 
-a:hover:not(.btn) {
-    color: var(--accent-color);
-}
+
 
 /*
 =========================================================
@@ -491,14 +489,7 @@ NAV - User Dropdwon menu
 
 
 
-.btn-block {
-    display: block;
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-top: 1.5rem;
-}
+
 
 .login-footer {
     text-align: center;

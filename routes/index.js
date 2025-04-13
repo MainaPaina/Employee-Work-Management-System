@@ -19,7 +19,7 @@ const dashboardRouter = require('../routes/dashboard'); // Dashboard routes
 //const loginRoutes = require('../routes/login'); // Login routes
 //const logoutRoutes = require('../routes/logout'); // Logout routes
 
-
+router.get('/btntest', (req, res) => { res.render('btntest') });
 
 // 1. Public Authentication Routes (No auth required)
 //    and Account Management

@@ -102,6 +102,8 @@ router.post('/create', async (req, res) => {
     }
 });
 
+router.post('/delete/:id')
+
 router.post('delete/:id', async (req, res) => {
     console.log('POST /admin/roles/delete/:id called');
     const { id } = req.params;
