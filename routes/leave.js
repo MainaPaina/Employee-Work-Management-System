@@ -72,9 +72,9 @@ router.post('/', async (req, res) => {
       // Query the database to fetch the employee ID associated with the user ID
       const { data: employeeRow, error: employeeError } = await supabase
         .from('employees')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
+        .select('id') // Select only the 'id' column
+        .eq('user_id', userId) // Match the user_id with the session user ID
+        .single(); // Expect a single row as the result
 
       // If no employee is found or an error occurs, return a forbidden response
       if (employeeError || !employeeRow) {
@@ -90,11 +90,11 @@ router.post('/', async (req, res) => {
       // Insert the leave request into the 'leave_requests' table
       const { data, error } = await supabase.from('leave_requests').insert([
         {
-          employee_id: employeeId,
-          start_date: startDate,
-          end_date: endDate,
-          leave_type: leaveType,
-          reason: reason,
+          employee_id: employeeId, // Link the leave request to the employee ID
+          start_date: startDate, // Start date of the leave
+          end_date: endDate, // End date of the leave
+          leave_type: leaveType, // Type of leave (e.g., Vacation, Sick)
+          reason: reason, // Reason for the leave
           status: 'Pending' // Default status for new leave requests
         }
       ]);
@@ -116,7 +116,7 @@ router.post('/', async (req, res) => {
       res.status(500).json({ success: false, message: 'Unexpected server error.' });
     }
 });
-  
+
 
 
 
