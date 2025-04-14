@@ -68,7 +68,8 @@
     </div>
     
     <script>
-        const formInputs = form.querySelectorAll('input, select, textarea')
+        const form = document.getElementById('leaveRequestForm');
+        const formInputs = form.querySelectorAll('input, select, textarea');
 
         let submissionData = {}
 
@@ -82,51 +83,42 @@
 
     <div class="card">
         <div class="card-header">
-            <h2>Leave Status</h2>
+            <h2>My Leave History</h2>
         </div>
         <div class="card-body">
-            <% if (leaveData.requests && leaveData.requests.length > 0) { %>
-                <table class="table">
-                    <thead>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Type</th>
+                        <th>Days</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (leaveHistory.length === 0) { %>
                         <tr>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Type</th>
-                            <th>Days</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <td colspan="6" class="text-center">No leave history available.</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <% leaveData.requests.forEach(request => { %>
+                    <% } else { %>
+                        <% leaveHistory.forEach(leave => { %>
                             <tr>
-                                <td><%= request.start_date ? new Date(request.start_date).toLocaleDateString() : 
-                                      (request.startDate ? new Date(request.startDate).toLocaleDateString() : 'N/A') %></td>
-                                <td><%= request.end_date ? new Date(request.end_date).toLocaleDateString() : 
-                                      (request.endDate ? new Date(request.endDate).toLocaleDateString() : 'N/A') %></td>
-                                <td><%= request.leave_type || request.leaveType || 'N/A' %></td>
-                                <td><%= request.days || 'N/A' %></td>
+                                <td><%= new Date(leave.start_date).toLocaleDateString() %></td>
+                                <td><%= new Date(leave.end_date).toLocaleDateString() %></td>
+                                <td><%= leave.leave_type %></td>
+                                <td><%= leave.total_leave_days || 'N/A' %></td>
+                                <td><%= leave.status %></td>
                                 <td>
-                                    <span class="badge <%= 
-                                        request.status === 'approved' ? 'bg-success' : 
-                                        request.status === 'rejected' ? 'bg-danger' : 'bg-warning'
-                                    %>">
-                                        <%= request.status || 'pending' %>
-                                    </span>
-                                </td>
-                                <td>
-                                    <% if (!request.status || request.status === 'pending') { %>
-                                        <button class="btn btn-sm btn-danger cancel-leave" 
-                                                data-id="<%= request.id %>">Cancel</button>
-                                    <% } %>
+                                    <button class="btn btn-secondary" data-id="<%= leave.id %>" onclick="document.getElementById('leaveRequestForm').submit()">Edit</button>
+                                    <button class="btn btn-danger cancel-leave" data-id="<%= leave.id %>">Cancel</button> 
                                 </td>
                             </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            <% } else { %>
-                <p class="text-center">No leave requests found.</p>
-            <% } %>
+                            <% }); %>
+                        <% } %>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

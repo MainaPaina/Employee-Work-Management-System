@@ -21,8 +21,10 @@ router.get("/apply", async (req, res) => {
         }
 
         const employeeId = user.id;
-        
+
+        const leaveHistory = await Leave.getLeaveHistory(employeeId);
         const summary = await Leave.getLeaveSummary(employeeId);
+        console.log("Leave Summary:", summary);
 
         res.render("apply-leave", {
             activePage: "applyLeave",
@@ -32,7 +34,8 @@ router.get("/apply", async (req, res) => {
                 totalQuota: summary.totalQuota,
                 leavesUsed: summary.usedLeaves,
                 leavesRemaining: summary.totalQuota - summary.usedLeaves
-            }
+            }, 
+            leaveHistory: leaveHistory || []
         });
     } catch (error) {
         console.error("Error rendering leave form:", error);
@@ -69,24 +72,10 @@ router.post('/', async (req, res) => {
       // Destructure the leave application details from the request body
       const { startDate, endDate, leaveType, reason } = req.body;
 
-      // Query the database to fetch the employee ID associated with the user ID
-      const { data: employeeRow, error: employeeError } = await supabase
-        .from('employees')
-        .select('id') // Select only the 'id' column
-        .eq('user_id', userId) // Match the user_id with the session user ID
-        .single(); // Expect a single row as the result
-
-      // If no employee is found or an error occurs, return a forbidden response
-      if (employeeError || !employeeRow) {
-        return res.status(403).json({ success: false, message: 'Employee not found' });
-      }
-
-      // Extract the employee ID from the query result
-      const employeeId = employeeRow.id;
-
       // Log the form values for debugging purposes
       console.log("Form values:", { startDate, endDate, leaveType, reason });
 
+      const employeeId = userId;
       // Insert the leave request into the 'leave_requests' table
       const { data, error } = await supabase.from('leave_requests').insert([
         {
@@ -118,17 +107,29 @@ router.post('/', async (req, res) => {
 });
 
 
+/* router.get('/', async (req, res) => {
+    try {
+        const user = req.session.user;
+        if (!user || !user.id) {
+            return res.status(401).send("Unauthorized")
+        }
 
+        const employeeId = user.id;
+        
+        const leaveHistory = await Leave.getLeaveHistory(employeeId);
 
-
-
-// POST /leave/apply - Submit the leave application
-/* router.post('/apply', (req, res) => {
-    // TODO: Add validation and call controller method to save leave request
-    console.log('Leave application submitted:', req.body);
-    req.flash('success', 'Leave request submitted successfully!');
-    res.redirect('/leave'); 
+        res.render("leave-history", {
+            activePage: "leaveHistory",
+            title: "My Leave History",
+            leaveHistory: leaveHistory
+        });
+    } catch (error) {
+        console.error("Error rendering leave history:", error);
+        res.status(500).send("Server error while loading leave history.")
+    }
 }); */
+
+
 
 // Maybe API routes for cancelling leave, etc., using verifyJWT if needed
 // router.delete('/:id', verifyJWT, leaveController.cancelLeave);
