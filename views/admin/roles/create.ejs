@@ -1,6 +1,3 @@
-<link rel="stylesheet" href="/css/admin.css">
-<link rel="stylesheet" href="/css/dark-mode-fix.css">
-<link rel="stylesheet" href="/css/dashboard.css">
 
 <div class="container main-content">
     <!-- Your existing admin content goes here without the backticks -->
@@ -10,7 +7,7 @@
     </div>
     
 
-    <%- include('../partials/menu') %>
+    <%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
 
     <div class="card">
         <div class="card-header">

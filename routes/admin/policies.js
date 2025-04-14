@@ -11,7 +11,16 @@ const verifyRoles = require('../../middleware/verifyRoles');
 const User = require('../../model/User');
 const Role = require('../../model/Role');
 
-router.get('/', verifyRoles(['admin']), async (req, res) => res.render('admin/policies/index'));
+router.get('/', verifyRoles(['admin']), async (req, res) => {
+    res.render('admin/policies/index', {
+        activePage: 'admin',
+        activeSubPage: 'policies',
+    });
+});
+
+
+
+
 /* {
     try {
         console.log('GET /admin/policies called');

@@ -14,13 +14,15 @@ router.get('/', async (req, res) => {
         console.log('GET /admin/users called');
         const { data: users, error: usersError } = await supabaseAdmin
             .from('users')
-            .select('id, username, name, active, email')
+            .select('id, username, name, active, email, lastlogin_at, departments ( name, name_alias )')
             .order('name');
 
         if (usersError) {
             console.error('Supabase error fetching users for admin page:', usersError);
             throw usersError;
         }
+
+        console.log(users);
 
         // Fetch roles for each user
         for (let i = 0; i < users.length; i++) {
@@ -31,6 +33,7 @@ router.get('/', async (req, res) => {
         res.render('admin/users/index', {
             users: users || [],
             activePage: 'admin',
+            activeSubPage: 'users',
             currentUser: req.session.user
         });
     } catch (error) {
@@ -64,6 +67,7 @@ router.get('/view/:id', async (req, res) => {
         res.render('admin/users/view', {
             selectedUser: selectedUser || {},
             activePage: 'admin',
+            activeSubPage: 'users',
             currentUser: req.session.user
         });
     } catch (error) {

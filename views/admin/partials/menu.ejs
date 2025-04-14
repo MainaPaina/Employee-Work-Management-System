@@ -1,37 +1,53 @@
-<div class="cards cards-small">
+<div class="cards cards-4">
+	<% if (typeof activeSubPage !== 'undefined' && activeSubPage == 'users') { %>
+	<a class="card disabled" onclick="return false;">
+	<% } else { %>
 	<a href="/admin/users" class="card">
-		<h5>
+	<% } %>
+		<h3>
 			<div class="card-icon">
 				<i class="fa fa-users-cog"></i>
 			</div>
 			Users
-		</h5>
+		</h3>
 	</a>
 
+	<% if (typeof activeSubPage !== 'undefined' && activeSubPage == 'roles') { %>
+	<a class="card disabled" onclick="return false;">
+	<% } else { %>
 	<a href="/admin/roles" class="card">
-		<h5>
+	<% } %>
+		<h3>
 			<div class="card-icon">
 				<i class="fa fa-users-between-lines"></i>
 			</div>
 			Roles
-		</h5>
+		</h3>
 	</a>
-
+		
+	<% if (typeof activeSubPage !== 'undefined' && activeSubPage == 'departments') { %>
+	<a class="card disabled" onclick="return false;">
+	<% } else { %>
 	<a href="/admin/departments" class="card">
-		<h5>
+	<% } %>
+		<h3>
 			<div class="card-icon">
 				<i class="fa fa-building-user"></i>
 			</div>
 			Departments
-		</h5>
+		</h3>
 	</a>
-
+	
+	<% if (typeof activeSubPage !== 'undefined' && activeSubPage == 'policies') { %>
+	<a class="card disabled" onclick="return false;">
+	<% } else { %>
 	<a href="/admin/policies" class="card">
-		<h5>
+	<% } %>
+		<h3>
 			<div class="card-icon">
 				<i class="fa fa-building-shield"></i>
 			</div>
 			Policies
-		</h5>
+		</h3>
 	</a>
 </div>

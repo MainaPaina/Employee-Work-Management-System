@@ -346,6 +346,10 @@ a:hover:not(.btn,.nav-link) {
     color: var(--accent-color);
 }
 
+
+
+
+
 /* Navbar Styling */
 .navbar {
     position: sticky;
@@ -490,7 +494,18 @@ a:hover:not(.btn,.nav-link) {
     width: 100%;
 }
 
-.status-badge.status-active {
+.role-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    background-color: #ccc;
+    color: #333;
+}
+
+.status-badge.status-active, .role-badge.role-badge-employee {
     background: var(--gradient-warning);
     color: white;
 }
@@ -500,12 +515,12 @@ a:hover:not(.btn,.nav-link) {
     color: white;
 }
 
-.status-badge.status-on_break {
+.status-badge.status-on_break, .role-badge.role-badge-manager {
     background: var(--gradient-accent);
     color: white;
 }
 
-.status-badge.status-unavailable {
+.status-badge.status-unavailable, .role-badge.role-badge-admin {
     background: var(--gradient-danger);
     color: white;
 }
@@ -514,6 +529,47 @@ a:hover:not(.btn,.nav-link) {
     background: var(--gradient-info);
     color: white;
 }
+
+
+.profile-image {
+    height: 150px;
+    width: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(74, 108, 253, 0.4);
+    border: 2px solid #412b95;
+    margin: auto;
+    margin-bottom: 2rem;
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-image .no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.profile-image .no-image i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-image .no-image p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+
 
 
 .mobile-menu-toggle {
@@ -1543,3 +1599,33 @@ a:hover:not(.btn,.nav-link) {
         gap: 1rem;
         justify-content: center;
     }
+
+/* Additional styles for alerts */
+.alert {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    font-weight: 500;
+}
+
+.alert i {
+    margin-right: 0.5rem;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.alert.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}

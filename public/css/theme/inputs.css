@@ -19,6 +19,7 @@ label {
     transition: border-color 0.2s;
 }
 
+
 .form-control:focus {
     border-color: var(--primary-color);
     outline: none;

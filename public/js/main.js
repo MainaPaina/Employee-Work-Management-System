@@ -1,4 +1,24 @@
-document.addEventListener('DOMContentLoaded', function() {
+/*
+=================================================
+Main.js site-wide javascript functions
+=================================================
+*/
+
+function showMessage(message, type = 'danger') {
+    let node = document.querySelector('#messagebox');
+    // if node exists
+    if (node) {
+        node.classList.remove('success', 'danger', 'info');
+        node.style.display = 'block';
+        node.textContent = message;
+        node.classList.add(type);
+    }
+}
+
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
     // Mobile Menu Toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const navList = document.querySelector('.nav-list');

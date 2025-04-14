@@ -342,7 +342,7 @@ General purpose cards
 }
 
 .cards.cards-3 {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .cards.cards-4 {
@@ -490,6 +490,43 @@ General purpose cards
 
 .btn-no-glow {
     box-shadow: none !important;
+}
+
+.card-info-2c {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.card-info-group {
+    margin-bottom: 1rem;
+}
+
+.card-info-group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.card-info-group p {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.card-info-value {
+    font-weight: 500;
+    border: 2px solid var(--new-border-color);
+    background-color: var(--dark-color);
+    color: var(--text-muted);
+    border-radius: 5px;
+    padding: 0.4rem 1rem;
+}
+
+.card.disabled {
+    background-color: var(--dark-accent);
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /*

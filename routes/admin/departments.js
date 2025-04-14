@@ -33,6 +33,7 @@ router.get('/', verifyRoles(['admin']), async (req, res) => {
             users: [],
             timesheets: [],
             activePage: 'admin',
+            activeSubPage: 'departments',
             currentUser: req.session.user,
             error: `Failed to load admin data: ${error.message}`
         });

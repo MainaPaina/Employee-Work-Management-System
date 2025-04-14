@@ -33,6 +33,10 @@
     <!-- Admin JS -->
     <script src="/js/admin/admin-client.js"></script>
     <% } %>
+    <% if (typeof activePage !== 'undefined' && activePage == 'profile') { %>
+    <!-- Account Profile JS -->
+    <script src="/js/account.js"></script>
+    <% } %>
 </head>
 <body>
     <!-- Navigation Bar -->

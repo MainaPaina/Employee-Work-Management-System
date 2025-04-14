@@ -18,6 +18,7 @@ router.get('/', async (req, res) => {
         res.render('admin/roles/index', {
             roles: roles || [],
             activePage: 'admin',
+            activeSubPage: 'roles',
             currentUser: req.session.user
         });
     } catch (error) {
@@ -53,6 +54,7 @@ router.get('/view/:id', async (req, res) => {
             role: selectedRole || {},
             users: users,
             activePage: 'admin',
+            actibeSubPage: 'roles',
             currentUser: req.session.user
         });
     } catch (error) {
@@ -71,6 +73,7 @@ router.get('/create', async (req, res) => {
     console.log('GET /admin/roles/create called');
     res.render('admin/roles/create', {
         activePage: 'admin',
+        activeSubPage: 'roles',
         currentUser: req.session.user
     });
 });
@@ -96,13 +99,12 @@ router.post('/create', async (req, res) => {
         console.error('Error creating role:', error);
         res.render('admin/roles/create', {
             activePage: 'admin',
+            activeSubPage: 'roles',
             currentUser: req.session.user,
             error: `Failed to create role: ${error.message}`
         });
     }
 });
-
-router.post('/delete/:id')
 
 router.post('delete/:id', async (req, res) => {
     console.log('POST /admin/roles/delete/:id called');
