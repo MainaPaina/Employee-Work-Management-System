@@ -13,7 +13,7 @@
 
 		<ul class="nav-list">
 			<li class="nav-item">
-				<a href="/" class="nav-link"
+				<a href="<%= isAuthenticated ? '/dashboard' : '/'%>" class="nav-link"
 					<%= (typeof activePage !== 'undefined' && activePage === 'home') ? 'active' : '' %>">
 					<i class="fas fa-home"></i> Home
 				</a>
@@ -26,13 +26,12 @@
 			</li>
 			<% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
 			<!-- Navigation for authenticated users -->
-			<li class="nav-item">
+<!-- 			<li class="nav-item">
 				<a href="/dashboard" class="nav-link"
 					<%= (typeof activePage !== 'undefined' && activePage === 'dashboard') ? 'active' : '' %>">
 					<i class="fas fa-tachometer-alt"></i> Dashboard
-				</a>
+				</a> -->
 			</li>
-
 			<li class="nav-item">
 				<a href="/timesheet" class="nav-link"
 					<%= (typeof activePage !== 'undefined' && activePage === 'timesheet') ? 'active' : '' %>">

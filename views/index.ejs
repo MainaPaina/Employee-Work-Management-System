@@ -4,7 +4,16 @@
         <h1>Manage Your Time <span class="text-gradient">Effectively</span></h1>
         <p>A comprehensive solution for tracking work hours, managing leaves, and boosting productivity</p>
         <!-- Replace the form with a simple link -->
-        <a href="/account/login" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login to Your Account</a>
+        <a 
+            href="<%= user ? '/dashboard' : '/account/login' %>" 
+            class="login-btn" 
+            id="homepage-login-btn">
+            <% if (user) { %>
+                <i class="fas fa-user"></i> To your dashboard <!-- Welcome, <%= user.username %> -->
+            <% } else { %>
+                <i class="fas fa-sign-in-alt"></i> Login to Your Account
+            <% } %>
+        </a>
         <div class="hero-shapes">
             <div class="shape shape1"></div>
             <div class="shape shape2"></div>
