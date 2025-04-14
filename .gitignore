@@ -9,7 +9,7 @@ node_modules/*
 
 logs/
 logs/*
-
+logs/errLog.txt
 .git/
 
 # Environment variables and configuration
