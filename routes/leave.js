@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const leaveController = require('../controllers/leaveController');
-const { getLeaveSummary } = require('../model/Leave');
-const verifyJWT = require('../middleware/verifyJWT');
 const Leave = require('../model/Leave');
+const supabase = require('../config/supabase/client');
 
 
 // Instantiate Controller (if it's a class)
@@ -53,15 +51,84 @@ router.get('/', (req, res) => {
     });
 });
 
-// === FORM SUBMISSION / API ROUTES ===
+
+router.post('/', async (req, res) => {
+    try {
+      // Log the raw request body for debugging purposes
+      console.log("Raw request body:", req.body);
+
+      // Extract the user ID from the session
+      const userId = req.session.user?.id;
+      console.log("Session user ID:", userId);
+
+      // If the user is not logged in, return an unauthorized response
+      if (!userId) {
+        return res.status(401).json({ success: false, message: 'User not logged in.' });
+      }
+
+      // Destructure the leave application details from the request body
+      const { startDate, endDate, leaveType, reason } = req.body;
+
+      // Query the database to fetch the employee ID associated with the user ID
+      const { data: employeeRow, error: employeeError } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      // If no employee is found or an error occurs, return a forbidden response
+      if (employeeError || !employeeRow) {
+        return res.status(403).json({ success: false, message: 'Employee not found' });
+      }
+
+      // Extract the employee ID from the query result
+      const employeeId = employeeRow.id;
+
+      // Log the form values for debugging purposes
+      console.log("Form values:", { startDate, endDate, leaveType, reason });
+
+      // Insert the leave request into the 'leave_requests' table
+      const { data, error } = await supabase.from('leave_requests').insert([
+        {
+          employee_id: employeeId,
+          start_date: startDate,
+          end_date: endDate,
+          leave_type: leaveType,
+          reason: reason,
+          status: 'Pending' // Default status for new leave requests
+        }
+      ]);
+
+      // If an error occurs during the insert, log it and return a server error response
+      if (error) {
+        console.error("Supabase insert error:", error);
+        return res.status(500).json({ success: false, message: 'Database insert failed.' });
+      }
+
+      // Log the successful insert operation
+      console.log("Insert success:", data);
+
+      // Redirect the user to the leave application page
+      res.redirect('/leave/apply');
+    } catch (err) {
+      // Log any unexpected server errors and return a server error response
+      console.error("Unexpected server error:", err);
+      res.status(500).json({ success: false, message: 'Unexpected server error.' });
+    }
+});
+  
+
+
+
+
 
 // POST /leave/apply - Submit the leave application
-router.post('/apply', (req, res) => {
+/* router.post('/apply', (req, res) => {
     // TODO: Add validation and call controller method to save leave request
     console.log('Leave application submitted:', req.body);
     req.flash('success', 'Leave request submitted successfully!');
     res.redirect('/leave'); 
-});
+}); */
 
 // Maybe API routes for cancelling leave, etc., using verifyJWT if needed
 // router.delete('/:id', verifyJWT, leaveController.cancelLeave);
