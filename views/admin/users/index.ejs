@@ -7,7 +7,7 @@
 		<p class="page-subtitle">Manage users, and their roles</p>
 	</div>
 
-	<%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+	<%- include('../partials/menu', { activePage, activeSubPage }) %>
 
 	<div class="cards cards-1">
 		<div class="card">
@@ -16,12 +16,17 @@
 					<div class="card-icon">
 						<i class="fas fa-users-cog"></i>
 					</div>
-					Users
+					List of Users
 				</h2>
+				<div class="card-actions">
+					<a href="/admin/users/create">
+						<i class="fas fa-user-plus"></i> Create User
+					</a>
+				</div>
 			</div>
 			<div class="card-body">
-				<table class="table table-hover" id="usersTable" style="background-color: inherit;">
-					<thead class="table-dark">
+				<table id="usersTable">
+					<thead>
 						<tr>
 							<th>
 								<input type="checkbox" id="selectAllUsers" class="form-check-input">
@@ -97,8 +102,8 @@
 								<%= user.lastlogin_at ? new Date(user.lastlogin_at).toLocaleString() : 'Never' %>
 								</td>
 							<td>
-								<div class="btn-group btn-group-sm">
-									<a href="/admin/users/view/<%= user.id %>" class="btn btn-info edit-user" title="Show user details">
+								<div class="button-group">
+									<a href="/admin/users/view/<%= user.id %>" class="btn btn-info" title="Show user details">
 										<i class="fas fa-user-pen"></i>
 									</a>
 									<a href="#" class="btn btn-danger delete-user" data-user-id="<%= user.id %>" data-user-name="<%= user.name %>" title="Delete user">
@@ -118,230 +123,9 @@
 			</div>
 		</div>
 	</div>
-		
-	<div class="card mb-4">
-		<div class="card-header">
-			<div class="row align-items-center">
-				<div class="col-md-4 mb-2 mb-md-0">
-					<h5 class="mb-0">
-						<i class="fas fa-users-cog"></i> User Management
-					</h5>
-				</div>
-				<div class="col-md-8">
-					<div class="d-flex flex-wrap gap-2 justify-content-md-end">
-						<div class="input-group input-group-sm" style="max-width: 250px;">
-							<span class="input-group-text">
-								<i class="fas fa-search"></i>
-							</span>
-							<input type="text" id="userSearchInput" class="form-control" placeholder="Search users...">
-                </div>
-						<button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-							<i class="fas fa-user-plus"></i> Add User
-						</button>
-						<button class="btn btn-sm btn-success" id="exportUsersCsv">
-							<i class="fas fa-file-export"></i> Export
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card-body">
-			<!-- Filter Controls - Improved Layout -->
-			<div class="row mb-3 align-items-center">
-				<div class="col-md-9">
-					<div class="d-flex flex-wrap gap-2">
-						<div style="min-width: 120px;">
-							<label for="userRoleFilter" class="form-label small mb-1">Role</label>
-							<select class="form-select form-select-sm" id="userRoleFilter">
-								<option value="all">All Roles</option>
-								<option value="admin">Admin</option>
-								<option value="employee">Employee</option>
-							</select>
-						</div>
-						<div style="min-width: 120px;">
-							<label for="userStatusFilter" class="form-label small mb-1">Status</label>
-							<select class="form-select form-select-sm" id="userStatusFilter">
-								<option value="all">All Status</option>
-								<option value="active">Active</option>
-								<option value="inactive">Inactive</option>
-							</select>
-						</div>
-						<div style="min-width: 150px;">
-							<label for="userDepartmentFilter" class="form-label small mb-1">Department</label>
-							<select class="form-select form-select-sm" id="userDepartmentFilter">
-								<option value="all">All Departments</option>
-								<!-- Department options will be populated dynamically -->
-							</select>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-3">
-					<label for="userSortBy" class="form-label small mb-1">Sort By</label>
-					<select class="form-select form-select-sm" id="userSortBy">
-						<option value="name">Sort by Name</option>
-						<option value="username">Sort by Username</option>
-						<option value="role">Sort by Role</option>
-						<option value="status">Sort by Status</option>
-					</select>
-				</div>
-			</div>
-
-			<!-- User Table -->
-			<div class="table-responsive">
-				<table class="table table-hover" id="usersTable" style="background-color: inherit;">
-					<thead class="table-dark">
-						<tr>
-							<th>
-								<input type="checkbox" id="selectAllUsers" class="form-check-input">
-							</th>
-							<th>
-								<i class="fas fa-id-badge"></i> Username
-							</th>
-							<th>
-								<i class="fas fa-user"></i> Full Name
-							</th>
-							<th>
-								<i class="fas fa-envelope"></i> Email
-							</th>
-							<th>
-								<i class="fas fa-user-tag"></i> Roles
-							</th>
-							<th>
-								<i class="fas fa-sitemap"></i> Department
-							</th>
-							<th>
-								<i class="fas fa-clock"></i> Status
-							</th>
-							<th>
-								<i class="fas fa-calendar"></i> Last Login
-							</th>
-							<th>
-								<i class="fas fa-cogs"></i> Actions
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<% if (typeof users !== 'undefined' && users.length > 0) { %>
-						<% users.forEach(user => { %>
-                        <tr data-user-id="<%= user.id %>" data-role="<%= user.role %>" data-status="<%= user.active ? 'active' : 'inactive' %>">
-							<td>
-								<input type="checkbox" class="user-select form-check-input">
-							</td>
-							<td>
-								<%= user.username %>
-							</td>
-							<td>
-								<%= user.name %>
-							</td>
-							<td>
-								<%= user.email %>
-							</td>
-							<td>
-								<%
-                                if (user.roles && user.roles.length > 0) {
-								user.roles.forEach(role => {
-								%>
-								<span class="badge"
-									<%= (role === 'admin' ? 'bg-danger' : (role === 'manager' ? 'bg-warning' : 'bg-info')) %>"><%= role.charAt(0).toUpperCase() + role.slice(1) %>
-								</span>
-								<%
-                                    });
-								} else {
-								user.role = 'guest'; // Default role if none is assigned
-								}
-								%>
-							</td>
-							<td>
-								<%= user.department || 'Not Assigned' %>
-							</td>
-							<td>
-								<span class="badge"
-									<%= user.active ? 'bg-success' : 'bg-secondary' %>">
-									<%= user.active ? 'Active' : 'Inactive' %>
-								</span>
-							</td>
-							<td>
-								<%= user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never' %>
-							</td>
-							<td>
-								<div class="btn-group btn-group-sm">
-									<a href="/admin/users/view/<%= user.id %>" class="btn btn-info edit-user" title="Show user details">
-										<i class="fas fa-user-pen"></i>
-									</a>
-									<button class="btn btn-danger delete-user"
-                                    data-user-id=""
-										<%= user.id %>"
-										data-user-name="<%= user.name %>"
-										title="Delete user">
-										<i class="fas fa-trash"></i>
-									</button>
-								</div>
-							</td>
-						</tr>
-						<% }); %>
-                <% } else { %>
-                    <tr>
-							<td colspan="9" class="text-center">No users found</td>
-						</tr>
-						<% } %>
-					</tbody>
-				</table>
-			</div>
-
-			<!-- Table Actions and Pagination -->
-			<div class="row mt-3 align-items-center">
-				<div class="col-md-6 mb-2 mb-md-0">
-					<div class="btn-group" id="bulkActionDropdown">
-						<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" disabled="">
-							<i class="fas fa-tasks"></i> Bulk Actions
-						</button>
-						<ul class="dropdown-menu">
-							<li>
-								<a class="dropdown-item bulk-activate" href="#">
-									<i class="fas fa-toggle-on"></i> Activate
-								</a>
-							</li>
-							<li>
-								<a class="dropdown-item bulk-deactivate" href="#">
-									<i class="fas fa-toggle-off"></i> Deactivate
-								</a>
-							</li>
-							<li>
-								<hr class="dropdown-divider">
-							</li>
-							<li>
-								<a class="dropdown-item bulk-delete text-danger" href="#">
-									<i class="fas fa-trash"></i> Delete
-								</a>
-							</li>
-						</ul>
-					</div>
-					<span class="ms-3 text-muted small" id="selectedCount">0 users selected</span>
-				</div>
-				<div class="col-md-6">
-					<div class="d-flex justify-content-md-end align-items-center">
-						<div class="me-3">
-							<select id="userPageSize" class="form-select form-select-sm">
-								<option value="10">10 rows</option>
-								<option value="25">25 rows</option>
-								<option value="50">50 rows</option>
-								<option value="100">100 rows</option>
-							</select>
-						</div>
-						<nav aria-label="User table pagination">
-							<ul class="pagination pagination-sm mb-0" id="usersPagination">
-								<!-- Pagination will be generated dynamically -->
-							</ul>
-						</nav>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
 </div>
 <!-- Replace the existing Add User Modal with this enhanced version -->
-<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+<!--<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -411,7 +195,7 @@
     </div>
 </div>
 
-<!-- Edit User Modal -->
+--><!-- Edit User Modal --><!--
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -471,7 +255,7 @@
     </div>
 </div>
 
-<!-- Delete User Confirmation Modal -->
+--><!-- Delete User Confirmation Modal --><!--
 <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -492,10 +276,10 @@
     </div>
 </div>
 
-<!-- Script for Admin page specific functionality -->
+--><!-- Script for Admin page specific functionality --><!--
 <script src="/js/admin-client.js"></script>
 
-<!-- Script to fix dark mode table rows -->
+--><!-- Script to fix dark mode table rows --><!--
 <script>
     // Function to apply dark mode styles to user management table
     function applyDarkModeToUserTable() {
@@ -595,4 +379,4 @@
             });
         }
     });
-</script>
+</script>-->

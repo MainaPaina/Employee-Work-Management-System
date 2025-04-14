@@ -4,8 +4,6 @@ const router = express.Router();
 const supabase = require('../../config/supabase/client');
 const supabaseAdmin = require('../../config/supabase/admin');
 
-const verifyRoles = require('../../middleware/verifyRoles');
-
 const User = require('../../model/User');
 const Role = require('../../model/Role');
 
@@ -81,6 +79,42 @@ router.get('/view/:id', async (req, res) => {
         });
     }
 });
+
+router.get('/create', async (req, res) => {
+    try {
+        console.log('GET /admin/users/create called');
+
+        //fetch the roles
+        const { data: roles, error: rolesError } = await supabaseAdmin
+            .from('roles')
+            .select('id, name')
+            .order('name');
+
+        //fetch the departments
+        const { data: departments, error: departmentsError } = await supabaseAdmin
+            .from('departments')
+            .select('id, name, name_alias')
+            .order('name');
+
+        res.render('admin/users/create', {
+            roles: roles || [],
+            departments: departments || [],
+            activePage: 'admin',
+            activeSubPage: 'users',
+            currentUser: req.session.user
+        });
+    } catch (error) {
+        console.error('Error fetching admin data:', error);
+        res.render('admin/index', {
+            users: [],
+            timesheets: [],
+            activePage: 'admin',
+            currentUser: req.session.user,
+            error: `Failed to load admin data: ${error.message}`
+        });
+    }
+})
+
 
 // Export the router directly
 module.exports = router;

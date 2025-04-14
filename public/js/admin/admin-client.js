@@ -5,6 +5,227 @@ JAVASCRIPT FILE FOR ADMIN PAGE AND FUNCTIONALITY
 */
 
 /*
+function showMessage(message, type = 'danger');
+*/
+
+
+/*
+=================================================
+USER MANAGEMENT SPECIFIC FUNCTIONS
+=================================================
+*/
+const create_roles = [];
+
+async function validateFormCreateUser(e, form) {
+    e.preventDefault();
+
+    showMessage('Creating user...', 'alert-info');
+
+    // verify that all fields has data
+    let formData = new FormData(form);
+    let username = formData.get('username');
+    let password = formData.get('password');
+    let email = formData.get('email');
+    let name = formData.get('name');
+    let department = formData.get('department');
+
+    // check that username is unique
+    console.log('check if user exists');
+    let usernameExists = await checkExistingUsername(username);
+    console.log('username exists: ' + usernameExists);
+    if (username.length < 3 || usernameExists) {
+        showMessage('Username is invalid or already exists!', 'alert-danger');
+        return false;
+    }
+
+    // check that username is unique
+    console.log('check if email exists');
+    let emailExists = await checkExistingEmail(email);
+    console.log('email exists: ' + emailExists);
+    if (email.length < 3 || emailExists) {
+        showMessage('Email is invalid or already exists!', 'alert-danger');
+        return false;
+    }
+
+    if (create_roles && create_roles.length > 0) {
+
+        const url = "/admin/api/users/create";
+        const response = await fetch(url, {
+            method: 'post',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, email, name, department, roles: create_roles }),
+        });
+        if (!response.ok) {
+            return false;
+        }
+        showMessage('User created successfully! Redirecting to list.', 'alert-success');
+        setTimeout(() => {
+            window.location.href = '/admin/users';
+        }, 2000);
+
+    }
+    else {
+        showMessage('No roles have been added, required to have at least 1 role', 'alert-danger');
+        return false;
+    }
+
+
+
+    return false;
+}
+
+async function checkExistingUsername(username) {
+    const url = "/admin/api/users/userexists";
+    const response = await fetch(url, {
+        method: 'post',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username }),
+    });
+    
+    if (!response.ok) {
+        return false;
+    }
+    return true;
+}
+
+async function checkExistingEmail(email) {
+    let url = "/admin/api/users/emailexists";
+    const response = await fetch(url, {
+        method: 'post',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email }),
+    });
+
+    if (!response.ok) {
+        return false;
+    }
+    return true;
+}
+
+function listRoles() {
+    if (create_roles) {
+        /*console.log("List user roles");*/
+        const url = "/admin/api/roles/list";
+        let roleList = document.getElementById("roleslist");
+        fadeInEffect(roleList, 50);
+        roleList.innerHTML = '';
+
+        fetch(url)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                let roles = data;
+                roles.forEach((role) => {
+                    if (role.created_at) {
+                        delete (role.created_at);
+                    }
+                    //console.log(role);
+                    let span = document.createElement("span");
+                    span.className = "role-badge role-badge-" + role.color + " text-lg";
+                    span.innerHTML = role.name;
+                    roleList.appendChild(span);
+
+                    const hasRole = create_roles.some(r => r.id === role.id);
+
+                    if (hasRole) {
+                        let removeButton = document.createElement("a");
+                        removeButton.innerHTML = " <i class='fa fa-times text-danger'></i>";
+                        removeButton.onclick = function () {
+                            create_roles.pop(role);
+                            listRoles();
+                        };
+                        span.appendChild(removeButton);
+                    }
+                    else {
+                        let addButton = document.createElement("a");
+                        addButton.innerHTML = " <i class='fa fa-plus text-light'></i>";
+                        addButton.onclick = function () {
+                            create_roles.push(role);
+                            listRoles();
+                        };
+                        span.appendChild(addButton);
+                    }
+                });
+            })
+    }
+    else {
+        console.log('Something went wrong loading roles');
+    }
+}
+function listUserRoles() {
+    console.log("List user roles");
+    const url = "/admin/api/roles/list";
+
+    let roleList = document.getElementById("roleslist");
+    roleList.innerHTML = '';
+    fetch(url)
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            let roles = data;
+            roles.forEach((role) => {
+                console.log(role);
+                let span = document.createElement("span");
+                span.className = "role-badge role-badge-" + role.color + " text-lg";
+                span.innerHTML = role.name;
+                roleList.appendChild(span);
+
+                if (role.assigendToUser) {
+                    let removeButton = document.createElement("a");
+                    removeButton.innerHTML = " <i class='fa fa-times text-light-red fw-bold'></i>";
+                    removeButton.onclick = function () {
+                        removeUserFromRole(role.id);
+                    };
+                    span.appendChild(removeButton);
+                }
+                else {
+                    let addButton = document.createElement("a");
+                    addButton.innerHTML = " <i class='fa fa-plus text-white fw-bold'></i>";
+                    addButton.onclick = function () {
+                        addUserToRole(role.id);
+                    };
+                    span.appendChild(addButton);
+                }
+            });
+        })
+}
+
+function addUserToRole(role) {
+    //$.ajax({
+    //    type: "POST",
+    //    url: "/Admin/API/Users/AddtoRole",
+    //    contentType: "application/json",
+    //    data: JSON.stringify({ id: id, role: role }),
+    //    success: function (response) {
+    //        alert("User added to role successfully.");
+    //        setTimeout(() => { listUserRoles(); }, 500);
+    //    },
+    //    error: function () {
+    //        alert("Error adding user to role.");
+    //    }
+    //});
+
+}
+function removeUserFromRole(roleName) {
+    var id = '@Model.ViewUser.Id';
+    //$.ajax({
+    //    type: "POST",
+    //    url: "/Admin/API/Users/RemoveFromRole",
+    //    contentType: "application/json",
+    //    data: JSON.stringify({ id: id, role: roleName }),
+    //    success: function (response) {
+    //        alert("User removed from role successfully.");
+    //        setTimeout(() => { listUserRoles(); }, 500);
+    //    },
+    //    error: function () {
+    //        alert("Error removing user from role.");
+    //    }
+    //});
+}
+
+/*
 =================================================
 FADE IN AND OUT EFFECT
 =================================================

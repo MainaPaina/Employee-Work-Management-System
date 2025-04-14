@@ -9,7 +9,7 @@ JAVASCRIPT FILE FOR ACCOUNT PAGE FUNCTIONALITY
 function updatePassword(e, sender) {
     e.preventDefault();
 
-    showMessage('Updating password...', 'info');
+    showMessage('Updating password...', 'alert-info');
 
     //let oldPassword = sender.querySelector('input[name="currentpassword"]').value;
     //let newPassword = form.querySelector('input[name="newpassword"]').value;

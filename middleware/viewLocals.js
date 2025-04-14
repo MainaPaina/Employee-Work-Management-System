@@ -2,13 +2,13 @@
 module.exports = function(app) {
     return (req, res, next) => {
         
-                // Debug session state
-                console.log('====== Session Debug ======');
-                console.log('Session ID:', req.sessionID);
-                console.log('Session Data:', req.session);
-                console.log('Is Authenticated:', !!req.session?.user);
-                console.log('User:', req.session?.user);
-                console.log('========================');
+                //// Debug session state
+                //console.log('====== Session Debug ======');
+                //console.log('Session ID:', req.sessionID);
+                //console.log('Session Data:', req.session);
+                //console.log('Is Authenticated:', !!req.session?.user);
+                //console.log('User:', req.session?.user);
+                //console.log('========================');
         
         // Authentication
         res.locals.isAuthenticated = !!req.session.user;

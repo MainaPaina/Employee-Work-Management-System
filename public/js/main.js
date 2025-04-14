@@ -5,9 +5,11 @@ Main.js site-wide javascript functions
 */
 
 function showMessage(message, type = 'danger') {
+    
     let node = document.querySelector('#messagebox');
     // if node exists
     if (node) {
+        fadeInEffect(node, 10);
         node.classList.remove('success', 'danger', 'info');
         node.style.display = 'block';
         node.textContent = message;

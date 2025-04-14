@@ -106,6 +106,105 @@ class User {
         }
     }
 
+    /// Create new user
+    static async create(inUser) {
+        console.log('Creating user:', inUser);
+        const roles = inUser.roles || [];
+        if (roles.length == 0) {
+            console.error('No roles provided for user creation.'); // Log if no roles are provided
+            return null;
+        }
+
+        if (!inUser || !inUser.email || !inUser.username) {
+            console.error('Cannot create user without required data (email, username, etc.).');
+            return null;
+        }
+
+        try {
+
+            const { data: existingUser, error: existingUserError } = await supabaseAdmin
+                .from('users')
+                .select('id')
+                .eq('email', inUser.email)
+                .maybeSingle();
+
+            if (existingUserError) {
+                console.error('Error checking existing user:', existingUserError.message);
+                return null;
+            }
+
+            if (existingUser) {
+                console.warn(`User profile already exists for username ${username} or email ${email}.`);
+                return res.status(400).json({ message: 'Username or email already exists.' });
+            }
+
+            const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({ // Use supabaseAdmin
+                email: inUser.email,
+                password: inUser.password,
+                email_confirm: true, // Auto-confirm user for simplicity here
+                display_name: inUser.name // Store non-sensitive metadata
+            });
+
+            if (authError) {
+                console.error('Error creating user in Supabase Auth:', authError.message);
+                return null;
+            }
+
+            if (!authData || !authData.user) {
+                console.error('No user data returned from Supabase Auth:', authData);
+                return null;
+            }
+
+            console.log('User created in Supabase Auth:', authData.user);
+            const userId = authData.user.id;
+            console.log('User created in Supabase Auth with ID:', userId);
+
+            console.log('Inserting user profile into public.users using Admin Client...');
+            const { data: profileData, error: insertError } = await supabaseAdmin // Use supabaseAdmin for insert
+                .from('users')
+                .insert({
+                    id: userId, // Link to the auth user
+                    username: inUser.username,
+                    name: inUser.name,
+                    email: inUser.email, // Match the auth email
+                    active: true, // Default to active
+                    department: inUser.department || null, // Optional department
+                    leave_quota: 20,
+                    leave_used: 0.0
+                })
+                .select()
+                .single();
+
+            if (insertError) {
+                console.error('Error inserting user profile into public.users:', insertError.message);
+                // Optionally delete the user from Supabase Auth if profile insert fails
+                const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+                if (deleteError) {
+                    console.error('Error deleting user from Supabase Auth:', deleteError.message);
+                }
+                return null;
+            }
+
+            console.log('User created:', profileData);
+            // now need to add user to provided roles
+            for (let i = 0; i < roles.length; i++) {
+                const { data: roleData, error: roleError } = await supabaseAdmin
+                    .from('user_roles')
+                    .insert({ user_id: userId, role_id: roles[i].id })
+                    .select();
+                if (roleError) {
+                    console.error('Error adding user to role:', roleError.message);
+                    return null;
+                }
+                console.log('User added to role:', roleData);
+            }
+            return profileData;
+        } catch (insertError) {
+            console.error('Exception creating user:', insertError.message);
+            return null;
+        }
+    }
+
     // Static method to create a user profile entry (e.g., in users table)
     // Called *after* successful supabase.auth.signUp
     static async createProfile(profileData) {
