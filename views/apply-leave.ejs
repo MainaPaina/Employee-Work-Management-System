@@ -19,10 +19,8 @@
     </div>
     
     <!-- Add actual leave request form -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h2>Request Leave</h2>
-        </div>
+    <div class="feature-card animated">
+        <h2>Request Leave</h2>
         <div class="card-body">
             <% if (locals.errorMessage) { %>
                 <div class="alert alert-danger"><%= errorMessage %></div>
@@ -31,22 +29,21 @@
                 <div class="alert alert-success"><%= successMessage %></div>
             <% } %>
             
-            <form id="leaveRequestForm" method="POST" action="/leave">
+            <form id="leaveRequestForm" class="leaveRequestForm" method="POST" action="/leave">
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="form-group">
                         <label for="startDate" class="form-label">Start Date</label>
                         <input type="date" class="form-control" id="startDate" name="startDate" required>
                     </div>
-                    <div class="col-md-6">
+                    <div class="form-group">
                         <label for="endDate" class="form-label">End Date</label>
                         <input type="date" class="form-control" id="endDate" name="endDate" required>
                     </div>
                 </div>
                 
-                <div class="mb-3">
+                  <div class="form-group mb-3">
                     <label for="leaveType" class="form-label">Leave Type</label>
-                    <select class="form-select" id="leaveType" name="leaveType" required>
-                        <option value="">Select leave type</option>
+                    <select class="TimeManager-form-select" id="leaveType" name="leaveType" aria-label="Leave Type" required>
                         <option value="Annual leave">Annual Leave</option>
                         <option value="Sick leave">Sick Leave</option>
                         <option value="Personal leave">Personal Leave</option>
@@ -59,9 +56,10 @@
                     <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
                 </div>
                 
-                <div class="d-flex justify-content-between align-items-center">
-                    <div id="daysRequested">Days requested: <span id="totalDays">0</span></div>
+                <div class="button-group">
+                    <!-- <div id="daysRequested">Days requested: <span id="totalDays">0</span></div> -->
                     <button type="submit" class="btn btn-primary">Submit Request</button>
+                    <!-- <button class="btn btn-danger" href="#"><i class="fas fa-times"></i> Cancel</button> -->
                 </div>
             </form>
         </div>

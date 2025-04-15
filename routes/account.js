@@ -64,6 +64,7 @@ router.post('/login', async (req, res) => {
         }
 
         const user = authData.user;
+        req.session.token = authData.session?.access_token;
 
         // 2. Fetch user profile/role (using the 'users' table linked by user.id)
         // Load user by using the model/User class
@@ -118,6 +119,27 @@ router.post('/login', async (req, res) => {
             profile_image: profileData.profile_image, // Ensure role exists, default if necessary
             roles: roles || [],
         };
+
+        // Check if the user is a department manager
+        const { data: departmentData, error: departmentError } = await supabase
+        .from('departments')
+        .select('id, name, manager_id') // Assuming 'manager_id' is the column for the manager's user ID
+        .eq('manager_id', user.id); // Filter by the logged-in user's ID
+
+        if (departmentError) {
+        console.error('Error fetching department data:', departmentError.message);
+        } else if (departmentData && departmentData.length > 0) {
+        // User is a manager of at least one department
+        sessionUser.isDepartmentManager = true;
+        sessionUser.managedDepartments = departmentData.map(dept => ({
+            id: dept.id,
+            name: dept.name
+        }));
+        } else {
+        // User is not a department manager
+        sessionUser.isDepartmentManager = false;
+        }
+
         //console.log('Session user:', sessionUser); // Log session user for debugging)
         req.session.user = sessionUser; // Store user info in session
 

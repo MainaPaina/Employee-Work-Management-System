@@ -40,6 +40,7 @@ router.use('/leave', verifyRoles(['employee', 'manager', 'admin']), leaveRoutes)
 // Role-specific Routes
 // Note: These routes require authentication and role checks
 router.use('/admin', require('./admin'));
+router.use('/manager', require('./manager'));
 router.use('/employee', verifyRoles(['employee']), employeeRoutes);
 
 
