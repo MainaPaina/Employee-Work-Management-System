@@ -1,17 +1,17 @@
 const supabase = require('../config/supabase/client');
 
 class LeaveRequest {
-    async findAllByEmployee(employeeId) {
+    async findAllByEmployee(userId) {
         return await supabase
-            .from('leave_requests')
+            .from('leaves')
             .select('*')
-            .eq('employee_id', employeeId)
+            .eq('user_id', userId)
             .order('start_date', { ascending: false });
     }
 
     async findById(requestId) {
         return await supabase
-            .from('leave_requests')
+            .from('leaves')
             .select('*')
             .eq('id', requestId)
             .single();
@@ -19,7 +19,7 @@ class LeaveRequest {
 
     async create(requestData) {
         return await supabase   
-            .from('leave_requests')
+            .from('leaves')
             .insert([requestData])
             .select()
             .single();
@@ -27,7 +27,7 @@ class LeaveRequest {
 
     async updateStatus(requestId, status, approverId, comments = null) {
         return await supabase
-            .from('leave_requests')
+            .from('leaves')
             .update({
                 status,
                 approved_by: approverId,
@@ -40,7 +40,7 @@ class LeaveRequest {
 
     async findAll() {
         return await supabase
-            .from('leave_requests')
+            .from('leaves')
             .select('*')
             .order('created_at', { ascending: false });
     }

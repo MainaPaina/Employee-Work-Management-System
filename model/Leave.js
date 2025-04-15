@@ -1,11 +1,11 @@
 const supabase = require('../config/supabase/client');
 
 module.exports = {
-  async getLeaveHistory(employeeId) {
+  async getLeaveHistory(userId) {
     const { data, error } = await supabase
-      .from('leave_requests')
+      .from('leaves')
       .select('*')
-      .eq('employee_id', employeeId)
+      .eq('user_id', userId)
       .order('start_date', { ascending: false });
 
     if (error) {
@@ -16,11 +16,11 @@ module.exports = {
     return data || [];
   },
 
-  async getLeaveSummary(employeeId) {
+  async getLeaveSummary(userId) {
     const { data, error } = await supabase
-      .from('leave_requests')
+      .from('leaves')
       .select('start_date, end_date')
-      .eq('employee_id', employeeId);
+      .eq('user_id', userId);
 
     if (error) {
       console.error('Error fetching leave summary:', error);

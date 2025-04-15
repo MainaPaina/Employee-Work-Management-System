@@ -9,12 +9,12 @@ class LeaveController {
     async getLeavePage(req, res) {
         try {
             // Fetch necessary data for the view, e.g., employee's past requests
-            const employeeId = req.user?.id; // Assuming verifyJWT sets req.user
-            if (!employeeId) {
+            const userId = req.user?.id; // Assuming verifyJWT sets req.user
+            if (!userId) {
                 return res.status(401).render('error', { message: 'User not authenticated.' });
             }
 
-            const { data: requests, error } = await this.leaveRequestModel.findAllByEmployee(employeeId);
+            const { data: requests, error } = await this.leaveRequestModel.findAllByEmployee(userId);
 
             if (error) {
                 console.error('Error fetching employee requests for page:', error);
@@ -41,11 +41,11 @@ class LeaveController {
     // API: Get all requests for the logged-in employee
     async getEmployeeRequests(req, res) {
         try {
-            const employeeId = req.user?.id;
-            if (!employeeId) {
+            const userId = req.user?.id;
+            if (!userId) {
                 return res.status(401).json({ error: 'User not authenticated.' });
             }
-            const { data, error } = await this.leaveRequestModel.findAllByEmployee(employeeId);
+            const { data, error } = await this.leaveRequestModel.findAllByEmployee(userId);
             if (error) throw error;
             res.status(200).json(data || []);
         } catch (err) {
@@ -57,10 +57,10 @@ class LeaveController {
     // API: Submit a new leave request
     async submitRequest(req, res) {
         try {
-            const employeeId = req.user?.id;
+            const userId = req.user?.id;
             const { startDate, endDate, leaveType, reason, totalLeaveDays } = req.body;
 
-            if (!employeeId) {
+            if (!userId) {
                 return res.status(401).json({ error: 'User not authenticated.' });
             }
             if (!startDate || !endDate || !leaveType) {
@@ -73,7 +73,7 @@ class LeaveController {
             }
 
             const requestData = {
-                employee_id: employeeId,
+                user_id: userId,
                 start_date: startDate,
                 end_date: endDate,
                 leave_type: leaveType,
@@ -101,9 +101,9 @@ class LeaveController {
     async cancelRequest(req, res) {
         try {
             const requestId = req.params.id;
-            const employeeId = req.user?.id;
+            const userId = req.user?.id;
 
-            if (!employeeId) {
+            if (!userId) {
                 return res.status(401).json({ error: 'User not authenticated.' });
             }
 
@@ -115,7 +115,7 @@ class LeaveController {
             }
 
             // 2. Check ownership and status
-            if (request.employee_id !== employeeId) {
+            if (request.employee_id !== userId) {
                 return res.status(403).json({ error: 'You are not authorized to cancel this request.' });
             }
             if (request.status !== 'Pending') {
@@ -124,7 +124,7 @@ class LeaveController {
 
             // 3. Update status to 'Cancelled' (using a generic update method or a specific cancel method)
             // Using updateStatus here, assuming 'Cancelled' is an allowed status
-            const { data, error } = await this.leaveRequestModel.updateStatus(requestId, 'Cancelled', employeeId, 'Cancelled by employee');
+            const { data, error } = await this.leaveRequestModel.updateStatus(requestId, 'Cancelled', userId, 'Cancelled by employee');
 
             if (error) {
                  console.error('Error cancelling leave request:', error);

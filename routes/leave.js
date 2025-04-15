@@ -20,16 +20,16 @@ router.get("/apply", async (req, res) => {
             return res.status(401).send("Unauthorized")
         }
 
-        const employeeId = user.id;
+        const userId = user.id;
 
-        const leaveHistory = await Leave.getLeaveHistory(employeeId);
-        const summary = await Leave.getLeaveSummary(employeeId);
+        const leaveHistory = await Leave.getLeaveHistory(userId);
+        const summary = await Leave.getLeaveSummary(userId);
         console.log("Leave Summary:", summary);
 
         res.render("apply-leave", {
             activePage: "applyLeave",
             title: "Apply for Leave", 
-            leaveTypes: ["Vacation", "Sick", "Personal"],
+            leaveTypes: ["Annual leave", "Sick leave", "Personal leave, Unpaid leave"],
             leaveData: {
                 totalQuota: summary.totalQuota,
                 leavesUsed: summary.usedLeaves,
@@ -61,11 +61,11 @@ router.post('/', async (req, res) => {
       console.log("Raw request body:", req.body);
 
       // Extract the user ID from the session
-      const userId = req.session.user?.id;
-      console.log("Session user ID:", userId);
+      const sessionId = req.session.user?.id;
+      console.log("Session user ID:", sessionId);
 
       // If the user is not logged in, return an unauthorized response
-      if (!userId) {
+      if (!sessionId) {
         return res.status(401).json({ success: false, message: 'User not logged in.' });
       }
 
@@ -75,16 +75,20 @@ router.post('/', async (req, res) => {
       // Log the form values for debugging purposes
       console.log("Form values:", { startDate, endDate, leaveType, reason });
 
-      const employeeId = userId;
+      const userId = sessionId; // Use the session ID as the user ID
       // Insert the leave request into the 'leave_requests' table
-      const { data, error } = await supabase.from('leave_requests').insert([
+      const { data, error } = await supabase.from('leaves').insert([
         {
-          employee_id: employeeId, // Link the leave request to the employee ID
+          user_id: userId, // Link the leave request to the user ID
           start_date: startDate, // Start date of the leave
           end_date: endDate, // End date of the leave
-          leave_type: leaveType, // Type of leave (e.g., Vacation, Sick)
+          leave_type: leaveType, // Type of leave (e.g., Annual leave, Sick leave, etc.)
           reason: reason, // Reason for the leave
-          status: 'Pending' // Default status for new leave requests
+          status: 'Pending', // Default status for new leave requests
+          days: null, // Placeholder for total leave days (can be calculated later)
+          approver_id: null, // Placeholder for approver ID (can be set later)
+          approved_at: null, // Placeholder for approval date (can be set later)
+          approver_comments: null // Placeholder for approver comments (can be set later)
         }
       ]);
 
@@ -114,9 +118,9 @@ router.post('/', async (req, res) => {
             return res.status(401).send("Unauthorized")
         }
 
-        const employeeId = user.id;
+        const userId = user.id;
         
-        const leaveHistory = await Leave.getLeaveHistory(employeeId);
+        const leaveHistory = await Leave.getLeaveHistory(userId);
 
         res.render("leave-history", {
             activePage: "leaveHistory",
