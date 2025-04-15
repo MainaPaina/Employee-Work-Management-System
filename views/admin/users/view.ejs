@@ -7,6 +7,110 @@
 		<p class="page-subtitle">Manage users, and their roles</p>
 	</div>
 
-	<%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+	<%- include('../partials/menu', { activePage, activeSubPage }) %>
 
+	<div class="cards cards-2">
+		
+		<!-- Show user details card-->
+		<div class="card">
+			<h2>
+				<div class="card-icon"><i class="fas fa-user-circle"></i></div>
+				Account
+			</h2>
+			<div class="card-body">
+				<div class="card-item">
+					<div class="card-item-label">Name :</div>
+					<div class="card-item-value" data-name="name" data-canedit="true"><%= selectedUser.name %></div>
+				</div>
+				<div class="card-item">
+					<div class="card-item-label">Username :</div>
+					<div class="card-item-value" data-name="username" data-canedit="false"><%= selectedUser.username %></div>
+				</div>
+				<div class="card-item">
+					<div class="card-item-label">Email :</div>
+					<div class="card-item-value" data-name="email" data-canedit="false"><%= selectedUser.email %></div>
+				</div>
+				<div class="card-item">
+					<div class="card-item-label">Roles : </div>
+					<div class="card-item-value">
+						<% if (selectedUser.roles && selectedUser.roles.length > 0) { selectedUser.roles.forEach(role => { %>
+						<span class="role-badge role-badge-<%= role %>"><%= role.charAt(0).toUpperCase() + role.slice(1) %></span>
+						<% }); } %>
+					</div>
+				</div>
+
+				<div class="card-item">
+					<div class="card-item-label">Department : </div>
+					<div class="card-value">
+						<select name="department" id="department" class="form-control" placeholder="Select an department">
+							<% for (let i = 0; i
+							< (departments || []).length; i++) { %>
+							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+							</option>
+							<% } %>
+						</select>
+					</div>
+				</div>
+					
+				<div class="form-group">
+					<label for="role">Role</label>
+					<div class="form-control" id="roleslist"></div>
+				</div>
+
+				<div class="form-group">
+					<label for="name">Name</label>
+					<div class="input-group">
+						<input type="text" id="name" name="name" class="form-control" autocomplete="name" required="" value="<%= selectedUser.name %>" readonly>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="username">Username</label>
+					<div class="input-group">
+						<input type="text" id="username" name="username" class="form-control" autocomplete="username" required="" value="<%= selectedUser.username %>" readonly>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="email">Email</label>
+					<div class="input-group">
+						<input type="text" id="email" name="email" class="form-control" autocomplete="email" required="" value="<%= selectedUser.email %>" readonly>
+					</div>
+				</div>
+
+				<div class="card-info-2c">
+					
+					<div class="card-info-group">
+						<label>Department</label>
+						<p>
+							<% if (selectedUser.roles && selectedUser.roles.length > 0) {
+							selectedUser.roles.forEach(role => {
+							%>
+							<span class="role-badge role-badge-"
+								<%= role %>"><%= role.charAt(0).toUpperCase() + role.slice(1) %>
+							</span>
+							<% }); } %>
+						</p>
+					</div>
+				</div>
+				
+				<div class="card-info-2c">
+				    
+				    <div class="card-info-group">
+					    <label>Role</label>
+					    <p>
+						    <% if (selectedUser.roles && selectedUser.roles.length > 0) {
+						    selectedUser.roles.forEach(role => {
+						    %>
+						    <span class="role-badge role-badge-<%= role %>"><%= role.charAt(0).toUpperCase() + role.slice(1) %></span>
+						    <% }); } %>
+					    </p>
+				    </div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	
+		
 </div>

@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
                 ', roles:user_roles(role:roles(id,name))')
             .order('name');
 
-        //console.log(JSON.stringify(users, null, 2));
+        console.log(JSON.stringify(users, null, 2));
         if (usersError) {
             console.error('Supabase error fetching users for admin page:', usersError);
             throw usersError;
@@ -42,16 +42,18 @@ router.get('/', async (req, res) => {
     }
 });
 
+/// GET: /admin/users/view/:id
 router.get('/view/:id', async (req, res) => {
     try {
-        console.log('GET /admin/users/:id called');
         const { id } = req.params;
+        console.log(`GET /admin/users/${id} called`);
 
         let selectedUser = await User.findById(id);
+        let roles = await Role.list();
         if (selectedUser) {
+            console.log(selectedUser);
             // Fetch roles for the user
-            let roles = await Role.listUserRoles(selectedUser.id);
-            selectedUser.roles = roles;
+            selectedUser.roles = await Role.listUserRoles(selectedUser.id);
         }
         else {
             console.error('User not found:', selectedUser);
@@ -60,6 +62,7 @@ router.get('/view/:id', async (req, res) => {
 
         res.render('admin/users/view', {
             selectedUser: selectedUser || {},
+            roles: roles || [],
             activePage: 'admin',
             activeSubPage: 'users',
             currentUser: req.session.user

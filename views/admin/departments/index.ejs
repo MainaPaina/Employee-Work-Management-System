@@ -28,8 +28,6 @@
 				<table id="departmentsTable">
 					<thead>
 						<tr>
-							<!--.select('id,name,name_alias,users (id,name),created_at')-->
-							<th><input type="checkbox" id="selectAllUsers" class="form-check-input"></th>
 							<th>Id</th>
 							<th>Name</th>
 							<th>Alias</th>
@@ -43,9 +41,6 @@
 							<% departments.forEach(item => { %>
                         <tr data-id="<%= item.id %>" data-name="<%= item.name %>" data-name_alias="<%= item.name_alias %>">
 							<td>
-								<input type="checkbox" class="user-select form-check-input">
-							</td>
-							<td>
 								<%= item.id %>
 							</td>
 							<td>
@@ -55,7 +50,7 @@
 								<%= item.name_alias %>
 							</td>
 							<td>
-								<% if (item.users) { %><%= item.users.name %><% } else { %>Not Assigned<% } %>
+								<% if (item.users) { %><a href="/admin/users/view/<%=item.users.id%>" title="Show '<%= item.users.name %>'"><%= item.users.name %></a><% } else { %>No manager<% } %>
 							</td>
 							<td>
 								<%= new Date(item.created_at).toLocaleString() %>

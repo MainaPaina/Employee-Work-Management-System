@@ -29,41 +29,21 @@
 				<table id="usersTable">
 					<thead>
 						<tr>
-							<th>
-								<input type="checkbox" id="selectAllUsers" class="form-check-input">
-							</th>
-							<th>
-								Username
-							</th>
-							<th>
-								Name
-							</th>
-							<th>
-								Email
-							</th>
-							<th>
-								Roles
-							</th>
-							<th>
-								Department
-							</th>
+							<th>Username</th>
+							<th>Name</th>
+							<th>Email</th>
+							<th>Roles</th>
+							<th>Department</th>
 							<th>Manager</th>
-							<th>
-								Status
-							</th>
-							<th>
-								Last Login
-							</th>
-							<th>
-								<i class="fas fa-cogs"></i>
-							</th>
+							<th>Status</th>
+							<th>Last Login</th>
+							<th><i class="fas fa-cogs"></i></th>
 						</tr>
 					</thead>
 					<tbody>
 						<% if (typeof users !== 'undefined' && users.length > 0) { %>
 						<% users.forEach(user => { %>
                         <tr data-user-id="<%= user.id %>" data-role="<%= user.role %>" data-status="<%= user.active ? 'active' : 'inactive' %>">
-							<td><input type="checkbox" class="user-select form-check-input"></td>
 							<td><%= user.username %></td>
 							<td><%= user.name %></td>
 							<td><%= user.email %></td>
@@ -74,12 +54,8 @@
 							<td><%= user.lastlogin_at ? new Date(user.lastlogin_at).toLocaleString() : 'Never' %></td>
 							<td>
 								<div class="button-group">
-									<a href="/admin/users/view/<%= user.id %>" class="btn btn-info btn-tiny" title="Show user details">
-										<i class="fas fa-user-pen"></i>
-									</a>
-									<a href="#" class="btn btn-danger btn-tiny" data-user-id="<%= user.id %>" data-user-name="<%= user.name %>" title="Delete user">
-										<i class="fas fa-trash"></i>
-									</a>
+									<a href="/admin/users/view/<%= user.id %>" class="btn btn-info btn-tiny" title="Show user details"><i class="fas fa-address-card"></i></a>
+									<a href="#" class="btn btn-danger btn-tiny" data-user-id="<%= user.id %>" data-user-name="<%= user.name %>" title="Delete user"><i class="fas fa-trash"></i></a>
 								</div>
 							</td>
 						</tr>

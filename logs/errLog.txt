@@ -3733,3 +3733,156 @@ Cannot read properties of null (reading 'start_time')
     18|                     <div class="card-item-label">Remaining Time:</div>
 
 Cannot read properties of null (reading 'start_time')
+15042025	09:11:17	41d3992d-02f8-46fc-8dcf-e111421478ba	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	09:14:23	39929e36-d2fc-45a3-b8a8-2b2d3690b253	404 Not Found: GET /manager
+15042025	09:14:23	ae3b7660-712f-4a2f-a293-8247467e3e59	Error: Page Not Found
+15042025	09:14:56	2495679c-d0bf-4896-bc02-04262894aa10	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	09:15:23	ddecc001-1ce4-4ece-b745-e564cd6c192c	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	10:17:02	67599883-f240-4726-a46f-d4507f043ed2	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	10:17:08	43800b6b-d008-47e8-8d6d-101e35c5f561	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	13:47:43	fe57cd13-1f10-4db2-92f8-139fa175b85d	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	13:47:45	f954f1c8-ce1e-491f-be54-3930022250bc	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	13:48:53	1bc00570-ce0a-4224-9050-ccddc39b49b5	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	13:52:28	6ac0c042-aa65-4657-bf00-2cd858827d62	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	13:57:21	15a120af-6659-4108-ab72-e634f59f91fb	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	15:19:39	dbd0dfaf-52fc-4c35-9ad2-384c82ca5e1b	SyntaxError: Unexpected token 'catch' in E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs while compiling ejs
+
+If the above error is not helpful, you may want to try EJS-Lint:
+https://github.com/RyanZim/EJS-Lint
+Or, if you meant to create an async function, pass `async: true` as an option.
+15042025	15:23:05	b4bf4785-c124-42f3-9ae3-9d7d56a68aaa	404 Not Found: GET /favicon.ico
+15042025	15:23:05	706cb7cc-e6c5-40fa-acf6-55e276dfd1ed	Error: Page Not Found
+15042025	15:29:39	90123452-2420-4943-b223-3baa47fcf5e0	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value=""
+    49| 								<%= departments[i].id %>"><%= departments[i].name %>
+
+departments is not defined
+15042025	16:00:28	ef065948-dc59-4578-a2dd-760703651215	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value=""
+    49| 								<%= departments[i].id %>"><%= departments[i].name %>
+
+departments is not defined
+15042025	22:28:32	17929102-1127-41d6-a53c-24e3ad661328	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined
+15042025	22:28:39	4d7cea44-08d9-46dc-b2ec-0dbfc2486c70	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined
+15042025	22:30:01	4419466d-d102-4bcd-8bda-cb1ac1c26aba	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined
+15042025	22:30:25	7d3e5675-2e36-43ea-adb4-1f0840a0a2cf	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined

@@ -1,5 +1,4 @@
 const express = require('express');
-
 const router = express.Router();
 
 // Anon key client (for general reads, respecting RLS)
@@ -11,13 +10,21 @@ const verifyRoles = require('../../middleware/verifyRoles');
 const User = require('../../model/User');
 const Role = require('../../model/Role');
 
+const { getPolicies } = require('../../controllers/admin/policyController');
+
+// GET: /admin/policies
+router.route('/').get(getPolicies, verifyRoles(['admin']));
+
+
+
+/*
 router.get('/', verifyRoles(['admin']), async (req, res) => {
     res.render('admin/policies/index', {
         activePage: 'admin',
         activeSubPage: 'policies',
     });
 });
-
+*/
 
 
 
