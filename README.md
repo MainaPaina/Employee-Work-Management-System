@@ -26,9 +26,9 @@ Better Time Management is a web-based application designed to help organizations
 
 ## Wireframe & Design
 
-Our pictures of our Wireframe stored in a google drive folder. [Click here](https://drive.google.com/drive/folders/1IjGixqCw1XO6SGw3HjePybzLAEChsx5r?usp=sharing) for a preivew
+Pictures of our Wireframe for our design. [Click here](https://drive.google.com/drive/folders/1IjGixqCw1XO6SGw3HjePybzLAEChsx5r?usp=sharing) for a preivew
 
-Our Figma design. [click here](https://www.figma.com/proto/ZwdNLJc6DwWglFVEjYbfZ6/TimeManagement-Design?node-id=0-1&t=q41nd7CR70m6a272-1) for a preview.
+Figma design for our project. [click here](https://www.figma.com/proto/ZwdNLJc6DwWglFVEjYbfZ6/TimeManagement-Design?node-id=0-1&t=q41nd7CR70m6a272-1) for a preview.
 
 ## ✨ Features
 
