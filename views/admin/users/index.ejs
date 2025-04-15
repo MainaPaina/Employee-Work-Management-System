@@ -9,7 +9,7 @@
 
 	<%- include('../partials/menu', { activePage, activeSubPage }) %>
 </div>
-<div class="container container-full-width">
+<div class="container container-full-width" id="expandable-container">
 	<div class="cards cards-1">
 		<div class="card">
 			<div class="card-header">
@@ -20,9 +20,8 @@
 					Users
 				</h2>
 				<div class="card-actions">
-					<a href="/admin/users/create">
-						<i class="fas fa-user-plus"></i> Create User
-					</a>
+					<a href="/admin/users/create" class="btn btn-primary" style="width: initial;"><i class="fas fa-user-plus"></i> Create User</a> 
+					<a href="#" onclick="return expandContainer('expandable-container');" class="btn btn-primary"><i class="fas fa-down-left-and-up-right-to-center" id="expandable-container-icon"></i></a>
 				</div>
 			</div>
 			<div class="card-body">

@@ -2,6 +2,29 @@ const supabase = require('../config/supabase/client');
 const supabaseAdmin = require('../config/supabase/admin');
 
 class User {
+
+    /// Static method to list all users (e.g., for admin page)
+    static async listAll() {
+        try {
+            const { data: users, error: usersError } = await supabase
+                .from('users')
+                .select('id, username, name, active, email, lastlogin_at, department:departments!users_department_fkey' +
+                    '(id, name, name_alias,manager:users!departments_manager_id_fkey(id,name))' +
+                    ', roles:user_roles(role:roles(id,name))')
+                .order('name');
+            console.log(JSON.stringify(users, null, 2));
+            if (usersError) {
+                console.error('Supabase error fetching users for admin page:', usersError);
+                throw usersError;
+            }
+        }
+        catch (error) {
+            console.error('Error fetching user list:', error);
+            return null;
+        }
+    }
+
+
     // Static method to find user profile data by ID (e.g., from users table)
     static async findById(id) {
         if (!id) return null; // Prevent query with null/undefined ID

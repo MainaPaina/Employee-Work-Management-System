@@ -27,17 +27,10 @@
 				<h3 class="footer-title">Quick Links</h3>
 				<ul class="footer-links">
 					<li>
-						<a href="/">
+						<a href="/<%=(typeof isAuthenticated !== 'undefined' && isAuthenticated) ? 'dashboard' : '' %>">
 							<i class="fas fa-home"></i> Home
 						</a>
 					</li>
-					<% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
-					<li>
-						<a href="/dashboard">
-							<i class="fas fa-tachometer-alt"></i> Dashboard
-						</a>
-					</li>
-					<% } %>
                         <li>
 						<a href="/contact">
 							<i class="fas fa-envelope"></i> Contact

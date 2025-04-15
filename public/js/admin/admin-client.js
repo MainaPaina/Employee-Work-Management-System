@@ -9,6 +9,18 @@ FROM main.js
 function showMessage(message, type = 'danger');
 */
 
+function expandContainer(container) {
+    let containerElement = document.getElementById(container);
+    if (containerElement) {
+        containerElement.classList.toggle('container-full-width');
+        let icon = containerElement.querySelector('#expandable-container-icon');
+        if (icon) {
+            icon.classList.toggle('fa-down-left-and-up-right-to-center');
+            icon.classList.toggle('fa-up-right-and-down-left-from-center');
+        }
+    }
+    return false;
+}
 
 /*
 =================================================
