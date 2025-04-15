@@ -12,26 +12,39 @@
             <div class="card-body">
                 <div class="card-item">
                     <div class="card-item-label">Clock In:</div>
-                    <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+                    <div class="card-item-value">
+                        <% if (dashboardData.activeEntry) { %>
+                            <%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %>
+                        <% } else { %>
+                            Not clocked in
+                        <% } %>
+                    </div>
                 </div>
                 <div class="card-item">
                     <div class="card-item-label">Remaining Time:</div>
                     <div class="card-item-value"><%= dashboardData.remainingHours %> hours</div>
                 </div>
-                <% if (dashboardData.activeEntry.last_break_start_time && !dashboardData.activeEntry.last_break_end_time) { %>
-                    <div class="card-item">
-                        <span class="card-item-label">Status:</span>
-                        <span class="card-item-value status-break">On Break</span>
-                    </div>
-                <% } else if (dashboardData.activeEntry.last_unavailable_start_time && !dashboardData.activeEntry.last_unavailable_end_time) { %>
-                    <div class="card-item">
-                        <span class="card-item-label">Status:</span>
-                        <span class="card-item-value status-unavailable">Unavailable</span>
-                    </div>
+                <% if (dashboardData.activeEntry) { %>
+                    <% if (dashboardData.activeEntry.last_break_start_time && !dashboardData.activeEntry.last_break_end_time) { %>
+                        <div class="card-item">
+                            <span class="card-item-label">Status:</span>
+                            <span class="card-item-value status-break">On Break</span>
+                        </div>
+                    <% } else if (dashboardData.activeEntry.last_unavailable_start_time && !dashboardData.activeEntry.last_unavailable_end_time) { %>
+                        <div class="card-item">
+                            <span class="card-item-label">Status:</span>
+                            <span class="card-item-value status-unavailable">Unavailable</span>
+                        </div>
+                    <% } else { %>
+                        <div class="card-item">
+                            <span class="card-item-label">Status:</span>
+                            <span class="card-item-value status-active">Active</span>
+                        </div>
+                    <% } %>
                 <% } else { %>
                     <div class="card-item">
                         <span class="card-item-label">Status:</span>
-                        <span class="card-item-value status-active">Active</span>
+                        <span class="card-item-value text-muted">Not clocked in</span>
                     </div>
                 <% } %>
             </div>
