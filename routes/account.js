@@ -98,7 +98,7 @@ router.post('/login', async (req, res) => {
         //if (updateLogin) {
         //    console.error("Supabase User Table Update Error:", updateLogin.message);
         //}
-        console.log('User profile data:', profileData); // Log profile data for debugging)
+        //console.log('User profile data:', profileData); // Log profile data for debugging)
 
         // Fetch roles for the user
         const roles = await Role.listUserRoles(authData.user.id);
@@ -118,7 +118,7 @@ router.post('/login', async (req, res) => {
             profile_image: profileData.profile_image, // Ensure role exists, default if necessary
             roles: roles || [],
         };
-        console.log('Session user:', sessionUser); // Log session user for debugging)
+        //console.log('Session user:', sessionUser); // Log session user for debugging)
         req.session.user = sessionUser; // Store user info in session
 
         // 4. Create JWT

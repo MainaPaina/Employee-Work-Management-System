@@ -1,8 +1,85 @@
 <div class="container main-content">
-    <!-- Your existing admin content goes here without the backticks -->
-    <div class="page-header">
-        <h1><i class="fas fa-building-user"></i> Departments</h1>
-    <p class="lead">Manage company wide settings and policies for employees</p>
-</div>
+	<!-- Your existing admin content goes here without the backticks -->
+	<div class="page-header">
+		<h1 class="page-title">
+			<i class="fas fa-building-user"></i> Departments
+		</h1>
+		<p class="page-subtitle">Manage departments</p>
+	</div>
 
-<%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+	<%- include('../partials/menu', { activePage, activeSubPage }) %>
+
+	<div class="cards cards-1">
+		<div class="card">
+			<div class="card-header">
+				<h2>
+					<div class="card-icon">
+						<i class="fas fa-building-user"></i>
+					</div>
+					List of departments
+				</h2>
+				<div class="card-actions">
+					<a href="/admin/departments/create">
+						<i class="fas fa-user-plus"></i> Create Department
+					</a>
+				</div>
+			</div>
+			<div class="card-body">
+				<table id="departmentsTable">
+					<thead>
+						<tr>
+							<!--.select('id,name,name_alias,users (id,name),created_at')-->
+							<th><input type="checkbox" id="selectAllUsers" class="form-check-input"></th>
+							<th>Id</th>
+							<th>Name</th>
+							<th>Alias</th>
+							<th>Manager</th>
+							<th>Created At</th>
+							<th><i class="fas fa-cogs"></i></th>
+						</tr>
+					</thead>
+					<tbody>
+						<% if (typeof departments !== 'undefined' && departments.length > 0) { %>
+							<% departments.forEach(item => { %>
+                        <tr data-id="<%= item.id %>" data-name="<%= item.name %>" data-name_alias="<%= item.name_alias %>">
+							<td>
+								<input type="checkbox" class="user-select form-check-input">
+							</td>
+							<td>
+								<%= item.id %>
+							</td>
+							<td>
+								<%= item.name %>
+							</td>
+							<td>
+								<%= item.name_alias %>
+							</td>
+							<td>
+								<% if (item.users) { %><%= item.users.name %><% } else { %>Not Assigned<% } %>
+							</td>
+							<td>
+								<%= new Date(item.created_at).toLocaleString() %>
+						    </td>
+							<td>
+								<div class="button-group">
+									<a href="/admin/deparments/view/<%= item.id %>" class="btn btn-info btn-tiny" title="Show department details">
+										<i class="fas fa-eye"></i>
+									</a>
+									<a href="#" class="btn btn-danger btn-tiny" data-id="<%= item.id %>" data-name="<%= item.name %>" title="Delete department">
+										<i class="fas fa-trash"></i>
+									</a>
+								</div>
+							</td>
+						</tr>
+						<% }); %>
+                <% } else { %>
+                    <tr>
+							<td colspan="9" class="text-center">No departments found</td>
+						</tr>
+						<% } %>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

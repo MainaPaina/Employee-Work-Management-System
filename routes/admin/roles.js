@@ -10,13 +10,21 @@ const verifyRoles = require('../../middleware/verifyRoles');
 const Role = require('../../model/Role');
 
 router.get('/', async (req, res) => {
+
     try {
-        console.log('GET /admin/roles called');
-        // Fetch all users from the database
-        let roles = await Role.list(includeCountUsers = true);
+        const { data, error } = await supabaseAdmin
+            .from('roles')
+            .select('id, name, created_at, users:user_roles( user:users (id, name))')
+            .order('name');
+
+        //console.log(JSON.stringify(users, null, 2));
+        if (error) {
+            console.error('Supabase error fetching users for admin page:', error);
+            throw error;
+        }
 
         res.render('admin/roles/index', {
-            roles: roles || [],
+            roles: data || [],
             activePage: 'admin',
             activeSubPage: 'roles',
             currentUser: req.session.user
@@ -24,9 +32,9 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.error('Error fetching admin data:', error);
         res.render('admin/index', {
-            users: [],
-            timesheets: [],
+            roles: [],
             activePage: 'admin',
+            activeSubPage: '',
             currentUser: req.session.user,
             error: `Failed to load admin data: ${error.message}`
         });

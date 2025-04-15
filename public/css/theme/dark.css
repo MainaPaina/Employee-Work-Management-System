@@ -316,35 +316,7 @@ a:hover:not(.btn,.nav-link) {
 
 
 
-/* Card styling with glass morphism effect */
-.card {
-    /*background-color: rgba(18, 25, 43, 0.7);*/
 
-    background-color: rgba(18, 25, 43, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.card-narrow {
-    max-width: 500px;
-    margin: auto;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.card-header {
-    color: white;
-}
-    
-.card-header h2 i {
-    color: var(--accent-color);
-}
 
 
 
@@ -768,88 +740,7 @@ a:hover:not(.btn,.nav-link) {
         }
     }
 
-    /* Timesheet Page Styling */
-    
 
-    /* Dashboard Cards */
-    /*.dashboard-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px;
-        margin-bottom: 40px;
-    }
-
-    .dashboard-card {
-        display: flex;
-        padding: 25px;
-        border-radius: 16px;
-        background-color: rgba(18, 25, 43, 0.7);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        box-shadow: var(--box-shadow);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .dashboard-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(45deg, rgba(74, 108, 253, 0.08), rgba(0, 216, 195, 0.08));
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 0;
-    }
-
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-    }
-
-    .dashboard-card:hover::before {
-        opacity: 1;
-    }*/
-
-    .card-icon {
-        background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
-        color: var(--text-color);
-        box-shadow: 0 10px 20px rgba(74, 108, 253, 0.2);
-    }
-    
-/*
-    .dashboard-card:nth-child(2) .card-icon {
-        background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
-        box-shadow: 0 10px 20px rgba(255, 125, 59, 0.2);
-    }
-
-    .dashboard-card:nth-child(3) .card-icon {
-        background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
-        box-shadow: 0 10px 20px rgba(0, 216, 195, 0.2);
-    }
-*/
-    .card-content {
-        flex: 1;
-        position: relative;
-        z-index: 1;
-    }
-
-    .card-content h4 {
-        font-size: 1rem;
-        font-weight: 500;
-        color: var(--text-muted);
-        margin-bottom: 10px;
-    }
-
-    .card-value {
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: white;
-    }
 
     /* Countdown Timer */
     .countdown-container {
@@ -1170,40 +1061,83 @@ a:hover:not(.btn,.nav-link) {
         justify-content: center;
     }
 
-    .hero-shapes .shape {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(50px);
-        z-index: 1;
-        opacity: 0.5;
-    }
 
-    .shape1 {
-        background: var(--gradient-primary);
-        width: 300px;
-        height: 300px;
-        top: -100px;
-        left: -100px;
-        animation: float 8s ease-in-out infinite;
-    }
+.hero-shapes .shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(50px);
+    z-index: 1;
+    opacity: 0.5;
+}
 
-    .shape2 {
-        background: var(--gradient-danger);
-        width: 200px;
-        height: 200px;
-        bottom: -50px;
-        right: -50px;
-        animation: float 12s ease-in-out infinite;
-    }
+.hero-shapes .shape1 {
+    background: var(--primary-color);
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    left: -100px;
+    animation: float 8s ease-in-out infinite;
+}
 
-    .shape3 {
-        background: var(--gradient-accent);
-        width: 150px;
-        height: 150px;
-        bottom: 100px;
-        left: 30%;
-        animation: float 10s ease-in-out infinite;
-    }
+.hero-shapes .shape2 {
+    background: var(--secondary-color);
+    width: 200px;
+    height: 200px;
+    bottom: -50px;
+    right: -50px;
+    animation: float 12s ease-in-out infinite;
+}
+
+.hero-shapes .shape3 {
+    background: var(--accent-color);
+    width: 150px;
+    height: 150px;
+    bottom: 100px;
+    left: 30%;
+    animation: float 10s ease-in-out infinite;
+}
+
+.floating-shapes {
+    position: relative;
+}
+
+.floating-shapes .shape1 {
+    background: var(--gradient-primary);
+    width: 300px;
+    height: 300px;
+    animation: float 8s ease-in-out infinite;
+    font-size: 300px;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block !important;
+    margin: auto;
+}
+
+.floating-shapes .shape2 {
+    background: var(--gradient-danger);
+    width: 200px;
+    height: 200px;
+    animation: float 12s ease-in-out infinite;
+    background-clip: text;
+    color: transparent;
+    display: block !important;
+    font-size: 200px;
+    margin: auto;
+}
+
+.floating-shapes .shape3 {
+    background: var(--gradient-accent);
+    width: 200px;
+    height: 200px;
+    animation: float 10s ease-in-out infinite;
+    background-clip: text;
+    color: transparent;
+    display: block !important;
+    font-size: 150px;
+    margin: auto;
+}
 
     @keyframes float {
         0% { transform: translateY(0) rotate(0deg); }
@@ -1262,11 +1196,6 @@ a:hover:not(.btn,.nav-link) {
         gap: 50px;
         align-items: center;
     }
-
-    .feature-list {
-        list-style: none;
-    }
-
     .about-text {
         padding-right: 20px;
     }
@@ -1277,11 +1206,11 @@ a:hover:not(.btn,.nav-link) {
         line-height: 1.8;
     }
 
-    .about-stats {
-        display: flex;
-        gap: 30px;
-        margin-top: 40px;
+    .feature-list {
+        list-style: none;
     }
+
+    
 
     .stat-item {
         text-align: center;
@@ -1310,26 +1239,6 @@ a:hover:not(.btn,.nav-link) {
         border-radius: 20px;
         width: 100%;
         box-shadow: var(--box-shadow);
-    }
-
-    .about-card {
-        position: absolute;
-        bottom: -30px;
-        left: -30px;
-        background: rgba(18, 25, 43, 0.8);
-        backdrop-filter: blur(10px);
-        padding: 20px;
-        border-radius: 16px;
-        width: 220px;
-        box-shadow: var(--box-shadow);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .about-card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 10px;
-        color: white;
     }
 
     .progress-item {

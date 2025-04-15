@@ -1,4 +1,4 @@
-<div class="container main-content">
+<div class="container">
 	<!-- Your existing admin content goes here without the backticks -->
 	<div class="page-header">
 		<h1 class="page-title">
@@ -8,7 +8,8 @@
 	</div>
 
 	<%- include('../partials/menu', { activePage, activeSubPage }) %>
-
+</div>
+<div class="container container-full-width">
 	<div class="cards cards-1">
 		<div class="card">
 			<div class="card-header">
@@ -16,7 +17,7 @@
 					<div class="card-icon">
 						<i class="fas fa-users-cog"></i>
 					</div>
-					List of Users
+					Users
 				</h2>
 				<div class="card-actions">
 					<a href="/admin/users/create">
@@ -32,81 +33,51 @@
 								<input type="checkbox" id="selectAllUsers" class="form-check-input">
 							</th>
 							<th>
-								<i class="fas fa-id-badge"></i> Username
+								Username
 							</th>
 							<th>
-								<i class="fas fa-user"></i> Full Name
+								Name
 							</th>
 							<th>
-								<i class="fas fa-envelope"></i> Email
+								Email
 							</th>
 							<th>
-								<i class="fas fa-user-tag"></i> Roles
+								Roles
 							</th>
 							<th>
-								<i class="fas fa-sitemap"></i> Department
+								Department
+							</th>
+							<th>Manager</th>
+							<th>
+								Status
 							</th>
 							<th>
-								<i class="fas fa-clock"></i> Status
+								Last Login
 							</th>
 							<th>
-								<i class="fas fa-calendar"></i> Last Login
-							</th>
-							<th>
-								<i class="fas fa-cogs"></i> Actions
+								<i class="fas fa-cogs"></i>
 							</th>
 						</tr>
 					</thead>
 					<tbody>
 						<% if (typeof users !== 'undefined' && users.length > 0) { %>
 						<% users.forEach(user => { %>
-                        <tr data-user-id=""
-							<%= user.id %>" data-role="<%= user.role %>" data-status="<%= user.active ? 'active' : 'inactive' %>">
-							<td>
-								<input type="checkbox" class="user-select form-check-input">
-							</td>
-							<td>
-								<%= user.username %>
-							</td>
-							<td>
-								<%= user.name %>
-							</td>
-							<td>
-								<%= user.email %>
-							</td>
-							<td>
-								<%
-                                if (user.roles && user.roles.length > 0) {
-								user.roles.forEach(role => {
-								%>
-								<span class="badge"
-									<%= (role === 'admin' ? 'bg-danger' : (role === 'manager' ? 'bg-warning' : 'bg-info')) %>"><%= role.charAt(0).toUpperCase() + role.slice(1) %>
-								</span>
-								<%
-                                    });
-								} else {
-								user.role = 'guest'; // Default role if none is assigned
-								}
-								%>
-							</td>
-							<td>
-								<% if (user.departments && user.departments.name) { %><%= user.departments.name %><% } else { %>Not Assigned<% } %>
-							</td>
-							<td>
-								<span class="badge"
-									<%= user.active ? 'bg-success' : 'bg-secondary' %>">
-									<%= user.active ? 'Active' : 'Inactive' %>
-								</span>
-							</td>
-							<td>
-								<%= user.lastlogin_at ? new Date(user.lastlogin_at).toLocaleString() : 'Never' %>
-								</td>
+                        <tr data-user-id="<%= user.id %>" data-role="<%= user.role %>" data-status="<%= user.active ? 'active' : 'inactive' %>">
+							<td><input type="checkbox" class="user-select form-check-input"></td>
+							<td><%= user.username %></td>
+							<td><%= user.name %></td>
+							<td><%= user.email %></td>
+							<td><% if (user.roles && user.roles.length > 0) { for (let i = 0; i < user.roles.length; i++) { %><span class="role-badge role-badge-<%= (user.roles[i].role.name) %>"><%= user.roles[i].role.name.charAt(0).toUpperCase() + user.roles[i].role.name.slice(1) %></span><% }; } %></td>
+							<td><% if (user.department && user.department.name_alias) { %><a href="/admin/departments/view/<%=user.department.id%>"><%= user.department.name_alias %></a><% } %></td>
+							<td><% if (user.department && user.department.manager && user.department.manager.name) { %><a href="/admin/users/view/<%=user.department.manager.id%>"><%= user.department.manager.name %></a><% } %></td>
+							<td><span class="status-badge <%= user.active ? 'status-submitted' : 'status-completed' %>"><%= user.active ? 'Active' : 'Inactive' %></span></td>
+							<td><%= user.lastlogin_at ? new Date(user.lastlogin_at).toLocaleString() : 'Never' %></td>
 							<td>
 								<div class="button-group">
-									<a href="/admin/users/view/<%= user.id %>" class="btn btn-info" title="Show user details">
+									<a href="/admin/users/view/<%= user.id %>" class="btn btn-info btn-tiny" title="Show user details">
 										<i class="fas fa-user-pen"></i>
 									</a>
-									<a href="#" class="btn btn-danger delete-user" data-user-id="<%= user.id %>" data-user-name="<%= user.name %>" title="Delete user">
+									<a href="#" class="btn btn-danger btn-tiny" data-user-id="<%= user.id %>" data-user-name="<%= user.name %>" title="Delete user">
 										<i class="fas fa-trash"></i>
 									</a>
 								</div>

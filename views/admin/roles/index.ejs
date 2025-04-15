@@ -1,45 +1,68 @@
-
-<div class="container main-content">
-    <!-- Your existing admin content goes here without the backticks -->
-    <div class="page-header">
-        <h1 class="page-title"><i class="fas fa-users-between-lines"></i> Role Management</h1>
-        <p class="page-subtitle">Add, edit or delete roles - may impact permissions to sections of the website</p>
-    </div>
-    
-
-    <%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+<div class="container">
+	<!-- Your existing admin content goes here without the backticks -->
+	<div class="page-header">
+		<h1 class="page-title">
+			<i class="fas fa-users-between-lines"></i> Role Management
+		</h1>
+		<p class="page-subtitle">Add, edit or delete roles - may impact permissions to sections of the website</p>
+	</div>
 
 
+	<%- include('../partials/menu', { activePage, activeSubPage }) %>
+</div>
+<div class="container container-full-width">
+	<div class="cards cards-1">
+		<div class="card">
+			<div class="card-header">
+				<h2>
+					<div class="card-icon"><i class="fa fa-users-between-lines"></i></div>
+					Roles
+				</h2>
+				<div class="card-actions">
+					<a href="/admin/roles/create">
+						<i class="fas fa-plus"></i> Create Role
+					</a>
+				</div>
+			</div>
+			<div class="card-body">
+				<table>
+					<thead>
+						<tr>
+							<th>Id</th>
+							<th>Name</th>
+							<th colspan="2">Users</th>
+							<th>Created</th>
+							<th>
+								<i class="fa fa-cog"></i>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<% roles.forEach(role => { %>
+						
+						<tr>
+							<td><%= role.id %></td>
+							<td><%= role.name %></td>
+							<td><%= (role.users && role.users.length > 0) ? role.users.length : 0 %></td>
+							<td>
+								<%if (role.users && role.users.length > 0) {
+									for (let i = 0; i < role.users.length; i++) { %>
+								%><a href="/admin/users/view/<%=role.users[i].user.id%>"><%= role.users[i].user.name %></a><% if (i < role.users.length - 1) { %>, <% } %>
+								<% }} %>
+							</td>
+							<td><%= (new Date(role.created_at).toLocaleString()) %></td>
+							<td>
+								<div class="button-group">
+									<a href="/admin/roles/view/<%= role.id %>" class="btn btn-primary btn-tiny">View</a>
+									<button type="button" class="btn btn-danger btn-tiny" onclick="roleDeletionConfirmation(this);" data-role-id="<%= role.id %>" data-role-name="<%=role.name%>">Delete</button>
+								</div>
+							</td>
+						</tr>
+						<% }) %>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 
-    <table class="table table-responsive">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Users</th>
-                <th>Created</th>
-                <th>
-                    <div class="btn-group btn-group-sm">
-                        <a href="/admin/roles/create"><i class="fas fa-plus"></i> Create</a>
-                    </div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <% roles.forEach(role => { %>
-                <tr>
-                    <td><%= role.id %></td>
-                    <td><%= role.name %></td>
-                    <td><%= role.userCount %></td>
-                    <td><%= (new Date(role.created_at).toLocaleString()) %></td>
-                    <td>
-                        <div class="btn-group brn-group-sm">
-                            <a href="/admin/roles/view/<%= role.id %>" class="btn btn-primary">View</a>
-                            <button type="button" class="btn btn-danger" onclick="roleDeletionConfirmation(this);" data-role-id="<%= role.id %>" data-role-name="<%=role.name%>">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-            <% }) %>
-        </tbody>
-    </table>
 </div>

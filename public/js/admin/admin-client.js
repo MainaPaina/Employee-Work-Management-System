@@ -5,6 +5,7 @@ JAVASCRIPT FILE FOR ADMIN PAGE AND FUNCTIONALITY
 */
 
 /*
+FROM main.js
 function showMessage(message, type = 'danger');
 */
 
@@ -17,8 +18,11 @@ USER MANAGEMENT SPECIFIC FUNCTIONS
 const create_roles = [];
 
 async function validateFormCreateUser(e, form) {
+
+    // Prevent form to be submitted
     e.preventDefault();
 
+    // Show an message to the user
     showMessage('Creating user...', 'alert-info');
 
     // verify that all fields has data
@@ -29,48 +33,62 @@ async function validateFormCreateUser(e, form) {
     let name = formData.get('name');
     let department = formData.get('department');
 
-    // check that username is unique
-    console.log('check if user exists');
+    // verify that username do not exists
     let usernameExists = await checkExistingUsername(username);
-    console.log('username exists: ' + usernameExists);
     if (username.length < 3 || usernameExists) {
         showMessage('Username is invalid or already exists!', 'alert-danger');
+        // Prevent form from beeing submitted
         return false;
     }
 
-    // check that username is unique
-    console.log('check if email exists');
+    // verify that email do not exists
     let emailExists = await checkExistingEmail(email);
-    console.log('email exists: ' + emailExists);
     if (email.length < 3 || emailExists) {
         showMessage('Email is invalid or already exists!', 'alert-danger');
+        // Prevent form from beeing submitted
         return false;
     }
 
+    // checks if any roles has been assigned
     if (create_roles && create_roles.length > 0) {
 
+        // API Endpoint for creating a user
         const url = "/admin/api/users/create";
+
+        // Send request to the server, as post with json data containing all the form elements
         const response = await fetch(url, {
             method: 'post',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password, email, name, department, roles: create_roles }),
         });
+
+        // Check if the response is ok, if not show an error message
         if (!response.ok) {
+            // Response not ok, show an error message
+            showMessage('Error creating user: ' + response.statusText, 'alert-danger');
+            // Prevent form from beeing submitted
             return false;
         }
+
+        // Show a success message to the user
         showMessage('User created successfully! Redirecting to list.', 'alert-success');
+
+        // Redirect to the list of users after 2 seconds
         setTimeout(() => {
             window.location.href = '/admin/users';
         }, 2000);
 
     }
-    else {
+    else { // If no roles is assigned
+
+        // Show an error message to the user about the roles missing
         showMessage('No roles have been added, required to have at least 1 role', 'alert-danger');
+
+        // Prevent form from beeing submitted
         return false;
     }
 
-
-
+    // Prevent form from beeing submitted
     return false;
 }
 

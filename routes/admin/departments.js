@@ -12,26 +12,27 @@ const Role = require('../../model/Role');
 
 router.get('/', verifyRoles(['admin']), async (req, res) => {
     try {
-        const { data: users, error: usersError } = await supabase
+        const { data, error } = await supabase
             .from('departments')
-            .select('name')
+            .select('id,name,name_alias,users!departments_manager_id_fkey (id,name),created_at')
             .order('name');
 
-        if (usersError) {
-            console.error('Supabase error fetching users for admin page:', usersError);
-            throw usersError;
+        if (error) {
+            console.error('Supabase error fetching departments for admin page:', error);
+            throw error;
         }
 
         res.render('admin/departments/index', {
-            users: users || [],
+            departments: data || [],
             activePage: 'admin',
+            activeSubPage: 'departments',
             currentUser: req.session.user
         });
+
     } catch (error) {
         console.error('Error fetching admin data:', error);
         res.render('admin/departments/index', {
-            users: [],
-            timesheets: [],
+            departments: [],
             activePage: 'admin',
             activeSubPage: 'departments',
             currentUser: req.session.user,

@@ -51,11 +51,11 @@ class User {
     static async findByUsername(username) {
         if (!username) return null;
         try {
-            console.log('Searching for user with username:', username);
+            //console.log('Searching for user with username:', username);
 
             // Use the admin client if available to bypass RLS
             const client = supabaseAdmin || supabase;
-            console.log('Using', supabaseAdmin ? 'admin client (bypasses RLS)' : 'regular client (respects RLS)');
+            //console.log('Using', supabaseAdmin ? 'admin client (bypasses RLS)' : 'regular client (respects RLS)');
 
             // First, try to get all users to see what's in the database
             const { data: allUsers, error: allUsersError } = await client
@@ -63,9 +63,9 @@ class User {
                 .select('id, email, username');
 
             if (allUsersError) {
-                console.error('Error fetching all users:', allUsersError.message);
+                //console.error('Error fetching all users:', allUsersError.message);
             } else {
-                console.log('All users in database:', JSON.stringify(allUsers, null, 2));
+                //console.log('All users in database:', JSON.stringify(allUsers, null, 2));
             }
 
             // Now try to find the specific user by username
@@ -86,7 +86,7 @@ class User {
             }
 
             // If no user found by username, try by email as a fallback
-            console.log('No user found by username, trying email as fallback...');
+            //console.log('No user found by username, trying email as fallback...');
             const { data: emailData, error: emailError } = await client
                 .from('users')
                 .select('id, email, username')
@@ -98,7 +98,7 @@ class User {
                 return null;
             }
 
-            console.log('User lookup by email result:', emailData ? 'Found user' : 'No user found');
+            //console.log('User lookup by email result:', emailData ? 'Found user' : 'No user found');
             return emailData; // Return the profile object or null
         } catch (error) {
             console.error('Exception fetching user profile by username:', error);
@@ -108,7 +108,7 @@ class User {
 
     /// Create new user
     static async create(inUser) {
-        console.log('Creating user:', inUser);
+        //console.log('Creating user:', inUser);
         const roles = inUser.roles || [];
         if (roles.length == 0) {
             console.error('No roles provided for user creation.'); // Log if no roles are provided
@@ -155,11 +155,11 @@ class User {
                 return null;
             }
 
-            console.log('User created in Supabase Auth:', authData.user);
+            //console.log('User created in Supabase Auth:', authData.user);
             const userId = authData.user.id;
-            console.log('User created in Supabase Auth with ID:', userId);
+            //console.log('User created in Supabase Auth with ID:', userId);
 
-            console.log('Inserting user profile into public.users using Admin Client...');
+            //console.log('Inserting user profile into public.users using Admin Client...');
             const { data: profileData, error: insertError } = await supabaseAdmin // Use supabaseAdmin for insert
                 .from('users')
                 .insert({
@@ -185,7 +185,7 @@ class User {
                 return null;
             }
 
-            console.log('User created:', profileData);
+            //console.log('User created:', profileData);
             // now need to add user to provided roles
             for (let i = 0; i < roles.length; i++) {
                 const { data: roleData, error: roleError } = await supabaseAdmin
