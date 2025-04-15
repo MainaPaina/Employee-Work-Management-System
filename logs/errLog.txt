@@ -3715,3 +3715,21 @@ Or, if you meant to create an async function, pass `async: true` as an option.
 15042025	03:37:19	5babedb2-7713-42ce-bd58-d34aa8566962	Error: Cannot set headers after they are sent to the client
 15042025	03:38:36	dbbbec01-3b72-43ef-aea7-a870be258e84	Error: Cannot set headers after they are sent to the client
 15042025	03:39:09	5032c155-2fd2-4e4f-9edc-ba056b4bcebc	Error: Cannot set headers after they are sent to the client
+15042025	03:44:40	be2f0494-aa44-4070-9f8a-4d1281d428fc	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')
+15042025	03:47:40	cd49a6a5-bc47-44cf-ad3b-61ba9e533186	TypeError: E:\MainaSolutions\Better-Time-Management\views\dashboard.ejs:15
+    13|                 <div class="card-item">
+    14|                     <div class="card-item-label">Clock In:</div>
+ >> 15|                     <div class="card-item-value"><%= new Date(dashboardData.activeEntry.start_time).toLocaleTimeString() %></div>
+    16|                 </div>
+    17|                 <div class="card-item">
+    18|                     <div class="card-item-label">Remaining Time:</div>
+
+Cannot read properties of null (reading 'start_time')

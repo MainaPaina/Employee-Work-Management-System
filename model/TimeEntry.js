@@ -1,26 +1,6 @@
 const supabase = require('../config/supabase/client');
-
+const supabaseAdmin = require('../config/supabase/admin')
 // Create a Supabase client with the service role key to bypass RLS
-const { createClient } = require('@supabase/supabase-js');
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// Only create the admin client if the service key is available
-const supabaseAdmin = supabaseServiceKey ?
-    createClient(supabaseUrl, supabaseServiceKey, {
-        auth: { autoRefreshToken: false, persistSession: false }
-    }) : null; // Assuming anon client is okay, or use admin
-
-// Helper function to get the appropriate client
-function getClient() {
-    if (supabaseAdmin) {
-        console.log('[TimeEntry] Using admin client (bypasses RLS)');
-        return supabaseAdmin;
-    } else {
-        console.log('[TimeEntry] Using regular client (respects RLS)');
-        return supabase;
-    }
-}
 
 // Always use the admin client for all operations
 function getAdminClient() {
