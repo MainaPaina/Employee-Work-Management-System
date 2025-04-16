@@ -3,6 +3,25 @@ const supabaseAdmin = require('../config/supabase/admin');
 
 class Department {
 
+    static async findById(id, fields = 'id,name,name_alias,users!departments_manager_id_fkey(id,name),created_at') {
+        try {
+            const { data, error } = await supabase
+                .from('departments')    // From table departments
+                .select(fields)         // Select all columns
+                .eq('id', id)           // Filter by id
+                .single();              // Get a single row
+            if (error) {
+                console.error('Error fetching department:', error.message);
+                return null;
+            }
+            return data; // Return the department object (or null if not found)
+        }
+        catch (error) {
+            console.error('Exception fetching department: ', error);
+            return null;
+        }
+    }
+
     /// List all departments
     static async listAll(fields = 'id,name,name_alias,users!departments_manager_id_fkey(id,name),created_at') {
         try {

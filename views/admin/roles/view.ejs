@@ -8,32 +8,35 @@
 
     <%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
 
-    <div class="card">
-        <div class="card-header">
-            <h2>View role <%= role.name %></h2>
-        </div>
-        <div class="card-body">
-            <p><strong>Id:</strong> <%= role.id %></p>
-            <p><strong>Name:</strong> <%= role.name %></p>
-            <p><strong>Users:</strong> 
-                <% 
-                for (let i = 0; i < users.length; i++) { %> 
-                    <% if (i > 0) { %>, <% } %> 
-                    <span class="badge bg-info"><%= users[i].users.username %></span>
-                <% } %>
-            </p>
-            <p><strong>Created:</strong> <%= (new Date(role.created_at).toLocaleString()) %></p>
-            <div class="btn-group btn-group-sm">
-                <a href="/admin/roles" class="btn btn-secondary">Back</a>
-                <% if (role.name !== 'admin' && role.name !== 'employee' && role.name !== 'manager') { %>
-                    <a href="/admin/roles/edit/<%= role.id %>" class="btn btn-primary">Edit</a>
-                    <form action="/admin/roles/delete/<%= role.id %>" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                <% } %>
+		<div class="cards cards-1-2-1">
+            <div class="card" style="grid-column: 2;">
+                <div class="card-header">
+                    <h2>View role <%= role.name %></h2>
+                </div>
+                <div class="card-body">
+                    <p><strong>Id:</strong> <%= role.id %></p>
+                    <p><strong>Name:</strong> <%= role.name %></p>
+                    <p><strong>Users:</strong> 
+                        <% 
+                        for (let i = 0; i < users.length; i++) { %> 
+                            <% if (i > 0) { %>, <% } %> 
+                            <span class="badge bg-info"><%= users[i].users.username %></span>
+                        <% } %>
+                    </p>
+                    <p><strong>Created:</strong> <%= (new Date(role.created_at).toLocaleString()) %></p>
+                </div>
+				<div class="card-footer">
+					<div class="button-group">
+						<a href="/admin/roles" class="btn btn-primary">Back</a>
+						<% if (role.name !== 'admin' && role.name !== 'employee' && role.name !== 'manager') { %>
+						<a href="/admin/roles/edit/"
+							<%= role.id %>" class="btn btn-warning">Edit
+						</a>
+							<button type="button" class="btn btn-danger">Delete</button>
+						<% } %>
+					</div>
+				</div>
             </div>
-        </div>
-    </div>
-
+		</div>
 
 </div>

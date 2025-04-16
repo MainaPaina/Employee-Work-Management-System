@@ -12,6 +12,6 @@ router.use('/api', verifyRoles(['admin']), require('./admin/api'));
 
 // GET /admin
 router.get('/', verifyRoles(['admin']), async (req, res) => res.render('admin/index'));
-
+    
 // Export the router directly
 module.exports = router;

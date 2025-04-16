@@ -62,7 +62,7 @@ router.get('/view/:id', async (req, res) => {
             role: selectedRole || {},
             users: users,
             activePage: 'admin',
-            actibeSubPage: 'roles',
+            activeSubPage: 'roles',
             currentUser: req.session.user
         });
     } catch (error) {

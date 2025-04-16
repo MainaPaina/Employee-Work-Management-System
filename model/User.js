@@ -1,4 +1,6 @@
 const supabase = require('../config/supabase/client');
+// Add this function to the User model
+
 const supabaseAdmin = require('../config/supabase/admin');
 
 class User {
@@ -24,6 +26,24 @@ class User {
         }
     }
 
+    static async findByIdAndUpdate(userId, updateData) {
+        try {
+            const { data, error } = await supabase
+                .from('users')
+                .update(updateData)
+                .eq('id', userId)
+                .select()
+                .single();
+            if (error) {
+                console.error('Error updating user:', error.message);
+                return null;
+            }
+            return data;
+        } catch (error) {
+            console.error('Exception updating user:', error);
+            return null;
+        }
+    }
 
     // Static method to find user profile data by ID (e.g., from users table)
     static async findById(id) {
@@ -31,7 +51,7 @@ class User {
         try {
             const { data, error } = await supabase
                 .from('users') // Changed from 'employees'
-                .select('id, email, name, username, profile_image, lastlogin_at')       // Select necessary profile fields (adjust as needed)
+                .select('id, email, name, username, profile_image, lastlogin_at, departments!users_department_fkey (id,name)')       // Select necessary profile fields (adjust as needed)
                 .eq('id', id)      // Match Supabase Auth user ID
                 .single();
 

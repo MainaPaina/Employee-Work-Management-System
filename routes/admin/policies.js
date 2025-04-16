@@ -1,14 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
-// Anon key client (for general reads, respecting RLS)
-const supabase = require('../../config/supabase/client');
-const supabaseAdmin = require('../../config/supabase/admin');
-
 const verifyRoles = require('../../middleware/verifyRoles');
-
-const User = require('../../model/User');
-const Role = require('../../model/Role');
 
 const { getPolicies } = require('../../controllers/admin/policyController');
 

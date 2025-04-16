@@ -3980,3 +3980,799 @@ departments is not defined
 15042025	23:45:25	a8285854-06a5-48bd-8980-db682daafa9f	Error: Page Not Found
 15042025	23:46:17	f922b3ab-47e6-4afd-ab04-030bde0ed77a	404 Not Found: GET /manager/users
 15042025	23:46:17	14e9c258-2e2d-4ee6-a8bb-b7165bfb78f8	Error: Page Not Found
+15042025	23:50:03	a144888d-b27e-47e9-bba6-d455dd0f207c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+15042025	23:50:03	c3f22f2e-f9e1-4e38-b5e8-a57bf18fbb0c	Error: Page Not Found
+15042025	23:53:07	5793fa0e-744b-474a-9de9-8e5c03ac6274	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+15042025	23:53:07	25179db8-4f55-46b7-a0ae-5657d41a7010	Error: Page Not Found
+16042025	00:00:06	af32ca76-2a0f-4402-8f6e-57ec6fe8a023	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:00:06	d3fc4235-068a-4e39-b119-897728a6aa1e	Error: Page Not Found
+16042025	00:00:46	49221ba6-6036-4792-bb4b-ee08cfc9024a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:00:46	794f98d3-9c12-420a-af4e-2f6dd0582ef6	Error: Page Not Found
+16042025	00:02:32	64802aca-48c7-4f18-bc1d-9bfb09b63835	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:02:32	d3ae53a4-a4fd-4cb5-90ef-005ad31cc7ce	Error: Page Not Found
+16042025	00:17:28	88d97dfe-b1d1-4f57-b391-88fc768e82be	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined
+16042025	00:17:34	afda7cef-eeac-4486-bc7d-8d83876dfcb2	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined
+16042025	00:22:52	17bd17f2-b679-4716-89ea-87f458fdca8c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:22:52	790f77c4-5a55-44eb-a7ae-aba725e41ae6	Error: Page Not Found
+16042025	00:25:55	870899f7-4f6d-46bb-ab2f-0b8bd092f418	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:25:55	8f747d96-047f-486f-add8-010f9bfbe869	Error: Page Not Found
+16042025	00:25:58	ebd7d9da-2079-4f9b-8408-90f62008e150	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:25:58	26126dea-a178-4784-8c58-6e3552e9838b	Error: Page Not Found
+16042025	00:26:20	74ba37c3-d6e8-42cb-80a4-e176041d08ca	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:26:20	a8c8bd0b-6019-46af-8f0b-2ca1296fa89a	Error: Page Not Found
+16042025	00:26:22	9cd3e865-79b0-4637-8faf-c42f72fd17be	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:26:22	38445727-e5dd-4722-af17-f6d4a7d6752e	Error: Page Not Found
+16042025	00:26:23	d08288c1-b650-46b5-aac5-82bc68dc7b17	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:26:23	340827d8-4c93-4f56-8684-f462def2588e	Error: Page Not Found
+16042025	00:26:24	adf6b993-e071-42a8-a2f3-c0e083aa4e52	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:26:24	cd14889b-d9ed-437d-b5b3-fd0a8ace840e	Error: Page Not Found
+16042025	00:26:25	3c760804-76be-4ca8-b27a-cc73b75306af	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:26:25	48137f11-a0eb-4a97-b89d-be0abbbf7c8b	Error: Page Not Found
+16042025	00:26:27	43d98f95-6f67-4769-928c-ef866307796d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:26:27	f5b1937c-f87d-44b0-a138-012724461618	Error: Page Not Found
+16042025	00:28:39	d3b3ef4c-3032-4523-be81-1c0ffa99a6cc	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:28:39	b0541e91-a698-454b-aa91-fdc6d292e788	Error: Page Not Found
+16042025	00:28:43	5a4bdc53-2737-4b46-b61c-a7df38f2be4f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:28:43	a1fa7678-93db-47cb-b8d1-72806c5b721b	Error: Page Not Found
+16042025	00:28:46	733358e1-13a8-4bc7-88e8-9ddf0ac7e16f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:28:46	923b6bd9-4ae2-41ac-9ec8-4e409ccd1c1c	Error: Page Not Found
+16042025	00:28:54	c9bc714d-7734-43f9-aa97-e68c1c28cbd2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:28:54	5f5ef80b-a8d5-47af-b380-0c60abdbc144	Error: Page Not Found
+16042025	00:33:05	9299270e-d484-4478-a322-b3638fabd05a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:33:05	35013921-5eed-454c-a061-4fc2bc2f60eb	Error: Page Not Found
+16042025	00:33:09	7cd29ec4-e54f-4c1d-a085-c17aab55d928	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:33:09	d2cfeab8-5921-42cf-90d6-10959a0735e3	Error: Page Not Found
+16042025	00:35:13	241b2f19-ad2d-4340-9f93-0555550b48cc	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:35:13	cb855a5c-512e-4a31-a8a5-1f5e1a07acdb	Error: Page Not Found
+16042025	00:35:16	406f16b6-8ffa-4410-91d7-09eff97602a5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:35:16	2078b424-82d1-40ea-b342-93ff807b3871	Error: Page Not Found
+16042025	00:36:41	464ce9c0-4c94-43e8-bb6a-e49b668eebbe	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:36:41	5faca94e-e320-40a7-a6bc-fb4a9c2b55d9	Error: Page Not Found
+16042025	00:36:44	6e70aa95-8680-454d-81f3-e78760b044db	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:36:44	e067e1a2-d653-42ac-91ff-3e97103024f9	Error: Page Not Found
+16042025	00:40:02	dfff5b09-0582-4eb6-8704-e03f98e585b5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:40:02	65281c95-0112-44e0-94ae-7cd339c679db	Error: Page Not Found
+16042025	00:40:05	4de14302-ecce-4ddf-a7d3-f4947a4576bf	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:40:05	1d1518b3-03e2-4679-bdfa-851a6189386e	Error: Page Not Found
+16042025	00:40:31	664ec141-6d91-4fa8-9742-f54c26e7f66f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:40:31	19bd04a5-d258-43b9-a3dd-ee62b01a07e5	Error: Page Not Found
+16042025	00:40:34	1f751331-b9f3-4319-9137-a558425e64ae	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:40:34	c9508547-869a-4461-ba2e-d8b2c2d8fd1e	Error: Page Not Found
+16042025	00:42:18	cdc46128-a4dd-4b6c-8c98-d03a36580dce	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:42:18	d91330ec-c0ce-4062-8d5f-63801fd8b5b4	Error: Page Not Found
+16042025	00:42:21	c0e676ae-4677-4e33-a892-c906b8bfe5ff	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:42:21	a7f2dd27-6be0-4a25-bfcc-fcccbcd7b930	Error: Page Not Found
+16042025	00:42:41	f67ba9d2-1386-4b12-8f93-36059afb890d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:42:41	406a90c4-dc52-45c7-8e80-9052de15476d	Error: Page Not Found
+16042025	00:42:43	23034a05-3efc-4772-b3ab-665ac0add754	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:42:43	e022d7c4-1738-4d5b-9336-e7c6d0ea481e	Error: Page Not Found
+16042025	00:43:06	9021c15f-8f51-486c-ad0a-6ff6c448cd61	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:43:06	d79c3df2-ea78-40c9-917e-affaa0785f9b	Error: Page Not Found
+16042025	00:43:08	9b4a034e-63e2-4f88-be21-b35682ec9302	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:43:08	6a1fa794-1a11-4662-befb-5a2f428e6c0f	Error: Page Not Found
+16042025	00:43:51	fb7563bc-3303-4338-a1c6-5a22eaa0eca3	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:43:51	391a6a01-ecde-47b4-9736-1b650a9684cf	Error: Page Not Found
+16042025	00:43:54	0811b25a-b770-4418-8fd3-e0b9ce924962	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:43:54	7f45ea6f-4839-4783-b76d-dba3f9810812	Error: Page Not Found
+16042025	00:44:23	dbd16d03-e1ee-4641-a3ca-8180d711f510	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:44:23	b54dbee6-685e-4b33-9cb2-dddcba3af9a1	Error: Page Not Found
+16042025	00:45:19	31fb1812-a002-4fbb-bcc9-ca4229d52cfa	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:45:19	f27277c5-6d79-4ee3-be29-045bbb4612cb	Error: Page Not Found
+16042025	00:45:25	f9cb8b6d-9be5-4a6b-9bb7-30c23f723627	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:45:25	75c9da6e-b6b3-4bf7-b2ef-83f85013eb59	Error: Page Not Found
+16042025	00:47:29	f099542f-db3b-4fea-a0d4-37fcd1350ab6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:47:29	4904dc45-ad54-4770-9fb3-bfd8fb6af743	Error: Page Not Found
+16042025	00:47:33	6eb1fee0-5336-4577-b25d-c592c53a1f79	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:47:33	5d1ad3e9-d316-4625-9c62-0582b1b8ba4c	Error: Page Not Found
+16042025	00:50:42	2e920631-c8fa-4d73-a623-217bdd7e22fa	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:50:42	9bbb8c27-c47b-4df9-bc58-14fcad169b7c	Error: Page Not Found
+16042025	00:50:45	b8545e67-da12-4ecf-addf-f0a34f45b999	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:50:45	310d8bff-1cb8-4880-a4ef-07ee49633255	Error: Page Not Found
+16042025	00:51:23	c284c55c-06e6-414d-8808-d0e2ebbb01c1	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:51:23	6bac8563-475d-4a2e-89b9-d75bcdb9f89d	Error: Page Not Found
+16042025	00:51:33	d573a2cc-490b-4047-b4cd-aa1796a9573c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:51:33	974ea482-ffcf-4c29-b0df-c2c23ac6a4b6	Error: Page Not Found
+16042025	00:52:17	003f6616-fccf-4179-a436-66a04faa7bb0	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:52:17	9028344d-d313-4a37-a79a-80980fb52678	Error: Page Not Found
+16042025	00:52:35	9b3093e6-56e4-4405-b277-6b48204339f6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:52:35	fb445111-34a2-41c3-85ba-78349cec5930	Error: Page Not Found
+16042025	00:52:44	504a6e57-d491-4f96-9cc4-5b2c292583f8	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:52:44	1260024c-1dbb-4985-ab1c-51fc7ffed9b2	Error: Page Not Found
+16042025	00:52:45	ac2c18be-0852-4684-b9c9-e29a1bce987c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:52:45	cc056569-c96b-4f23-a094-7255f9ac1811	Error: Page Not Found
+16042025	00:52:53	7dfdb69b-980a-49ba-98c9-2303c022627d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:52:53	ceb48cf6-b63f-46ff-b3ca-47d4b62a2e97	Error: Page Not Found
+16042025	00:52:54	139809ba-97c9-4bbc-9cac-60c7bdf8d5ec	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:52:54	93960edd-6efa-4f1b-a3ba-21c00f037afe	Error: Page Not Found
+16042025	00:53:13	87d6f07e-87da-435f-97ba-b6fc1da3beb8	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\roles\view.ejs:9
+    7|     
+    8| 
+ >> 9|     <%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+    10| 
+    11|     <div class="card">
+    12|         <div class="card-header">
+
+activeSubPage is not defined
+16042025	00:53:13	86b1fae5-095c-4963-ba93-3ffa89dbc813	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:53:13	0b55eb38-45f4-4409-a99b-39fc2a8c4500	Error: Page Not Found
+16042025	00:53:15	187bfcb4-00fb-4a09-9c0c-8f3b11c013cc	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:53:15	bd2dfbeb-c84b-4d20-933c-15f6d688aefe	Error: Page Not Found
+16042025	00:53:15	1961cbde-b0f9-48c2-aa79-25cd9ff4b15b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:53:15	060fa23b-ae25-4493-a20b-aca1382cb35d	Error: Page Not Found
+16042025	00:54:22	34d94378-79b4-4e4d-8530-ced46167c136	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:54:22	906c63d8-0fd7-4dd2-982c-857d2bde17b5	Error: Page Not Found
+16042025	00:54:24	293b5bcb-b580-4398-a96f-5abcdef92b75	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:54:24	1f8812c7-320f-44d8-9e1c-ba7e18789dd1	Error: Page Not Found
+16042025	00:54:29	aa9b1178-ce95-4fae-bc79-c991daaefec5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:54:29	dcf0c330-a765-48e0-96fe-25354eefbefa	Error: Page Not Found
+16042025	00:54:32	189d10b1-eb63-4b98-9771-7ac3fd260886	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:54:32	ceb2766c-d11e-4a56-a631-b5cc38e81e2b	Error: Page Not Found
+16042025	00:54:35	8c57ddfe-2466-4014-9480-8e3850747ccd	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:54:35	acb21324-67be-47de-98e1-b6923f598f30	Error: Page Not Found
+16042025	00:54:36	22fe796e-a1d9-4008-b3a0-d3ad83bebe16	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:54:36	5d561051-8837-4c3f-aed0-07ab6863fb5f	Error: Page Not Found
+16042025	00:54:36	f7e448cb-c0e9-4f93-8d30-52833ad63438	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:54:36	34902347-84ac-46dc-80a5-2ea4d1e06269	Error: Page Not Found
+16042025	00:54:54	7ebce017-a9f7-4e2e-b41c-df5d1e489909	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:54:54	7c5c7a11-ceda-49b8-bc9b-41b79f0455ae	Error: Page Not Found
+16042025	00:55:16	0d19eeb7-f641-49e0-82a9-767de0b0aa22	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\roles\view.ejs:9
+    7|     
+    8| 
+ >> 9|     <%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+    10| 
+    11|     <div class="card">
+    12|         <div class="card-header">
+
+activeSubPage is not defined
+16042025	00:55:16	3952c2fd-b9c5-4ac2-8fc3-db99acfe022d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:55:17	7958b963-63ce-4bd2-aa47-0e683b911949	Error: Page Not Found
+16042025	00:55:17	e45b363d-5e20-4f68-b2cd-6c2e2f50be17	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:55:17	9b1d6d06-8d81-4097-ac9a-48c132fa76a0	Error: Page Not Found
+16042025	00:55:17	5ee4b40e-8cb8-4424-b9c8-36b7409885b2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:55:17	9f8573da-ad55-4145-a06c-cc7fee3520f9	Error: Page Not Found
+16042025	00:55:56	8a2160e3-9add-4aae-8345-fe4c425a9dd6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:55:56	a3094559-eaca-46a1-ac73-95469efa470c	Error: Page Not Found
+16042025	00:55:58	52b3ed24-217b-4b31-b1a5-1027ff28e68a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:55:58	464c0ed9-2aa6-4bf5-81bc-f697b1e20b16	Error: Page Not Found
+16042025	00:57:01	b1ea269b-6cca-4ea9-8a51-c96f94dcd0ee	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:57:01	66133a9d-8b3b-4b1f-988d-b621918e824b	Error: Page Not Found
+16042025	00:57:05	57d49d52-97b8-4720-a674-4da90fe8f025	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:57:05	bb52bb32-20e5-475f-873f-38d99792f43e	Error: Page Not Found
+16042025	00:58:01	9fef242f-e808-40ce-9cc2-ecd8aee2bc92	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:01	4d56ba18-872a-41e1-8d99-e580d3d4dfe5	Error: Page Not Found
+16042025	00:58:04	bb6122b5-2a29-48a0-84a3-fe5a9a271a2b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:04	b4b54257-538c-49aa-b12b-5ade790ab9ac	Error: Page Not Found
+16042025	00:58:06	f9682d16-0d73-4e07-9c2b-960a6c2c30fe	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:06	916a8f8d-e4b4-4f5b-bd91-25c473d55d94	Error: Page Not Found
+16042025	00:58:07	3d7c3420-b1bd-4e42-9c2a-6bfd2b4ac0e3	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:07	f84d4c25-6f5b-4f4c-9e21-4bd23ff9740d	Error: Page Not Found
+16042025	00:58:08	9381004f-ed37-466c-baa3-bcd183c7cdc7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:08	b7241923-99a6-46b0-a295-f3a6f6f9d242	Error: Page Not Found
+16042025	00:58:08	5449177b-d672-41cf-a7b8-3653bd2dfbc5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:08	e1ce1db9-7315-43bc-9926-f4761dbfacfd	Error: Page Not Found
+16042025	00:58:17	68d00596-7f40-4b85-8cc0-8f3eb5723bd5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:17	622d9f10-512d-4afc-acfc-24392e196a27	Error: Page Not Found
+16042025	00:58:20	c7e70473-39fe-4b18-b48f-446756f3a322	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:20	021f1a06-ba31-42fa-bf95-8074c2af8ba2	Error: Page Not Found
+16042025	00:58:21	323e55e6-a3f4-42f3-ad69-7df00fe700ee	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:21	269192c0-b2a9-4653-9cad-efdcd6457c7c	Error: Page Not Found
+16042025	00:58:21	d6a900a9-f619-4c7b-8122-2afe2281aece	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:21	85e7a1b1-94c0-4e61-aa8b-7f44b2c4a4de	Error: Page Not Found
+16042025	00:58:27	b81a5f83-2e69-47da-9eb4-83ac34274df5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:27	9fb6effa-2837-4d01-9a85-e11008ec669f	Error: Page Not Found
+16042025	00:58:33	65b1ddb7-5b25-454f-9a38-e3404e2bb0e0	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:33	2806e9cc-ed61-4849-b4d0-c3e5429287b6	Error: Page Not Found
+16042025	00:58:37	9e65e9fe-b942-4c4a-bb3b-8cc509ec0b22	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:37	56ab5064-0fed-4691-971a-97f529aa3c11	Error: Page Not Found
+16042025	00:58:42	856f875f-1c88-4de7-868b-5e8a8594a324	404 Not Found: GET /admin/roles/delete/9
+16042025	00:58:42	bf66c68a-2593-4094-839d-b6ba07d3fda1	Error: Page Not Found
+16042025	00:58:42	4d8e1545-6be5-47fd-944a-f1314804e07d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:42	998f652f-607e-40b6-b6ee-d2def2be8009	Error: Page Not Found
+16042025	00:58:47	8a9f1fe6-04fa-4904-9f38-9cdb1db58699	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:47	7d6208d2-e18f-487c-be07-4f62ac72a232	Error: Page Not Found
+16042025	00:58:47	75b6096b-c002-4687-9df4-c37ecac699d1	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:47	6cdd7b90-3396-47f2-ae4d-f58451e8d17c	Error: Page Not Found
+16042025	00:58:50	fd95fb14-d952-4881-99cb-a4c005d68b8d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	00:58:50	f1489614-d130-4260-b532-c58cc0bdc841	Error: Page Not Found
+16042025	01:01:27	bde2dc74-dc65-4245-adde-139868df1213	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:01:27	07a7ae28-824f-4c37-9c39-925faedaef06	Error: Page Not Found
+16042025	01:01:30	3a7aa5fe-8ebd-408d-bdfa-0044e15f76e8	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:01:30	8d38fadd-f16a-47ac-bbc8-7722456fb7e3	Error: Page Not Found
+16042025	01:12:07	f503d9d9-998f-42cb-afda-97f1bf64e4c6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:12:07	1b23af34-b084-4c13-b96c-78b66a07675d	Error: Page Not Found
+16042025	01:12:09	3c5d4027-11ce-4893-85ce-604488aca56b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:12:09	f9d58b16-7843-4dfc-b839-78eda6921d7a	Error: Page Not Found
+16042025	01:12:30	4fb99046-c343-4032-8bf8-44d7f618e51e	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:12:30	ace1a12d-f05d-4cd9-bd87-4fc5eda81323	Error: Page Not Found
+16042025	01:12:32	b7194dd0-4b0d-4f08-b586-ab917ff14091	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:12:32	2e75b1e4-d00f-44ee-a104-0862c378e92a	Error: Page Not Found
+16042025	01:12:35	e8501cf8-5671-4c39-ae43-c6015e0109ef	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:12:35	9c4d5361-354b-4439-a127-a44aa3832add	Error: Page Not Found
+16042025	01:12:36	0e1dc40a-bb5b-43b7-b535-ad2d2e37f55d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:12:36	8989da9b-4804-488b-aa5d-f148130991f0	Error: Page Not Found
+16042025	01:13:03	6f957565-b529-4b26-b84b-06f780d3cfc8	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:13:03	dd535940-dc7c-4db9-a433-f5eee7c6f1ac	Error: Page Not Found
+16042025	01:13:05	709a006e-cc8b-4c54-92b9-4fa9d10888cd	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:13:05	a2bacf0f-cfb9-40ac-9e69-1f2835606fb9	Error: Page Not Found
+16042025	01:14:05	ec04549f-aefa-41c6-82f1-e1ce17ee3bf1	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:14:05	fd607fdc-7668-4957-ae5d-da51eab579a3	Error: Page Not Found
+16042025	01:14:07	985d5fc4-c368-4aa2-a35a-6ed17033d96f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:14:07	15b1a3b3-e427-430c-970a-9d1de7752e0a	Error: Page Not Found
+16042025	01:14:21	7f8ed520-2d6c-406d-b15c-9e1c3ace01f7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:14:21	e229a7d9-c912-49aa-b413-d8db7b961f8d	Error: Page Not Found
+16042025	01:14:24	64e3a5b0-53fc-4892-81c7-eef6cb6973b2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:14:24	b8fd4f94-9300-4143-9edc-f590a8c0569f	Error: Page Not Found
+16042025	01:15:17	4b4e023c-09ad-42f9-851a-b7253e20f844	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:15:17	bc05afa2-e92b-44d1-bc7b-2c6363e2f845	Error: Page Not Found
+16042025	01:15:19	da52ee31-3ef4-4380-835c-3d093daf8b31	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:15:19	86bbee4d-ac29-431b-a62e-b44b1cbde1f9	Error: Page Not Found
+16042025	01:18:20	e60d0e3f-6b21-48c1-9bdd-2e864d58ff80	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:18:20	9af9e0d0-d2db-4c4c-b201-7255d8fe5134	Error: Page Not Found
+16042025	01:18:22	be2a42ad-3066-470d-8674-5b1a7c8c3fe5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:18:22	e7d270e1-d368-4ad2-b79e-d17109a08bc0	Error: Page Not Found
+16042025	01:20:04	4a0919fe-f6cf-4b1b-be1d-1d5db3510311	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:20:04	696647da-2210-454b-a474-d869e5a08c19	Error: Page Not Found
+16042025	01:20:07	e236f986-f51e-42eb-99e1-a0354c16c3f2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:20:07	4d3aa6aa-1e76-4e66-8cf2-5fb9f8690169	Error: Page Not Found
+16042025	01:20:20	6d6f9047-82b9-4187-b98d-fb7a6cb88c57	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:20:20	42c69e15-059f-40a9-b186-1df4413f1e62	Error: Page Not Found
+16042025	01:20:22	f1b22c99-d708-42ae-b74e-ce5e0232f041	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:20:22	eb99b670-4caf-4cdc-8da0-3d0778f6525e	Error: Page Not Found
+16042025	01:29:31	ad6cce74-9add-4afc-b008-6d2b2cdf74d9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:29:31	8515ee1a-603a-401a-923a-85c33dd10ecf	Error: Page Not Found
+16042025	01:29:35	ce5eb291-f5b5-4ec6-81c5-a0c48a5139ef	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined
+16042025	01:29:35	ee33f850-7a1c-495b-8741-4b45e2483258	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:29:35	d5fb9bd6-ab51-4aea-895e-20300170dea8	Error: Page Not Found
+16042025	01:29:41	42d1e3ac-1dcd-4628-b845-40a03cb94dda	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:29:41	81b8054b-a8e8-4df9-9480-9be581514caa	Error: Page Not Found
+16042025	01:29:41	cfe5faa8-fce2-411e-99bc-22233562b354	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:29:41	d1b0e151-1261-458e-952f-f2d5acb9811a	Error: Page Not Found
+16042025	01:29:43	17d30239-d30f-462c-9e80-79341d55ccb7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:29:43	d31e6ce0-dabd-4749-8616-a07187f22f3e	Error: Page Not Found
+16042025	01:29:43	5dbf4015-9a44-46e5-82ed-dd2801fefa03	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:29:43	e5b1d674-26a4-494e-aad4-dc64951d8386	Error: Page Not Found
+16042025	01:29:44	00c4cc1e-3108-4012-a1b4-cecf472fef61	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:29:44	35bcee12-19f6-4c87-b10f-a51be83d2a15	Error: Page Not Found
+16042025	01:30:47	c4ffd6b4-0eb2-4dc1-893b-f0874348dad5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:30:47	53640ad4-af10-4898-8a45-d284f8d859b3	Error: Page Not Found
+16042025	01:30:49	27741c0c-9daf-4d21-a8a8-1f6310e31ae8	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined
+16042025	01:30:49	a5b51dc1-9336-47ab-9ee9-0dd064e61a27	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:30:49	e360640b-b4f8-4021-8a27-6167624db385	Error: Page Not Found
+16042025	01:33:00	59e91fdd-8cb3-4b02-83cd-7af54ee770d8	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:33:00	9b98a796-5665-437b-94e8-39daff0720f4	Error: Page Not Found
+16042025	01:34:21	01230496-d848-4ffe-b250-7e265715ac71	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:46
+    44| 					<div class="card-value">
+    45| 						<select name="department" id="department" class="form-control" placeholder="Select an department">
+ >> 46| 							<% for (let i = 0; i
+    47| 							< (departments || []).length; i++) { %>
+    48| 							<option value="<%= departments[i].id %>"><%= departments[i].name %>
+    49| 							</option>
+
+departments is not defined
+16042025	01:34:21	ce7b0f5d-1827-45ab-99fe-2ab6dfb4c9e4	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:34:21	eac723eb-96e1-4a6d-8426-682d0a2d42e4	Error: Page Not Found
+16042025	01:35:45	b17cb281-84bf-47cb-ab74-b69977c9f940	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:35:45	f206b776-fda9-4077-a498-17a67b2be53f	Error: Page Not Found
+16042025	01:35:48	99be71c4-3d16-4f33-8aaf-89403f39f132	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:35:48	cb471f07-1eec-493e-868b-4ba1ae5aec27	Error: Page Not Found
+16042025	01:36:20	f28317bd-bf51-4e62-98db-5f7b56c20517	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:36:20	75463e06-84ba-4650-96b0-7b7d929b596b	Error: Page Not Found
+16042025	01:36:22	3686b881-3bfd-4443-8f6d-837bb7ef2a2c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:36:22	c2a8493c-87ce-496f-9fcc-4b825e11ae7a	Error: Page Not Found
+16042025	01:36:33	9319d82e-049e-4702-a879-b651d31188ca	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:36:33	314a78d0-7cae-41df-915e-e6c0e4e4ad3c	Error: Page Not Found
+16042025	01:36:35	53645b0b-7d13-409d-939a-0bfc7d75f391	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:36:35	051f05f3-eea3-4767-95b2-c2311f03d037	Error: Page Not Found
+16042025	01:36:38	eb8f2e45-3f75-4523-a6ec-18386de49260	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:36:38	294e92c9-3ab0-4eae-84b5-42773fe819a9	Error: Page Not Found
+16042025	01:36:57	853261d9-90aa-4123-8387-86e5c1220b30	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:36:57	775cc0dc-63db-4890-8712-38355cf76a33	Error: Page Not Found
+16042025	01:36:59	9fb51e57-9329-47b7-98f2-ea411c2cf499	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:36:59	cc256c82-3129-45a1-9a3a-fbe06676a6f4	Error: Page Not Found
+16042025	01:37:10	6ae3f756-b4c6-4ac0-b9e1-b77420201794	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:37:10	71010fcb-7d52-4866-9c36-454173a01c3b	Error: Page Not Found
+16042025	01:37:13	2bf9cc4d-8512-44de-9609-385ae9f40ac3	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:37:13	9904e733-a5b2-4a13-b183-29a888ab4874	Error: Page Not Found
+16042025	01:37:28	d6cd23b4-a9ac-46fc-92a9-eb393d05069e	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:37:28	d29cfb65-97fd-468a-8eb3-61e4399b6629	Error: Page Not Found
+16042025	01:37:31	161a0ef9-0bac-452a-82a0-78a02c253c67	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:37:31	96649ea6-1d0d-4e0f-84d8-b2ea6ce39206	Error: Page Not Found
+16042025	01:42:33	2dae4414-24da-4d5d-9b93-3d4b2fe709ac	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:42:33	a806e1a3-938a-4587-89b6-544a709f6162	Error: Page Not Found
+16042025	01:42:37	01b362b8-0f18-4344-8f8a-263f4b1f87af	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:42:37	46c4a636-15b5-4928-8d46-043755f5b0b6	Error: Page Not Found
+16042025	01:43:11	e274fe7d-8ac7-4579-ab73-fe3005a6d5b7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:43:11	7342fff6-275f-4596-9ebc-e5d1fe06c78d	Error: Page Not Found
+16042025	01:43:13	b779e90a-80b2-411a-9dd7-0036b724e194	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:43:13	26da0954-9410-45d0-9cfc-50e5f55567fc	Error: Page Not Found
+16042025	01:44:44	46519cfa-b120-412c-be6d-710e55db4dc2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:44:44	95ac6bb0-c5a9-4579-ba40-19f8ca29711f	Error: Page Not Found
+16042025	01:44:47	293365f8-c0ce-4571-874d-ce6a3b2a9a0d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:44:47	ee67cf71-4a31-4b66-af6f-a218690d81e1	Error: Page Not Found
+16042025	01:44:57	c1a38e8a-0d25-4fd2-a63a-5965fc72a663	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:44:57	80db5b28-4c92-4232-9d05-95501f08f2c0	Error: Page Not Found
+16042025	01:44:59	80bbcb98-1140-4fb5-b0be-ae69c26983a1	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:44:59	de36b36d-8f07-4232-93f8-683c7210f372	Error: Page Not Found
+16042025	01:49:47	874c77ff-7da5-4782-95fe-942cd75a59b0	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:49:47	dad31658-edab-4403-88d5-cc0003e7debd	Error: Page Not Found
+16042025	01:49:50	889e0436-19c0-4b15-9269-7f3033c59207	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:49:50	bb556450-d945-4022-ac97-fb2724c783ea	Error: Page Not Found
+16042025	01:55:29	a1ad8528-dfa3-4580-8c73-9bb6f895db09	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:55:29	06e6676d-0664-4aa6-908d-4e4306d157fc	Error: Page Not Found
+16042025	01:55:30	a4183ed1-357c-4d92-9b37-524b55eb4e8c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:55:30	ee0865a0-bc02-4c72-9230-8a532ec2dcb1	Error: Page Not Found
+16042025	01:55:30	cdb06cc2-0dd3-4733-9520-a89de7a36bd0	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:55:30	34517c54-f8a0-49d0-be79-686c4dc40472	Error: Page Not Found
+16042025	01:55:32	079925e7-bb1a-4987-a661-adbeb8863667	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:55:32	6a112852-38df-4275-abe6-b64a5c64bb1f	Error: Page Not Found
+16042025	01:55:34	b66783dd-2c4c-45df-a157-e6dabfae40d5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:55:34	f092b419-c36f-4739-8ffa-b80378666596	Error: Page Not Found
+16042025	01:55:35	02f80b24-8968-4f69-b3ac-a5e73b010b93	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:55:35	d2c00cb5-7ade-4300-9164-24f7e5a97eb9	Error: Page Not Found
+16042025	01:55:38	04b8ffd5-3222-47f5-a6e9-e66fa5717b3d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:55:38	e19a5640-414e-4c44-910e-9485f05a7a20	Error: Page Not Found
+16042025	01:55:42	9fa9c0bc-f285-4ae2-bc16-ba4ca8389cfd	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:55:42	c3237d53-a002-4512-a04e-a4bde307d31f	Error: Page Not Found
+16042025	01:56:33	0097862b-1b55-4924-9587-c09c4add8367	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:56:33	b8821310-fb4f-4ee7-b1d2-531b124671dd	Error: Page Not Found
+16042025	01:56:35	aa3b976a-77cc-499c-a2b7-e7c45792efa0	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:56:35	c4b863f1-2eb7-4534-95d2-74fa32004e49	Error: Page Not Found
+16042025	01:56:47	657e980b-d1eb-4458-9075-3b3ee96e1d41	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:56:47	31775517-28e8-4769-9572-3d68b17cbdaf	Error: Page Not Found
+16042025	01:56:49	576cb66f-7060-4151-967a-e74c035d562c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:56:49	df4b48ad-fd9a-4cdc-b1a2-f85e2500d688	Error: Page Not Found
+16042025	01:57:20	722bea9d-03c6-49ac-bb5d-26fd6adf6dcc	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:57:20	6db05fbd-74e0-42ad-95b0-60c1a6018e85	Error: Page Not Found
+16042025	01:57:23	e6d0889d-85a1-406d-a02d-febbdcbf1d0f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:57:23	397f151d-cc52-4925-80a7-2e9e6d0b9458	Error: Page Not Found
+16042025	01:58:08	7243827f-dc71-42a8-b741-00aec347553e	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:58:08	0a616c87-b510-48d6-8f03-0e455acd2fbc	Error: Page Not Found
+16042025	01:58:11	c04d13cf-2c72-4306-86c2-c8e1f25e8320	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:58:11	d483fc90-07d4-436f-bba3-df250e87074a	Error: Page Not Found
+16042025	01:59:32	36700002-6100-41e4-ac71-c1b888670c5e	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:59:32	a380d191-bcab-4474-b294-b7f9db00efb9	Error: Page Not Found
+16042025	01:59:35	39f141a0-61c9-497f-a453-bbc0223ef111	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	01:59:35	db940618-2e8d-4c67-8b3c-983c0eb5b52f	Error: Page Not Found
+16042025	02:08:28	2af21469-d18b-45e5-bfc4-0f50b7a4db65	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:08:28	2c75ac72-d8f0-4e12-adea-3fa2ad63974d	Error: Page Not Found
+16042025	02:08:30	911e59d6-54c0-4d2c-af56-0096ee3468f1	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:08:30	3e4344a5-4688-48ea-a555-2cb0e73f8019	Error: Page Not Found
+16042025	02:09:06	78c3c936-d2a7-493d-8d2b-2f174f533d9f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:09:06	992a8eb9-948a-483b-bc85-3c779db97e93	Error: Page Not Found
+16042025	02:09:47	c90b6b49-3ed9-414c-bc7a-54165a2b2649	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:09:47	58839fd3-7df9-48f3-8d18-dec050385864	Error: Page Not Found
+16042025	02:09:50	008fe696-ba03-42e8-a60b-e0ad4dea3d10	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:09:50	0ca16093-bb40-4be6-b7fd-bfbe24a7496b	Error: Page Not Found
+16042025	02:10:44	15d9ea9e-5e6d-48bc-bcf5-855b89b486dd	404 Not Found: GET /admin/api/users/setdepartment/4044700a-8ede-4514-8530-d0bf506fb308
+16042025	02:10:44	4a7d53a5-85a7-4786-8882-be6157835ac7	Error: Page Not Found
+16042025	02:11:27	f4703c6e-5d04-4199-9c03-18dc84a08dce	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:11:27	deeac559-fb46-4c9b-9563-6877b7e09e75	Error: Page Not Found
+16042025	02:11:30	9f22afb1-f270-4c31-822d-c816ce22c4b5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:11:30	68d92bee-354a-4f92-b454-3de363b97093	Error: Page Not Found
+16042025	02:11:38	b6c0d6ca-280f-4e93-9588-b53a1ff17cd5	404 Not Found: POST /admin/api/users/setdepartment/4044700a-8ede-4514-8530-d0bf506fb308
+16042025	02:11:38	9cdab0ff-93a9-436e-a781-1e2da6b2cd64	Error: Page Not Found
+16042025	02:14:04	22c70e48-adcf-4ef7-8d50-8c238e8f897d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:14:04	2016bd7c-ec8a-4ab3-9d43-6d4603a4c029	Error: Page Not Found
+16042025	02:14:07	1ee1ebcd-76f2-41d0-931a-6cb5bc5efe68	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:14:07	2c383b1b-0818-4829-a99c-a68e109a7bf3	Error: Page Not Found
+16042025	02:15:17	3c2755f2-83b1-4608-a065-e85abcf02cbc	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:15:17	12cf5c50-d0b3-4dba-8119-83d3212b73df	Error: Page Not Found
+16042025	02:15:20	622021ca-f164-4fc4-a660-9630947a53f9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:15:20	e0354312-a527-4e8d-9445-49709592e84b	Error: Page Not Found
+16042025	02:15:45	4f1dd003-1600-4b24-981b-5de231f37c83	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:15:45	32f6a9b3-2911-4653-8b93-c4388fc4dd11	Error: Page Not Found
+16042025	02:15:47	20e94857-5fb8-4378-ab21-0e0509c41274	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:15:47	12feca8e-07a9-4be1-a2b1-78593e3a9023	Error: Page Not Found
+16042025	02:16:09	5943db36-5927-49f4-97db-2698d33f1fa5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:16:09	b3c129dc-8c48-4fd9-87bd-34abda4a672e	Error: Page Not Found
+16042025	02:16:10	2b76850b-8058-455e-a530-cf85d072f64e	404 Not Found: GET /admin/deparments/view/5
+16042025	02:16:10	bb926cda-47e4-4d3b-b480-1d2dd3273140	Error: Page Not Found
+16042025	02:16:10	2ad3a92e-d2a4-4f08-a2ad-c8c54e816e6f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:16:10	ec14d2bd-9d3f-41a9-a5f9-76a2bc3c74af	Error: Page Not Found
+16042025	02:16:13	4417b0a7-cc15-45d5-8da9-807416303bf6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:16:13	5a8faa8c-b5a9-47db-9382-ffe01c5261c4	Error: Page Not Found
+16042025	02:16:13	f75057ea-6379-40e4-bc80-7e342ff362c9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:16:13	bb298cfc-2f65-4dbc-b0dd-7a887c72a0b7	Error: Page Not Found
+16042025	02:16:13	432ec780-91a7-44ee-92c6-106ae198c896	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:16:13	68fac999-6c2a-461a-8d0d-3d508c1be842	Error: Page Not Found
+16042025	02:16:13	aff3a69c-1c93-465a-951d-48af621aaa4f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:16:13	ab6bdeec-e44a-4b30-9a05-15911a1a015e	Error: Page Not Found
+16042025	02:16:14	771c0d33-7e53-4f6c-ba41-f0a5a45d355a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:16:14	7759911b-2b35-4199-ad48-5e45a7d0f592	Error: Page Not Found
+16042025	02:16:16	bc0a5565-38dc-48bd-a183-dc66c4d2f721	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:16:16	1228c9d2-ea5a-4d58-abd6-f8d30be2e96b	Error: Page Not Found
+16042025	02:18:03	f53f4676-49e4-41ae-9e9d-645550481235	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:18:03	0edbc551-c2df-40b3-8d1c-90482f604cb2	Error: Page Not Found
+16042025	02:18:06	8d0cb706-cb55-4c3c-aa09-32487debeb12	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:18:06	54670343-6f16-4017-b396-6c427a3a442e	Error: Page Not Found
+16042025	02:19:27	84f12b31-8044-4c5a-bd80-2a02894ef132	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:19:27	c67e3ae7-3dc3-4672-bcf5-8cba97654493	Error: Page Not Found
+16042025	02:19:30	f740841b-984f-4d6d-a858-d40e9145e8d2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:19:30	5b44d508-3375-4293-b818-8fb3b29d6923	Error: Page Not Found
+16042025	02:20:12	2135a403-87f8-4fd9-ac4f-9cbd3430b36d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:20:12	7c0992f2-9e25-4711-96ec-655e91c5e8fc	Error: Page Not Found
+16042025	02:20:15	7dfdd642-cc90-4e39-a6e8-d7a070a085e6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:20:15	c9bd039e-7a1e-48f4-9f7f-b2b5a3921588	Error: Page Not Found
+16042025	02:21:33	20a6e96f-7001-4916-b999-441b5dccaa06	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:21:33	716847c1-2776-4cc0-a368-66426d9e2b64	Error: Page Not Found
+16042025	02:21:35	b05d52f0-ea75-41d5-bd54-9c204de5e1d9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:21:35	619239e7-3384-4ae8-b433-1a7550a788a9	Error: Page Not Found
+16042025	02:22:27	c683fa40-c195-4891-9c76-196df9642e29	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:22:27	2238d174-beca-4f2e-b452-c3cf434d70e1	Error: Page Not Found
+16042025	02:22:30	f1d7436c-82db-4629-906d-c0327cbb8fef	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:22:30	b2279c7f-c627-43c7-a8bd-a44e3a635b06	Error: Page Not Found
+16042025	02:24:00	28261e18-f6e8-47b7-9bfc-5886f80141c9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:24:00	4fa6b8d6-e7a3-406e-bb34-119d8c981b03	Error: Page Not Found
+16042025	02:24:02	d4e6ca4e-4a2a-4429-b400-fa0676f4f592	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:24:02	cdc9c4dc-cc1d-48c1-a870-ab353eb3ddcf	Error: Page Not Found
+16042025	02:25:10	fc28bd6c-fe81-457b-aa5c-d2698651714a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:25:10	d93bc985-d6bb-4ccc-8372-3fb135474a04	Error: Page Not Found
+16042025	02:25:14	deeb209d-6570-4f20-8346-982cb8a58b92	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:25:14	c4f3ed96-0a91-4bd6-9611-d9b732737144	Error: Page Not Found
+16042025	02:25:39	8b3d2291-657a-47c6-87c9-b9c109c10558	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:25:39	b779f248-bb7f-4519-873a-36ab9358ce5a	Error: Page Not Found
+16042025	02:25:44	972f5ce0-2404-4e02-9742-0a48200f5487	TypeError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:44
+    42| 				<div class="card-item">
+    43| 					<div class="card-item-label">Department : </div>
+ >> 44| 					<div class="card-item-value"><%= selectedUser.departments.name %> &nbsp; &nbsp; <button type="button" title="Change department" onclick="return userChangeDepartment(this, <%=JSON.stringify(departments)%>);" class="btn btn-primary btn-tiny" style="height:30px;" data-user-id="<%= user.id %>" data-user-name="<%= user.username %>" data-user-department-id="<%=selectedUser.departments.id%>"><i class="fa fa-sync"></i></button></div>
+    45| 				</div>
+    46| 					
+    47| 			</div>
+
+Cannot read properties of null (reading 'name')
+16042025	02:25:44	43eb5929-9bb5-4168-82c2-766405267603	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:25:44	318b5616-c597-408b-9273-3250c04280e9	Error: Page Not Found
+16042025	02:26:22	328647d6-a5cb-4ba6-b876-b223f9f05816	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:22	0adb4f35-0b0f-4201-8935-80ac7f6206c4	Error: Page Not Found
+16042025	02:26:25	ef97225a-cbb1-410f-be8a-01f56562db7e	TypeError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:44
+    42| 				<div class="card-item">
+    43| 					<div class="card-item-label">Department : </div>
+ >> 44| 					<div class="card-item-value"><%= selectedUser.departments.name %> &nbsp; &nbsp; <button type="button" title="Change department" onclick="return userChangeDepartment(this, <%=JSON.stringify(departments)%>);" class="btn btn-primary btn-tiny" style="height:30px;" data-user-id="<%= user.id %>" data-user-name="<%= user.username %>" data-user-department-id="<%=selectedUser.departments.id%>"><i class="fa fa-sync"></i></button></div>
+    45| 				</div>
+    46| 					
+    47| 			</div>
+
+Cannot read properties of null (reading 'name')
+16042025	02:26:25	4b317c52-2013-4670-94f4-001ea71987d0	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:25	f7f13cc0-fe8e-474e-b496-b80534c356af	Error: Page Not Found
+16042025	02:26:29	6d911efc-283b-40fb-88ad-19b21d56c57a	404 Not Found: GET /admin/users/view/
+16042025	02:26:29	b44a9568-2685-4d98-aaa8-f1c2cfc2be2a	Error: Page Not Found
+16042025	02:26:29	8ccfcaf8-3981-4319-b837-2bd822b3ac3f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:29	ecdfa27c-8b84-45fe-a31c-ecc4b52c3047	Error: Page Not Found
+16042025	02:26:32	2c096ae2-26b8-44b7-94fc-708a9581861a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:32	4ee4e4c4-ed4a-45ca-905f-7c6f8438fa09	Error: Page Not Found
+16042025	02:26:37	210a03c0-76f8-4f06-ac60-c12953774ed1	TypeError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:44
+    42| 				<div class="card-item">
+    43| 					<div class="card-item-label">Department : </div>
+ >> 44| 					<div class="card-item-value"><%= selectedUser.departments.name %> &nbsp; &nbsp; <button type="button" title="Change department" onclick="return userChangeDepartment(this, <%=JSON.stringify(departments)%>);" class="btn btn-primary btn-tiny" style="height:30px;" data-user-id="<%= user.id %>" data-user-name="<%= user.username %>" data-user-department-id="<%=selectedUser.departments.id%>"><i class="fa fa-sync"></i></button></div>
+    45| 				</div>
+    46| 					
+    47| 			</div>
+
+Cannot read properties of null (reading 'name')
+16042025	02:26:37	8e6bfa65-d8a1-4ca3-9cc2-4b8b0fd9c9f2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:37	b4c46938-58c3-4d62-aacf-922ea8a0fd87	Error: Page Not Found
+16042025	02:26:41	85ec8822-6e9e-42c2-af47-dd085c87ea01	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:41	d9a9264e-f0e4-4005-a5e0-c06e238074dc	Error: Page Not Found
+16042025	02:26:41	96f84799-be20-4de7-be68-4ae9111ab111	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:41	0a2fa1ef-b840-4a69-a9f3-3650f4866743	Error: Page Not Found
+16042025	02:26:42	4185678f-3bee-4f13-8dc8-e0e18f30a48b	TypeError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:44
+    42| 				<div class="card-item">
+    43| 					<div class="card-item-label">Department : </div>
+ >> 44| 					<div class="card-item-value"><%= selectedUser.departments.name %> &nbsp; &nbsp; <button type="button" title="Change department" onclick="return userChangeDepartment(this, <%=JSON.stringify(departments)%>);" class="btn btn-primary btn-tiny" style="height:30px;" data-user-id="<%= user.id %>" data-user-name="<%= user.username %>" data-user-department-id="<%=selectedUser.departments.id%>"><i class="fa fa-sync"></i></button></div>
+    45| 				</div>
+    46| 					
+    47| 			</div>
+
+Cannot read properties of null (reading 'name')
+16042025	02:26:42	fad705c1-8440-4102-9324-6d2800ce5601	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:42	3a89deae-bf19-48c0-b650-a2579e3d8bf4	Error: Page Not Found
+16042025	02:26:43	5466b66e-e41d-43c3-94f3-a57c89c441c5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:43	0839c950-bf2b-4be6-b74e-9e2901de5054	Error: Page Not Found
+16042025	02:26:43	01425cde-8781-4aea-a6c8-2ade80ae49d4	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:43	01458ef0-02d6-4a9c-9e87-b1504fcc575f	Error: Page Not Found
+16042025	02:26:44	6ba37efa-7d82-4e95-8ae6-978ceb8b4a87	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:44	652236e3-6bed-4fb5-9e8d-cb4aea1e3ce9	Error: Page Not Found
+16042025	02:26:45	61afd012-2969-4e8d-9f25-395a1c1e4618	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:45	ee45a405-04ff-4eb6-9a4f-7cfa60d49736	Error: Page Not Found
+16042025	02:26:45	641e20c9-28a2-40cc-8ea3-ece3ccd331ec	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:26:45	81de4c4a-e0b9-4d7f-9d93-5be9505c6671	Error: Page Not Found
+16042025	02:27:57	ddca2aae-f268-4b34-bcd7-054989886dde	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:27:57	cba614e2-a8de-46ac-94a0-aad184fea1e1	Error: Page Not Found
+16042025	02:28:00	3387e129-0030-4a1f-a531-e4f4cb7c9a0c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:28:00	9913e2e4-ce30-44d9-8b73-3aafff87ef2f	Error: Page Not Found
+16042025	02:28:03	ec2608bf-e2e4-49b0-894e-dad2650f4f6e	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:28:03	c3ded52a-e5f3-4692-ae2c-aef5f3588947	Error: Page Not Found
+16042025	02:29:15	a0150721-a45a-4ba0-b9e2-d125cc10fb24	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:29:15	dcba26ae-2580-4a2a-a06e-c86b3e68bb63	Error: Page Not Found
+16042025	02:29:18	2cb89801-8538-49ec-9ae5-bd9fe0165c3d	TypeError: E:\MainaSolutions\Better-Time-Management\views\admin\users\view.ejs:57
+    55| 								data-user-id="<%= user.id %>" 
+    56| 								data-user-name="<%= user.username %>" 
+ >> 57| 								data-user-department-id="<%=selectedUser.departments.id%>">
+    58| 								
+    59| 									<i class="fa fa-sync"></i>
+    60| 							</button>
+
+Cannot read properties of null (reading 'id')
+16042025	02:29:18	d7c14729-31e4-4eb0-8fa9-10a1698dd0d9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:29:18	abaac9ff-f8bb-4777-a006-f67ca889bdd0	Error: Page Not Found
+16042025	02:29:51	aa3542a0-6152-4b45-88ad-9f89d2d07020	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:29:51	7f1265c0-ca25-499d-b1c7-2122737d92c7	Error: Page Not Found
+16042025	02:29:53	a713155f-747a-42da-9221-a42c4ddd8d68	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:29:53	0f7e67a4-bfbf-417b-b28c-2d1bd42a6782	Error: Page Not Found
+16042025	02:29:58	a60c8b19-a184-44bf-838d-a30e705f3a7e	404 Not Found: POST /admin/api/users/setdepartment/
+16042025	02:29:58	8dc300ff-8a66-4a5c-b2c2-b54ebe476164	Error: Page Not Found
+16042025	02:38:39	437f4c14-85c1-473b-a066-3ef54e29e9a9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:38:39	efc65cd8-0268-479f-8d6a-a3752c076ea4	Error: Page Not Found
+16042025	02:38:42	10e5f9a0-a273-4419-9cf0-132ab255daf7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:38:42	783d5a02-fd62-4de9-8cce-fe4d48dffdcb	Error: Page Not Found
+16042025	02:39:37	af5323cf-b5f2-453b-af79-0cbe9b1ceca6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:39:37	f0550f9d-58ef-4505-8d45-18a9b37bd3ce	Error: Page Not Found
+16042025	02:39:39	ed5389d0-ce41-4cf5-bcc2-a2770a909f72	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:39:39	067c54eb-37b9-4d9e-8ebc-289326a1fe39	Error: Page Not Found
+16042025	02:40:09	1bb077d9-a5c0-42dc-96a0-e0582d9bb605	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:40:09	85e15f96-a175-4d78-81c5-f01b94ca8912	Error: Page Not Found
+16042025	02:40:11	4471fe4f-5207-40fb-9974-cfa5275b476c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:40:11	8a354f21-50bd-4955-93d3-5a947f6219b1	Error: Page Not Found
+16042025	02:40:28	5dc59974-897d-4dca-8b77-bfcfb1dec187	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:40:28	4ea517e5-fb3b-46f4-b8b0-04e55a0a79fb	Error: Page Not Found
+16042025	02:40:30	a6b918c8-7849-44e3-8f52-938ead3ec14b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:40:30	5ac1e1ee-561d-442c-b4a2-6708fcb6bd3c	Error: Page Not Found
+16042025	02:41:13	5d069bae-570d-439c-bc23-a18eda39801a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:41:13	6ce44c77-3543-4b00-ba77-032ef4e33a73	Error: Page Not Found
+16042025	02:41:15	b094ca26-0c21-4f79-9adb-6986e22e94bf	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:41:15	aa3183be-a4c8-4047-97e8-a2f91378a10c	Error: Page Not Found
+16042025	02:41:21	26d3324c-b5f8-4971-995a-85aa3d8d71f1	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:41:21	73a92966-c5c4-45b0-959f-8e41b05214db	Error: Page Not Found
+16042025	02:41:28	9031fbc8-bd36-45d2-a378-48111c641ef3	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:41:28	bd474d7e-86fd-4352-9224-2b9c75b5bd86	Error: Page Not Found
+16042025	02:43:04	b4e01055-ae5d-4f37-bf30-a80dc1110a8c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:43:04	419ee63b-3ad2-4bff-84ec-1de959ba1a15	Error: Page Not Found
+16042025	02:43:07	d1f33cfa-8469-4458-9c6a-0f7a5a696366	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:43:07	5714aaa3-ea43-4bbe-acaf-32a2a18f2a85	Error: Page Not Found
+16042025	02:43:41	5096f0d2-82d4-4a26-b021-8610268a4d74	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:43:41	3dc2c3b8-5c42-4da3-acdb-b578f5fa09c7	Error: Page Not Found
+16042025	02:43:44	06675074-f3ec-4aaa-ae2e-2f11bacd4309	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:43:44	da3e56e9-1c3b-466c-9e4a-560264208644	Error: Page Not Found
+16042025	02:44:21	94532989-6786-41d6-bbe7-2c240a34af71	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:44:21	81b33d24-ea8a-4e24-ba8c-9b1a0cdf8f4f	Error: Page Not Found
+16042025	02:44:24	185f0325-6100-4f39-969c-bf06c64e48df	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:44:24	f1b9d83c-5fdd-44e6-b277-c8042532d5a6	Error: Page Not Found
+16042025	02:44:30	0aa9b3cd-3aaf-4dda-b719-5cbeff809c25	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:44:30	a2f83853-9a6e-4e37-adae-b73bee275b8d	Error: Page Not Found
+16042025	02:44:41	2d750921-31b9-40d4-adef-bca7ce87b0a7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:44:41	be3e6447-8abb-47bb-8175-914dc1cd165a	Error: Page Not Found
+16042025	02:44:46	c8468ab1-2442-456f-8f5f-5a899bffd8a6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:44:46	4d807f25-a312-4637-ad4f-ca0b95a84280	Error: Page Not Found
+16042025	02:44:53	a8f83bdb-96a2-4229-a11e-d61a29230a97	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:44:53	920627e7-adaf-494d-a489-052bbd2d9217	Error: Page Not Found
+16042025	02:45:01	eafb29c9-f8f7-42a0-96f2-fd7008bcd0c7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:45:01	0397aa68-5349-43b6-87d1-5e0cc0e960fb	Error: Page Not Found
+16042025	02:45:08	3490cd72-8f50-482f-85f0-4be6fd11001b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:45:08	7ec51b88-d3ab-434a-9425-cab6322751ec	Error: Page Not Found
+16042025	02:45:35	0f01fa62-912f-4ed1-96bc-b184ba94fb16	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:45:35	965b5cd9-261e-40a2-8cd6-409c8748ea8c	Error: Page Not Found
+16042025	02:45:38	5897023d-7aa2-480a-8462-23e81cd2d674	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:45:38	4ddadfbd-2bc1-48bd-b024-44f55a26b7ad	Error: Page Not Found
+16042025	02:45:47	4cb38996-9b76-4d36-9851-5d2736bc2d8e	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:45:47	89d33254-8cf3-4381-89a0-a49bed23f009	Error: Page Not Found
+16042025	02:45:53	c7673373-d899-4c36-8cd1-d6a108cb8ca5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:45:53	a2b9a5d0-5800-4e48-8384-3dd1940e5cad	Error: Page Not Found
+16042025	02:46:08	b9846977-b99b-4550-9b49-72ed21b13fec	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:46:08	f86f74fe-ab25-4d87-b7f1-3e46f16d99b6	Error: Page Not Found
+16042025	02:46:29	23c863a8-044d-4e21-b158-dc316d79e217	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:46:29	52bbf323-26a8-4fd0-b86d-7c767f398da0	Error: Page Not Found
+16042025	02:47:01	98211777-5c80-4542-8f6a-921b9c4557a5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:47:01	5ac5ebaf-6986-4e06-8d08-260feb1b1682	Error: Page Not Found
+16042025	02:47:04	80f86688-d9b8-4470-b2d9-c78c24fd6729	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:47:04	1677083c-262d-4a11-a3e4-4a433c38f797	Error: Page Not Found
+16042025	02:47:25	cdaf008b-c894-4926-bc2b-41daf475df53	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:47:25	96d3b28c-e368-4d16-851d-a011b0220b98	Error: Page Not Found
+16042025	02:48:56	c2d37147-c81b-46fd-9636-2f4b06c079f3	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:48:56	365cfdf4-115f-4df6-87cc-77ac55d36675	Error: Page Not Found
+16042025	02:49:03	98d259a0-e99c-40c3-b522-ee64c0652e08	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:49:03	7a4078e3-afbe-44ed-a487-20cf4a0c6da1	Error: Page Not Found
+16042025	02:49:04	830da906-bed7-44c9-adc9-6eb44d98b927	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:49:04	17ce92ac-fc58-494a-b634-d2886206cad0	Error: Page Not Found
+16042025	02:49:09	8ec68d01-ea3d-44e7-87b1-6c6fd3737948	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:49:09	b1fb84eb-3aba-4308-8d0e-42c3f734e4f8	Error: Page Not Found
+16042025	02:50:14	524ad9d2-a626-4e59-8abc-7af4ad35e38b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:50:14	badc3516-5a5f-474a-aafa-f35e8f2167e2	Error: Page Not Found
+16042025	02:51:25	115ebc49-ba4f-44a5-9628-1bc9b271e818	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:51:25	0520b05b-e112-4014-9705-9de772d1d9ed	Error: Page Not Found
+16042025	02:51:28	004ef9c8-c0bf-4efa-a387-8bf3aa0951ae	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:51:28	08e729c1-9264-4b75-9b53-175c26cd0354	Error: Page Not Found
+16042025	02:51:38	a3be2101-57d6-4a0e-a4db-d314f8f0a656	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:51:38	3c152ff7-cbd4-4d41-a069-5f6cceccf90b	Error: Page Not Found
+16042025	02:53:40	30c4fe5b-0440-4bce-80b0-bdcf94973f57	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:53:40	be74bd3e-495a-44b0-ae0d-5b4907456ef5	Error: Page Not Found
+16042025	02:53:43	adddce64-5f53-437b-84e2-f9b850363a9a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:53:43	949b6c0a-5e92-4ffa-a981-c675f33decb3	Error: Page Not Found
+16042025	02:54:16	0ac3f9dc-da33-49b8-b54a-dcfd29bb497f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:54:16	f0d0f529-0bf9-4eda-b5cf-da9892199517	Error: Page Not Found
+16042025	02:54:29	9d9c6f44-4fbd-4d4e-a2db-9619c59674a2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:54:29	56d15d00-a3dc-4aa8-bea7-716ae7971fbd	Error: Page Not Found
+16042025	02:55:03	e55bde8a-dffb-47a8-bf13-243ba8a246e5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:55:03	816ea30f-93e2-40ab-9cfd-6d6cc80e3d1c	Error: Page Not Found
+16042025	02:55:05	a41850ce-daf1-4f8a-b50a-1bff67381792	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:55:05	3234e835-000f-443b-9655-d7197b94120f	Error: Page Not Found
+16042025	02:55:13	c23c5240-95b7-4425-93d0-1b2ef07978cb	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:55:13	cab075da-c83a-4516-a2c4-8e97b723fccc	Error: Page Not Found
+16042025	02:55:28	368bd480-e05c-46a8-9378-c78f3efb91af	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:55:28	c668e5e2-b297-4df0-b13d-26eb578945f3	Error: Page Not Found
+16042025	02:55:31	c155c96e-af7a-4fa7-9280-2d56b2053fa4	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\roles\view.ejs:9
+    7|     
+    8| 
+ >> 9|     <%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+    10| 
+    11|     <div class="card">
+    12|         <div class="card-header">
+
+activeSubPage is not defined
+16042025	02:55:31	07e74e10-314b-480c-9fe7-d02599b6c60f	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:55:31	3d88617c-a68c-401d-9dee-b63b29092571	Error: Page Not Found
+16042025	02:55:31	49cd5697-e31f-4f1b-9849-8eb904d6f627	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:55:31	82d66b5d-4b97-4628-883a-8689ba91d1ce	Error: Page Not Found
+16042025	02:55:32	234b044b-5bd4-40d8-9261-e171ac4f2c2b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:55:32	dfab846f-9fb7-404f-b0af-fee4d7850c14	Error: Page Not Found
+16042025	02:55:57	201e2f9f-c32c-4067-8375-7e865a48ad57	404 Not Found: DELETE /admin/api/roles/delete/8
+16042025	02:55:57	8709052f-5a0a-416a-85d9-4721f2c0b183	Error: Page Not Found
+16042025	02:56:03	7e403e3e-b99e-44d3-b3e0-5b7a9e50af9b	ReferenceError: E:\MainaSolutions\Better-Time-Management\views\admin\roles\view.ejs:9
+    7|     
+    8| 
+ >> 9|     <%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+    10| 
+    11|     <div class="card">
+    12|         <div class="card-header">
+
+activeSubPage is not defined
+16042025	02:56:03	ece0818a-ce16-41c6-87c7-851666817083	Error: Page Not Found
+16042025	02:56:03	e014e0bc-63ab-4b5e-bd39-6f4c09d805a2	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:57:04	8e0b72d7-e85b-43f7-b565-2332e4ac104a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:57:04	7ad98a1a-52f8-47a4-9434-595527690503	Error: Page Not Found
+16042025	02:57:06	5a634716-ebd5-4701-a010-74d92cff5857	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:57:06	ff595166-c6ec-479f-bb5e-7c3893dd1c1a	Error: Page Not Found
+16042025	02:58:34	107d34a1-08b8-4048-88c6-cb693180aae5	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:58:34	f4f48ee2-5d86-4940-877b-e336e788633f	Error: Page Not Found
+16042025	02:58:37	2874a15d-6eda-4585-a0cf-f7f687a814ea	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:58:37	c5f0c497-4171-4739-af8f-0dc20de2b610	Error: Page Not Found
+16042025	02:58:55	338748a6-5d81-40f1-8f10-8f3d6d6ad082	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:58:55	0e909c43-3da6-4830-9604-15600abe316b	Error: Page Not Found
+16042025	02:58:57	4694a423-871a-4530-b6aa-5ad399ab0108	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:58:57	d94c9abd-4631-44da-9d88-50b1060a1b5d	Error: Page Not Found
+16042025	02:59:07	25e4002b-3e56-4101-9776-d4a94dab1768	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:59:07	fb9f7c7e-11fe-4b41-aee9-6e46b80f6d4d	Error: Page Not Found
+16042025	02:59:09	ba61f08a-f0b1-48b9-8224-752a737a9721	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:59:09	1d34ab7e-48d4-443f-8e55-f42ac5021b59	Error: Page Not Found
+16042025	02:59:42	5e535c5a-ec9d-4737-b4f1-222cad1a6873	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:59:42	188f9360-9152-47a2-98ff-9eb8abcaa03d	Error: Page Not Found
+16042025	02:59:44	6b74643c-b0a4-4f6c-ad2c-b0a8fe8183d4	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	02:59:44	32e3921b-494d-4a93-a2c7-4d69cab170ac	Error: Page Not Found
+16042025	03:00:13	9e22009e-7215-48b1-a8a3-779cae9c5524	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:13	5dad3089-c7a5-46bc-8a49-565892d2d1a6	Error: Page Not Found
+16042025	03:00:18	6ff840ff-8029-494e-8b07-933123f09934	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:18	8701a9c4-2193-435c-98be-086b21b64169	Error: Page Not Found
+16042025	03:00:20	ba6c4cb1-7fb5-496f-8c19-6162531d0dd3	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:20	456e994f-b864-4f8a-b018-fc326e308d91	Error: Page Not Found
+16042025	03:00:22	e00cc8d9-4f54-4670-8d53-9f33aa2520e4	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:22	70fcb46c-44d6-4f11-bb2e-7052816defef	Error: Page Not Found
+16042025	03:00:22	7839bf41-1cc8-43a8-9ec1-7b16bad6b794	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:22	6c185e61-f9c8-40e0-b667-aaee67cde3e7	Error: Page Not Found
+16042025	03:00:23	5a7bbde5-a08b-45f0-8ed4-1812eef41d80	Error: Page Not Found
+16042025	03:00:23	45e7092e-4ba5-47c2-a26e-58bf9fa60567	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:24	3653b8db-9c7d-47e3-add5-a7e63edd05b4	404 Not Found: GET /admin/deparments/view/5
+16042025	03:00:24	b6013e28-0a32-42be-bcba-8573f4a8fb29	Error: Page Not Found
+16042025	03:00:24	512e64b1-0c68-482a-b7cb-ad745d23d049	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:24	42b87a4e-bf8c-4d83-bb91-f9fd21359231	Error: Page Not Found
+16042025	03:00:25	de92fc6b-a1de-457d-9410-c1ee452ef7a1	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:25	b71ffbc1-4e79-4e68-9aa9-36504c9892b1	Error: Page Not Found
+16042025	03:00:25	543bfdef-b734-41f5-b5c8-9336a0a0a6c4	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:25	86abf3d9-7854-4394-955f-bafb9aceb770	Error: Page Not Found
+16042025	03:00:25	7e6128ee-3e3a-423b-a97e-7c6d98d23465	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:25	9c837e10-903f-4422-b006-18448bcf6e48	Error: Page Not Found
+16042025	03:00:25	c038f1f1-6037-4505-af94-8a990039079a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:25	84a4c4e4-45c4-4d4b-baf3-481d9a5fb8f8	Error: Page Not Found
+16042025	03:00:26	3869e470-8867-4de7-8eeb-e1581a780aac	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:26	bf3113eb-1cdb-484c-927b-d2b0f896e8b0	Error: Page Not Found
+16042025	03:00:27	49109ecf-08e3-4aa8-9e9e-8fd3c5bb91fb	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:27	307a3e95-6a55-4fff-a579-b7f7d566674f	Error: Page Not Found
+16042025	03:00:32	1a35b665-75c8-40d1-b381-281a522043e9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:32	2264000f-97d5-49f1-96ec-04cdf94b737f	Error: Page Not Found
+16042025	03:00:32	6fe1ef7b-95fb-4c26-ac75-ce316edff129	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:32	002918d7-c943-4877-9d2f-356c1829de36	Error: Page Not Found
+16042025	03:00:38	486d9690-9d9b-40f8-8f0b-2306e00685c7	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:38	6434f396-1d61-45aa-8583-2ed50ced35df	Error: Page Not Found
+16042025	03:00:42	739a3b14-957e-4406-a242-9d3a73ebe78c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:42	dc573a37-a210-4c5f-a67c-621e25e70446	Error: Page Not Found
+16042025	03:00:43	fbecdb2c-2d57-4bae-85c2-25ada6c987f3	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:43	27211662-22af-46c7-b17c-22e845773eba	Error: Page Not Found
+16042025	03:00:44	a94dedb9-4547-441c-828e-06bf267f3f7b	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:44	0073e6f2-3893-492c-99cc-bac56ab5f63d	Error: Page Not Found
+16042025	03:00:46	f6dd31db-40e4-4f39-8bc2-71e264d4e3ee	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:46	2190244f-94dc-4487-a87d-843cf302660c	Error: Page Not Found
+16042025	03:00:48	a41b684e-1b9e-4dee-a3b6-bd68212a22bd	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:48	9369f9f8-7af4-4eb3-8b72-ffae64cdf7cf	Error: Page Not Found
+16042025	03:00:48	b29fbc7b-ddec-4b97-bf77-2ffc4983a51e	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:48	cd41bea7-d00b-4daa-956b-0cbac8842787	Error: Page Not Found
+16042025	03:00:50	e0c3cdbb-deda-4860-933a-2e67887c0a0d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:00:50	a34d82dc-84e8-4e95-b23a-b7b40706e2cf	Error: Page Not Found
+16042025	03:01:03	68c36d24-31aa-40ef-a591-8fe9c5554374	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:03	e11f5b51-4612-4484-a303-86b0e6c0d2fe	Error: Page Not Found
+16042025	03:01:05	4d713e4c-8bc8-4636-ba2e-34bf33df2e38	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:05	f425f02d-f74d-429d-99ee-50da6a381614	Error: Page Not Found
+16042025	03:01:18	5c7418c1-df69-47b8-9b2a-ff3e07c5115d	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:18	87b7e68d-72de-4e3b-8339-bf0db02d0555	Error: Page Not Found
+16042025	03:01:20	694d7584-250d-4f84-96bf-11b1810c10ae	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:20	c97da22e-8d9b-4d58-a787-7826e343cacc	Error: Page Not Found
+16042025	03:01:33	e2ec2a65-1960-4d43-a4bd-906050c7b4eb	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:33	23d01acc-68e6-4ad6-8fc5-9a35f6398b43	Error: Page Not Found
+16042025	03:01:36	750b6e05-2df1-426a-b996-a94ca556d0b8	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:36	b5ba72bf-b97a-4ffb-b19e-218618f94ec2	Error: Page Not Found
+16042025	03:01:39	549b44a3-7b0d-45fb-9b0c-5e611c4508f4	404 Not Found: GET /admin/roles/edit/
+16042025	03:01:39	1922b7b6-46bd-4b3a-be79-21a32a5698bd	Error: Page Not Found
+16042025	03:01:39	6838aa6b-801b-46f0-bfce-8a15e388df1a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:39	a723f1fc-97a1-4557-b81f-54840d91a14c	Error: Page Not Found
+16042025	03:01:40	4402ec84-e779-4d88-bfbd-de1ba101bc19	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:40	51b9d0f3-676c-4340-b434-f8483d094f6d	Error: Page Not Found
+16042025	03:01:40	0b57f3ef-9286-44e3-8159-4e46863318d4	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:40	5e691eef-3508-499c-9db7-d312bc4151c5	Error: Page Not Found
+16042025	03:01:58	4215e461-f046-4030-b5b5-975c80c73c16	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:01:58	cd73c218-c221-435c-afae-f579cf3e8d16	Error: Page Not Found
+16042025	03:02:02	01a7f068-bc9f-4a50-9f48-693903ad874a	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:02	95bfc041-c628-4a3b-b032-732a44396715	Error: Page Not Found
+16042025	03:02:10	dec96765-337f-470e-8a1a-948f7c312a20	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:10	13102919-b5d5-4bea-be39-69d27a1f5485	Error: Page Not Found
+16042025	03:02:12	eed7b8f1-357e-4f39-8358-e8d005d9c7c6	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:12	baba56b4-0506-4294-a575-59a1a6af87b9	Error: Page Not Found
+16042025	03:02:19	50396155-34c8-4db3-aacb-2b2d161bfa9d	404 Not Found: GET /admin/roles/edit/
+16042025	03:02:19	523cc0b6-05ef-4c3b-bbda-df958e6aef32	Error: Page Not Found
+16042025	03:02:19	a9a0b09c-1a5b-4f75-9e5d-7918e9440b94	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:19	231d94bd-9f35-4d84-a762-3a03e1c3dd53	Error: Page Not Found
+16042025	03:02:22	47976bfa-d686-4b92-a2d6-9cb9eaea6347	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:22	5142fb09-ce40-4a11-9432-4f8355cdd73e	Error: Page Not Found
+16042025	03:02:22	727d2765-2b53-4e09-b31a-0559f19db843	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:22	d621f0a7-2f74-434d-ba91-4a16ae33a8e5	Error: Page Not Found
+16042025	03:02:23	4cb3e037-d492-4fff-87a7-68ff390c39dd	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:23	35172e1d-1a82-4bc3-8f85-a2271aa568c2	Error: Page Not Found
+16042025	03:02:25	26236cb7-feeb-460d-b51f-2c2fd4e88929	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:25	2e49a9d8-46e7-431f-9b80-6a66a03be671	Error: Page Not Found
+16042025	03:02:25	f7ddb81e-a2d0-4712-a7a7-ff6c954c4f74	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:25	98145d16-c55b-4d2f-bab3-bc46cd8db2c9	Error: Page Not Found
+16042025	03:02:30	bdfff191-6e32-4776-9783-7a98aca7d846	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:02:30	9592d3ed-b770-4a3f-ae45-df91a7ce02db	Error: Page Not Found
+16042025	03:03:02	103e5e90-7a1e-4070-bb98-1608237f870c	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:03:02	60deab43-c641-4d69-84b2-8ebd7973f65a	Error: Page Not Found
+16042025	03:03:05	c8015503-5936-4fa3-88d2-f830217134c9	404 Not Found: GET /.well-known/appspecific/com.chrome.devtools.json
+16042025	03:03:05	58233b68-a6d6-4517-bc27-99630d91f5ac	Error: Page Not Found

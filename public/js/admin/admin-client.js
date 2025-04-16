@@ -152,8 +152,10 @@ function listRoles() {
                     }
                     //console.log(role);
                     let span = document.createElement("span");
-                    span.className = "role-badge role-badge-" + role.color + " text-lg";
+                    span.className = "role-badge role-badge-" + role.name + " text-lg";
+                    /*"role-badge role-badge-<%= (user.roles[i].role.name) %>"*/
                     span.innerHTML = role.name;
+                    span.style = "cursor: pointer; margin: 0 5px;";
                     roleList.appendChild(span);
 
                     const hasRole = create_roles.some(r => r.id === role.id);
@@ -161,7 +163,7 @@ function listRoles() {
                     if (hasRole) {
                         let removeButton = document.createElement("a");
                         removeButton.innerHTML = " <i class='fa fa-times text-danger'></i>";
-                        removeButton.onclick = function () {
+                        span.onclick = function () {
                             create_roles.pop(role);
                             listRoles();
                         };
@@ -169,8 +171,8 @@ function listRoles() {
                     }
                     else {
                         let addButton = document.createElement("a");
-                        addButton.innerHTML = " <i class='fa fa-plus text-light'></i>";
-                        addButton.onclick = function () {
+                        addButton.innerHTML = " <i class='fa fa-plus text-success'></i>";
+                        span.onclick = function () {
                             create_roles.push(role);
                             listRoles();
                         };
@@ -255,6 +257,105 @@ function removeUserFromRole(roleName) {
     //});
 }
 
+function userChangeDepartment(sender, departments) {
+
+    let userId = sender.getAttribute('data-user-id');
+    let userName = sender.getAttribute('data-user-name');
+    if (!departments) {
+        alert('something went wrong loading departments');
+        return false;
+    }
+    // Check if the user is on a mobile device
+    // If so, redirect to the mobile version of the page
+    isMobile("/admin/users/change_department/" + userId);
+
+    // Clear any old modal
+    clearOldModal();
+
+    let modal = document.createElement('div');
+    modal.classList.add('admin-modal');//, { class: 'admin-modal' });
+    let mHeader = document.createElement('div')
+    mHeader.classList.add('modal-header');
+    mHeader.innerHTML = `<h2 class="modal-title"><i class="fa fa-triangle-exclamation"></i> Change department for '${userName}'?</h2>`;
+    modal.appendChild(mHeader);
+    let mBody = document.createElement('div');
+    mBody.classList.add('modal-body');
+
+    let mBodyP = document.createElement('p');
+    mBodyP.innerText = `Select the new department`;
+    mBody.appendChild(mBodyP);
+
+    mBodyP = document.createElement('p');
+    mBodyP.classList.add('status-message');
+    mBody.appendChild(mBodyP);
+
+    let mBodyInput = document.createElement('select');
+    mBodyInput.setAttribute('type', 'text');
+    mBodyInput.setAttribute('placeholder', `Select department`);
+    mBodyInput.setAttribute('id', 'new-department');
+    mBodyInput.classList.add('form-control');
+
+    for (let i = 0; i < departments.length; i++) {
+        let department = departments[i];
+        let option = document.createElement('option');
+        option.setAttribute('value', department.id);
+        if (department.id == sender.getAttribute('data-user-department-id')) {
+            option.setAttribute('selected', 'selected');
+        }
+        option.innerHTML = department.name;
+        mBodyInput.appendChild(option);
+    }
+
+    mBody.appendChild(mBodyInput);
+
+    let mBodyButton = document.createElement('button');
+    mBodyButton.setAttribute('id', 'button-primary');
+    mBodyButton.classList.add('btn', 'btn-primary');
+    mBodyButton.innerHTML = 'Update';
+    mBodyButton.onclick = async function () {
+        resetModalError();
+        
+        // API Endpoint for setting new department to user
+        const url = '/admin/api/users/setdepartment/';
+
+        // Send request to the server, as post with json data containing all the form elements
+        const response = await fetch(url, {
+            method: 'post',
+            headers: { "Content-Type": 'application/json' },
+            body: JSON.stringify({ user: userId, department: mBodyInput.value }),
+        });
+
+        // Check if the response is ok, if not show an error message
+        if (!response.ok) {
+            // Response not ok, show an error message
+            showModalError('Error updating department: ' + response.statusText);
+            // Prevent form from beeing submitted
+            return false;
+        }
+
+        // Show a success message to the user
+        showModalSuccess('User department successfully changed! Refresing.');
+
+        // Redirect to the list of users after 2 seconds
+        setTimeout(() => {
+            window.location.href = '/admin/users/view/' + userId;
+        }, 3000);
+    };
+    mBody.appendChild(mBodyButton);
+    let mBodyButtonCancel = document.createElement('button');
+    mBodyButtonCancel.setAttribute('id', 'button-cancel');
+    mBodyButtonCancel.classList.add('btn', 'btn-danger');
+    mBodyButtonCancel.innerHTML = 'Cancel';
+    mBodyButtonCancel.onclick = function () {
+        clearOldModal();
+    };
+    mBody.appendChild(mBodyButtonCancel);
+    modal.appendChild(mBody);
+    document.body.appendChild(modal);
+    fadeInEffect(modal);
+    return false;
+}
+
 /*
 =================================================
 FADE IN AND OUT EFFECT
@@ -313,16 +414,87 @@ function clearOldModal() {
 function showModalError(message) {
     let modalError = document.querySelector('.status-message');
     if (modalError) {
+        modalError.classList.remove('modal-success');
         modalError.classList.add('modal-error');
         modalError.innerHTML = message;
         fadeInEffect(modalError);
     }
 }
 
+function showModalSuccess(message) {
+    let modalError = document.querySelector('.status-message');
+    if (modalError) {
+        modalError.classList.remove('modal-error');
+        modalError.classList.add('modal-success');
+        modalError.innerHTML = message;
+        fadeInEffect(modalError);
+    }
+}
+
+function createDeleteModal(title, confirmtext, strongtext, placeholder) {
+
+    let modal = document.createElement('div');
+    modal.classList.add('admin-modal');
+
+    let mHeader = document.createElement('div')
+    mHeader.classList.add('modal-header');
+    mHeader.innerHTML = `<h2 class="modal-title"><i class="fa fa-triangle-exclamation"></i> ${title}</h2>`;
+    modal.appendChild(mHeader);
+
+    let mBody = document.createElement('div');
+    mBody.classList.add('modal-body');
+
+    let mBodyP = document.createElement('p');
+    mBodyP.innerText = confirmtext;
+    mBody.appendChild(mBodyP);
+
+    if (strongtext) {
+        mBodyP = document.createElement('p');
+        mBodyP.innerHTML = `<strong>${strongtext}</strong>`;
+        mBody.appendChild(mBodyP);
+    }
+
+    mBodyP = document.createElement('p');
+    mBodyP.classList.add('status-message');
+    mBody.appendChild(mBodyP);
+
+    let mBodyInput = document.createElement('input');
+    mBodyInput.setAttribute('type', 'text');
+    mBodyInput.setAttribute('placeholder', `${placeholder}`);
+    mBodyInput.setAttribute('id', 'confirm-role-name');
+    mBodyInput.classList.add('form-control');
+    mBody.appendChild(mBodyInput);
+
+    let mBodyButton = document.createElement('button');
+    mBodyButton.setAttribute('id', 'confirm-delete');
+    mBodyButton.classList.add('btn', 'btn-danger');
+    mBodyButton.innerHTML = 'Delete';
+    mBodyButton.onclick = async function () { };
+    mBody.appendChild(mBodyButton);
+    let mBodyButtonCancel = document.createElement('button');
+    mBodyButtonCancel.setAttribute('id', 'cancel-delete');
+    mBodyButtonCancel.classList.add('btn', 'btn-secondary');
+    mBodyButtonCancel.innerHTML = 'Cancel';
+    mBodyButtonCancel.onclick = function () {
+        clearOldModal();
+    };
+    mBody.appendChild(mBodyButtonCancel);
+    modal.appendChild(mBody);
+    document.body.appendChild(modal);
+    fadeInEffect(modal);
+    return false;
+}
+
 function resetModalError() {
     let modalError = document.querySelector('.modal-body .modal-error');
     if (modalError) {
         modalError.classList.remove('modal-error');
+    }
+}
+
+function isMobile(redirecturl) {
+    if (navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/Android/i)) {
+        window.location = redirecturl;
     }
 }
 
@@ -334,12 +506,11 @@ ROLE SPECIFIC FUNCTIONS
 
 /// function for showing a confirmation box when deleting a role
 function roleDeletionConfirmation(sender) {
+    // Check if the user is on a mobile device
+    // If so, redirect to the mobile version of the page
+    isMobile("/admin/roles/delete/" + sender.getAttribute('data-role-id'));
 
-    if (navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/Android/i)) {
-        window.location = "/admin/roles/delete/" + sender.getAttribute('data-role-id');
-    }
-
-
+    // Clear any old modal
     clearOldModal();
 
     let roleId = sender.getAttribute('data-role-id');
@@ -348,14 +519,19 @@ function roleDeletionConfirmation(sender) {
 
     let modal = document.createElement('div');
     modal.classList.add('admin-modal');//, { class: 'admin-modal' });
-    let mHeader = document.createElement('div', { class: 'modal-header' });
+    let mHeader = document.createElement('div')
+    mHeader.classList.add('modal-header');
     mHeader.innerHTML = `<h2 class="modal-title"><i class="fa fa-triangle-exclamation"></i> Delete '${roleName}'?</h2>`;
     modal.appendChild(mHeader);
     let mBody = document.createElement('div');
     mBody.classList.add('modal-body');
 
     let mBodyP = document.createElement('p');
-    mBodyP.innerHTML = `<p>Are you sure you want to delete this role? <strong>All users assigned to this role will lose access to it!</strong></p>`;
+    mBodyP.innerText = `Are you sure you want to delete this role?`;
+    mBody.appendChild(mBodyP);
+
+    mBodyP = document.createElement('p');
+    mBodyP.innerHTML = `<strong>All users assigned to this role will lose access to it!</strong>`;
     mBody.appendChild(mBodyP);
 
     mBodyP = document.createElement('p');
@@ -378,21 +554,48 @@ function roleDeletionConfirmation(sender) {
         let confirmRoleName = document.getElementById('confirm-role-name').value;
         if (confirmRoleName !== roleName) {
             showModalError(`You must type '${roleName}' to confirm deletion!`);
+            mBodyInput.value = '';
             return false;
         }
-        /*
-        if (error) {
-            console.error('Error deleting role:', error.message);
-            alert('Error deleting role: ' + error.message);
+
+        // Get the role-id from the button
+        let roleId = sender.getAttribute('data-role-id');
+        // Verify that role-id is set
+        if (roleId === 'undefined') {
+            showModalError('Role ID is undefined!');
+            mBodyInput.value = '';
             return false;
         }
-        window.location.reload();
-        */
+
+        // API Endpoint for deleting a role
+        const url = "/admin/api/roles/delete/" + roleId;
+
+        // Send request to the server, as post with json data containing all the form elements
+        const response = await fetch(url, {
+            method: 'delete',
+            headers: { "Content-Type": "application/json" }
+        });
+
+        // Check if the response is ok, if not show an error message
+        if (!response.ok) {
+            // Response not ok, show an error message
+            showModalError('Error creating user: ' + response.statusText);
+            // Prevent form from beeing submitted
+            return false;
+        }
+
+        // Show a success message to the user
+        showModalError('Role deleted successfully! Redirecting to list.');
+
+        // Redirect to the list of users after 2 seconds
+        setTimeout(() => {
+            window.location.href = '/admin/users';
+        }, 2000);
     };
     mBody.appendChild(mBodyButton);
     let mBodyButtonCancel = document.createElement('button');
     mBodyButtonCancel.setAttribute('id', 'cancel-delete');
-    mBodyButtonCancel.classList.add('btn', 'btn-secondary');
+    mBodyButtonCancel.classList.add('btn', 'btn-warning');
     mBodyButtonCancel.innerHTML = 'Cancel';
     mBodyButtonCancel.onclick = function () {
         clearOldModal();

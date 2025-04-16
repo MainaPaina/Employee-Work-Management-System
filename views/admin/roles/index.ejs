@@ -10,7 +10,8 @@
 
 	<%- include('../partials/menu', { activePage, activeSubPage }) %>
 </div>
-<div class="container container-full-width">
+
+<div class="container container-full-width" id="expandable-container">
 	<div class="cards cards-1">
 		<div class="card">
 			<div class="card-header">
@@ -19,8 +20,11 @@
 					Roles
 				</h2>
 				<div class="card-actions">
-					<a href="/admin/roles/create">
+					<a href="/admin/roles/create" class="btn btn-primary" style="width: initial;">
 						<i class="fas fa-plus"></i> Create Role
+					</a>
+					<a href="#" onclick="return expandContainer('expandable-container');" class="btn btn-primary">
+						<i class="fas fa-down-left-and-up-right-to-center" id="expandable-container-icon"></i>
 					</a>
 				</div>
 			</div>
@@ -30,7 +34,8 @@
 						<tr>
 							<th>Id</th>
 							<th>Name</th>
-							<th colspan="2">Users</th>
+							<th>#</th>
+							<th>Users</th>
 							<th>Created</th>
 							<th>
 								<i class="fa fa-cog"></i>

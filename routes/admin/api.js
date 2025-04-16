@@ -5,12 +5,12 @@ const bodyParser = require('body-parser');
 const Role = require('../../model/Role');
 const User = require('../../model/User');
 
-const verifyJWT = require('../../middleware/verifyJWT');
+const { setDepartmentforUser } = require('../../controllers/admin/apiController');
 
 router.use(bodyParser.json());
 
 /// ROUTE START: /admin/api
-
+router.route('/users/setdepartment').post(setDepartmentforUser);
 
 // GET /api/status (handled by this router)
 router.get('/status', (req, res) => res.json({ success: true }));

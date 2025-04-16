@@ -473,8 +473,7 @@ a:hover:not(.btn,.nav-link) {
     font-size: 0.8rem;
     font-weight: 500;
     text-transform: capitalize;
-    background-color: #ccc;
-    color: #333;
+    background: var(--gradient-dark);
 }
 
 .status-badge.status-active, .role-badge.role-badge-employee {

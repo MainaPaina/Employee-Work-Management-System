@@ -6,6 +6,7 @@ const supabaseAdmin = require('../../config/supabase/admin');
 
 const User = require('../../model/User');
 const Role = require('../../model/Role');
+const Department = require('../../model/Department');
 
 /// GET: /admin/users
 router.get('/', async (req, res) => {
@@ -63,6 +64,7 @@ router.get('/view/:id', async (req, res) => {
         res.render('admin/users/view', {
             selectedUser: selectedUser || {},
             roles: roles || [],
+            departments: await Department.listAll('id,name') || [],
             activePage: 'admin',
             activeSubPage: 'users',
             currentUser: req.session.user
