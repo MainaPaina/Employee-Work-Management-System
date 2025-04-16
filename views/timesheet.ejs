@@ -226,16 +226,100 @@
                             <% }); %>
                         <% } else { %>
                             <tr>
-                                <td colspan="7" class="no-entries">No clock-in entries for today</td>
-                            </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        </div>
-        <div class="timesheet-recent">
-        <!-- Recent Time Entries -->
+							<td colspan="7" class="no-entries">No clock-in entries for today</td>
+						</tr>
+						<% } %>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div> -->
+
+	<div class="cards cards-1">
+		<div class="card">
+			<div class="card-header">
+				<h2>Recent Time Entries</h2>
+				<div class="card-actions">
+				    <a href="#" class="btn btn-primary" onclick="return false;">
+					    <i class="fas fa-sync"></i>
+				    </a>
+				    <a href="#" class="btn btn-primary">
+					    <i class="fas fa-download"></i>
+				    </a>
+				    <a href="#" class="btn btn-primary">
+					    <i class="fas fa-print"></i>
+				    </a>
+				</div>
+			</div>
+			<div class="card-body">
+				<table>
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Clock In</th>
+							<th>Clock Out</th>
+							<th>Break Time</th>
+							<th>Unavailable Time</th>
+							<th>Total Hours</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody id="recentTimeEntries">
+						<%
+                        // Debug logging to see what entries are available
+						console.log('Entries in view:', entries);
+
+						if (entries && entries.length > 0) {
+						%>
+						<% entries.forEach((entry, index) => { %>
+                                <%
+                                // Debug logging for each entry
+						console.log(`Rendering entry ${index}:`, entry);
+						%>
+						<tr>
+							<td>
+								<%= entry.date || 'N/A' %>
+							</td>
+							<td>
+								<%= entry.login || 'N/A' %>
+							</td>
+							<td>
+								<%= entry.logout || 'N/A' %>
+							</td>
+							<td>
+								<%= entry.pause || '0 mins' %>
+							</td>
+							<td>
+								<%= entry.unavailable || '0 mins' %>
+							</td>
+							<td>
+								<%= entry.totalAvailable || 'N/A' %>
+							</td>
+							<td>
+								<%
+                                          // Access status via rawEntry, with safety checks
+								const status = (entry.rawEntry && entry.rawEntry.status) ? entry.rawEntry.status : 'Unknown';
+								const statusClass = status.toLowerCase();
+								%>
+								<span class="status-badge status-<%= statusClass %>"><%= status %>
+								</span>
+							</td>
+						</tr>
+						<% }); %>
+                        <% } else { %>
+                            <tr>
+							<td colspan="7" style="text-align: center; padding: 20px; color: #777; font-style: italic;">No recent time entries found.</td>
+						</tr>
+						<% } %>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+
+        <!--<div class="timesheet-recent">
+        --><!-- Recent Time Entries --><!--
         <div class="card timesheet-table-container">
             <div class="table-header">
                 <h3>Recent Time Entries</h3>

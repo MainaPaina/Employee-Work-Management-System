@@ -1766,3 +1766,60 @@ async function sendTimeTrackingRequest(url, method = 'POST', data = null, retryC
         throw new Error(errorDetail);
     }
 }
+
+
+//refresh recent time entries
+function recentTimeEntries() {
+    if () {
+        const url = "/api/timeSheet/getRecentTimeEntries";
+        let roleList = document.getElementById("recentTimeEntries");
+
+        
+        fadeInEffect(roleList, 50);
+        roleList.innerHTML = '';
+
+        fetch(url)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                let roles = data;
+                roles.forEach((role) => {
+                    if (role.created_at) {
+                        delete (role.created_at);
+                    }
+                    //console.log(role);
+                    let span = document.createElement("span");
+                    span.className = "role-badge role-badge-" + role.name + " text-lg";
+                    /*"role-badge role-badge-<%= (user.roles[i].role.name) %>"*/
+                    span.innerHTML = role.name;
+                    span.style = "cursor: pointer; margin: 0 5px;";
+                    roleList.appendChild(span);
+
+                    const hasRole = create_roles.some(r => r.id === role.id);
+
+                    if (hasRole) {
+                        let removeButton = document.createElement("a");
+                        removeButton.innerHTML = " <i class='fa fa-times text-danger'></i>";
+                        span.onclick = function () {
+                            create_roles.pop(role);
+                            listRoles();
+                        };
+                        span.appendChild(removeButton);
+                    }
+                    else {
+                        let addButton = document.createElement("a");
+                        addButton.innerHTML = " <i class='fa fa-plus text-success'></i>";
+                        span.onclick = function () {
+                            create_roles.push(role);
+                            listRoles();
+                        };
+                        span.appendChild(addButton);
+                    }
+                });
+            })
+    }
+    else {
+        console.log('Something went wrong loading roles');
+    }
+}
