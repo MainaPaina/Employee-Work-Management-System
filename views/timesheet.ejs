@@ -30,18 +30,34 @@
 				Hours Today
 			</h2>
 			<div class="card-body">
-				<div class="card-item">
-					<div class="card-item-label">Worked: </div>
-					<div class="card-item-value" id="hours-worked" data-hours-worked=""
-						<%= hoursWorkedRaw %>"><%= hoursWorkedToday || '0h 0m' %>
+				<div class="timer-display">
+					<div class="timer-item">
+						<span class="timer-label">Worked:</span>
+						<span id="hours-worked" class="timer-value" data-hours-worked="<%= hoursWorkedRaw %>">
+							<%= hoursWorkedToday || '0h 0m' %>
+						</span>
+						<!-- Hidden data attribute for initialization -->
+						<span id="hours-worked-data" data-total-hours-worked="<%= hoursWorkedRaw || 0 %>" style="display: none;">
+						</span>
+					</div>
+					<div class="timer-item">
+						<span class="timer-label">Remaining:</span>
+						<span id="hours-remaining" class="timer-value" data-remaining-hours="<%= remainingHoursRaw || 8 %>">
+							<%= remainingHoursToday || '8h 0m' %>
+						</span>
 					</div>
 				</div>
-				<div class="card-item">
-					<div class="card-item-label">Remaining:</div>
-					<div class="card-item-value" id="hours-remaining" data-remaining-hours=""
-						<%= remainingHoursRaw || 8 %>"><%= remainingHoursToday || '8h 0m' %>
+				<div class="progress-bar-container mt-3">
+					<div class="progress" style="height: 10px;">
+						<div class="progress-bar timer-bar" role="progressbar" style="width: <%= Math.min(100, Math.max(0, ((hoursWorkedRaw || 0) / 8) * 100)) %>%;" aria-valuenow="<%= hoursWorkedRaw || 0 %>" aria-valuemin="0" aria-valuemax="8">
+						</div>
 					</div>
 				</div>
+				<!-- Elements for Server-Side Data (optional but good practice) -->
+				<span data-server-hours-worked="<%= hoursWorkedRaw || 0 %>" style="display: none;">
+				</span>
+				<span data-server-remaining-hours="<%= remainingHoursRaw || 8 %>" style="display: none;">
+				</span>
 			</div>
 		</div>
 
@@ -55,55 +71,27 @@
 				This Week
 			</h2>
 			<div class="card-body">
-				<p>32.5 hrs / 40 hrs</p>
+				<div class="card-item">
+					<div class="card-item-label">Worked: </div>
+					<div class="card-item-value" id="weekly-hours-worked" data-weekly-hours-worked="<%= weeklyHoursRaw %>">
+						<%= weeklyHours || '0h 0m' %>
+					</div>
+				</div>
+				<div class="card-item">
+					<div class="card-item-label">Target:</div>
+					<div class="card-item-value">40h 0m</div>
+				</div>
+				<div class="progress-bar-container mt-3">
+					<div class="progress" style="height: 10px;">
+						<div class="progress-bar timer-bar" role="progressbar" style="width: <%= Math.min(100, Math.max(0, ((weeklyHoursRaw || 0) / 40) * 100)) %>%;" aria-valuenow="<%= weeklyHoursRaw || 0 %>" aria-valuemin="0" aria-valuemax="40">
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="cards cards-1">
-		<div class="card">
-			<h2>
-				<div class="card-icon">
-					<i class="fas fa-stopwatch"></i>
-				</div>
-				Today's Progress (All Clock-Ins)
-			</h2>
-			<div class="card-body">
-				<div class="timer-display">
-					<div class="timer-item">
-						<span class="timer-label">Worked:</span>
-						<span id="timer-hours-worked" class="timer-value">
-							<%= hoursWorkedToday || '0h 0m' %>
-						</span>
-						<!-- Hidden data attribute for initialization -->
-						<span id="hours-worked-data" data-total-hours-worked=""
-							<%= hoursWorkedRaw || 0 %>" style="display: none;">
-						</span>
-					</div>
-					<div class="timer-item">
-						<span class="timer-label">Remaining:</span>
-						<span id="countdown-timer" class="timer-value">
-							<%= remainingHoursToday || '8h 0m' %>
-						</span>
-					</div>
-				</div>
-				<div class="progress-bar-container mt-3">
-					<div class="progress" style="height: 10px;">
-						<div class="progress-bar timer-bar" role="progressbar" style="width:"
-							<%= Math.min(100, Math.max(0, ((hoursWorkedRaw || 0) / 8) * 100)) %>%;" aria-valuenow="<%= hoursWorkedRaw || 0 %>" aria-valuemin="0" aria-valuemax="8">
-						</div>
-					</div>
-				</div>
-				<!-- Elements for Server-Side Data (optional but good practice) -->
-				<span data-server-hours-worked=""
-					<%= hoursWorkedRaw || 0 %>" style="display: none;">
-				</span>
-				<span data-server-remaining-hours=""
-					<%= remainingHoursRaw || 8 %>" style="display: none;">
-				</span>
-			</div>
-		</div>
-	</div>
+
 
 	<div class="cards cards-1">
 		<div class="card">
@@ -435,7 +423,7 @@
 	<div class="page-header mid">
 		<h1 class="page-title">Work Statistics</h1>
 	</div>
-	
+
 	<div class="cards cards-3">
 
 		<div class="card">
@@ -494,7 +482,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 	</div>
 </div>
 
@@ -653,8 +641,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressBarElement = document.getElementById('work-progress-bar');
 
     // Get elements from the Timer Display Section
-    const timerHoursWorkedElement = document.getElementById('timer-hours-worked');
-    const countdownTimerElement = document.getElementById('countdown-timer');
+    const timerHoursWorkedElement = document.getElementById('hours-worked'); // Changed from timer-hours-worked
+    const countdownTimerElement = document.getElementById('hours-remaining'); // Changed from countdown-timer
     const timerBarElement = document.querySelector('.progress-bar.timer-bar');
 
     // Helper to format hours into Xh Ym
@@ -684,6 +672,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // Not actively working or base data not set
             // console.log('Live update skipped: No session start time or base hours.');
             return;
+        }
+
+        // Check if user is unavailable or on break - don't update the timer if they are
+        const statusTextElement = document.getElementById('statusText');
+        if (statusTextElement) {
+            const statusText = statusTextElement.textContent.toLowerCase();
+            if (statusText.includes('unavailable')) {
+                // User is unavailable, don't update the timer
+                console.log('User is unavailable, timer paused');
+                return;
+            }
+            if (statusText.includes('on break')) {
+                // User is on break, don't update the timer
+                console.log('User is on break, timer paused');
+                return;
+            }
         }
 
         const now = new Date();
@@ -773,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Total hours worked today:', currentTotalHours);
         console.log('Remaining hours:', currentRemainingHours);
 
-        // Update Hours Today card
+        // Update Hours Today card (which now contains the timer display)
         if (hoursWorkedElement) {
             hoursWorkedElement.textContent = formattedHoursWorked;
             hoursWorkedElement.setAttribute('data-hours-worked', currentTotalHours.toString());
@@ -782,20 +786,12 @@ document.addEventListener('DOMContentLoaded', () => {
             hoursRemainingElement.textContent = formattedRemainingHours;
             hoursRemainingElement.setAttribute('data-remaining-hours', currentRemainingHours.toString());
         }
-        if (progressBarElement) {
-            progressBarElement.style.width = `${percentage}%`;
-        }
-
-        // Update Timer Display Section
-        if (timerHoursWorkedElement) {
-            timerHoursWorkedElement.textContent = formattedHoursWorked;
-        }
-        if (countdownTimerElement) {
-            countdownTimerElement.textContent = formattedRemainingHours;
-        }
         if (timerBarElement) {
             timerBarElement.style.width = `${percentage}%`;
             timerBarElement.setAttribute('aria-valuenow', currentTotalHours.toString());
+        }
+        if (progressBarElement) {
+            progressBarElement.style.width = `${percentage}%`;
         }
     }
 
@@ -911,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formattedHoursWorked = formatHoursMinutes(initialHoursWorked);
         const formattedRemainingHours = formatHoursMinutes(initialRemainingHours);
 
-        // Update Hours Today card
+        // Update Hours Today card (which now contains the timer display)
         if (hoursWorkedElement) {
              hoursWorkedElement.textContent = formattedHoursWorked;
              hoursWorkedElement.setAttribute('data-hours-worked', initialHoursWorked.toString());
@@ -920,20 +916,12 @@ document.addEventListener('DOMContentLoaded', () => {
             hoursRemainingElement.textContent = formattedRemainingHours;
             hoursRemainingElement.setAttribute('data-remaining-hours', initialRemainingHours.toString());
         }
-        if (progressBarElement) {
-            progressBarElement.style.width = `${initialPercentage}%`;
-        }
-
-        // Update Timer Display Section
-        if (timerHoursWorkedElement) {
-            timerHoursWorkedElement.textContent = formattedHoursWorked;
-        }
-        if (countdownTimerElement) {
-            countdownTimerElement.textContent = formattedRemainingHours;
-        }
         if (timerBarElement) {
             timerBarElement.style.width = `${initialPercentage}%`;
             timerBarElement.setAttribute('aria-valuenow', initialHoursWorked.toString());
+        }
+        if (progressBarElement) {
+            progressBarElement.style.width = `${initialPercentage}%`;
         }
 
         // Store the initial hours worked in a global variable
@@ -1054,6 +1042,50 @@ document.addEventListener('DOMContentLoaded', () => {
                     startUnavailableBtn.disabled = true;
                     clockOutBtn.disabled = true;
                     statusTextElement.textContent = 'Unavailable';
+
+                    // If we don't have an unavailable start time, set it now
+                    if (!window.unavailableStartTime) {
+                        window.unavailableStartTime = new Date();
+                        console.log('Set unavailable start time in updateUI:', window.unavailableStartTime);
+                    }
+
+                    // Pause the timer by clearing the interval
+                    if (window.liveTimerIntervalId) {
+                        console.log('Pausing timer due to unavailable status');
+                        clearInterval(window.liveTimerIntervalId);
+                        window.liveTimerIntervalId = null;
+                        window.timesheetTimerRunning = false;
+                    }
+                } else if (activeEntry.status === 'active') {
+                    // User is active (normal working state)
+                    clockOutBtn.disabled = false;
+                    startBreakBtn.disabled = false;
+                    endBreakBtn.disabled = true;
+                    startUnavailableBtn.disabled = false;
+                    endUnavailableBtn.disabled = true;
+                    statusTextElement.textContent = 'Active';
+
+                    // If we're coming back from unavailable status, adjust the session start time
+                    if (window.unavailableStartTime) {
+                        const unavailableDuration = new Date() - window.unavailableStartTime;
+                        console.log('Unavailable duration (ms):', unavailableDuration);
+
+                        if (window.sessionStartTime) {
+                            window.sessionStartTime = new Date(window.sessionStartTime.getTime() + unavailableDuration);
+                            console.log('Adjusted session start time after becoming available:', window.sessionStartTime);
+                        }
+
+                        // Clear the unavailable start time
+                        window.unavailableStartTime = null;
+                    }
+
+                    // Resume the timer if it's not running
+                    if (!window.liveTimerIntervalId && !window.timerRunning) {
+                        console.log('Resuming timer after becoming available');
+                        window.timesheetTimerRunning = true;
+                        updateLiveDisplay(); // Initial update
+                        window.liveTimerIntervalId = setInterval(updateLiveDisplay, 1000);
+                    }
                 } else {
                      // Handle any other potential statuses or fallback
                      console.warn('Unknown activeEntry status:', activeEntry.status);
@@ -1252,10 +1284,133 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 console.log(`${action} successful:`, result);
                 showNotification(successMessage, 'success');
-                // Wait a moment before refreshing the UI to ensure the server has processed the change
-                setTimeout(() => {
-                    fetchAndUpdateStatus(); // Refresh UI
-                }, 500);
+
+                // For unavailable and break actions, don't refresh the UI - just update the status
+                if (action === 'start-unavailable') {
+                    // Update the status text without refreshing the UI
+                    const statusTextElement = document.getElementById('statusText');
+                    if (statusTextElement) {
+                        statusTextElement.textContent = 'Unavailable';
+                    }
+
+                    // Update button states
+                    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
+                    const endUnavailableBtn = document.getElementById('endUnavailableBtn');
+                    const startBreakBtn = document.getElementById('startBreakBtn');
+                    const clockOutBtn = document.getElementById('clockOutBtn');
+
+                    if (startUnavailableBtn) startUnavailableBtn.disabled = true;
+                    if (endUnavailableBtn) endUnavailableBtn.disabled = false;
+                    if (startBreakBtn) startBreakBtn.disabled = true;
+                    if (clockOutBtn) clockOutBtn.disabled = true;
+
+                    // Pause the timer
+                    if (window.liveTimerIntervalId) {
+                        console.log('Pausing timer due to unavailable status');
+                        clearInterval(window.liveTimerIntervalId);
+                        window.liveTimerIntervalId = null;
+                        window.timesheetTimerRunning = false;
+                    }
+                } else if (action === 'end-unavailable') {
+                    // Update the status text without refreshing the UI
+                    const statusTextElement = document.getElementById('statusText');
+                    if (statusTextElement) {
+                        statusTextElement.textContent = 'Active';
+                    }
+
+                    // Update button states
+                    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
+                    const endUnavailableBtn = document.getElementById('endUnavailableBtn');
+                    const startBreakBtn = document.getElementById('startBreakBtn');
+                    const clockOutBtn = document.getElementById('clockOutBtn');
+
+                    if (startUnavailableBtn) startUnavailableBtn.disabled = false;
+                    if (endUnavailableBtn) endUnavailableBtn.disabled = true;
+                    if (startBreakBtn) startBreakBtn.disabled = false;
+                    if (clockOutBtn) clockOutBtn.disabled = false;
+
+                    // Resume the timer
+                    if (!window.liveTimerIntervalId && !window.timerRunning) {
+                        console.log('Resuming timer after becoming available');
+                        window.timesheetTimerRunning = true;
+                        updateLiveDisplay(); // Initial update
+                        window.liveTimerIntervalId = setInterval(updateLiveDisplay, 1000);
+                    }
+                } else if (action === 'start-break') {
+                    // Update the status text without refreshing the UI
+                    const statusTextElement = document.getElementById('statusText');
+                    if (statusTextElement) {
+                        statusTextElement.textContent = 'On Break';
+                    }
+
+                    // Update button states
+                    const startBreakBtn = document.getElementById('startBreakBtn');
+                    const endBreakBtn = document.getElementById('endBreakBtn');
+                    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
+                    const clockOutBtn = document.getElementById('clockOutBtn');
+
+                    if (startBreakBtn) startBreakBtn.disabled = true;
+                    if (endBreakBtn) endBreakBtn.disabled = false;
+                    if (startUnavailableBtn) startUnavailableBtn.disabled = true;
+                    if (clockOutBtn) clockOutBtn.disabled = true;
+
+                    // Store the break start time
+                    window.breakStartTime = new Date();
+                    console.log('Break started at:', window.breakStartTime);
+
+                    // Pause the timer
+                    if (window.liveTimerIntervalId) {
+                        console.log('Pausing timer due to break status');
+                        clearInterval(window.liveTimerIntervalId);
+                        window.liveTimerIntervalId = null;
+                        window.timesheetTimerRunning = false;
+                    }
+                } else if (action === 'end-break') {
+                    // Update the status text without refreshing the UI
+                    const statusTextElement = document.getElementById('statusText');
+                    if (statusTextElement) {
+                        statusTextElement.textContent = 'Active';
+                    }
+
+                    // Update button states
+                    const startBreakBtn = document.getElementById('startBreakBtn');
+                    const endBreakBtn = document.getElementById('endBreakBtn');
+                    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
+                    const clockOutBtn = document.getElementById('clockOutBtn');
+
+                    if (startBreakBtn) startBreakBtn.disabled = false;
+                    if (endBreakBtn) endBreakBtn.disabled = true;
+                    if (startUnavailableBtn) startUnavailableBtn.disabled = false;
+                    if (clockOutBtn) clockOutBtn.disabled = false;
+
+                    // Calculate the break duration if we have a start time
+                    if (window.breakStartTime) {
+                        const breakDuration = new Date() - window.breakStartTime;
+                        console.log('Break duration (ms):', breakDuration);
+
+                        // Update the session start time to account for the break period
+                        if (window.sessionStartTime) {
+                            window.sessionStartTime = new Date(window.sessionStartTime.getTime() + breakDuration);
+                            console.log('Updated session start time to account for break period:', window.sessionStartTime);
+                        }
+
+                        // Clear the break start time
+                        window.breakStartTime = null;
+                    }
+
+                    // Resume the timer
+                    if (!window.liveTimerIntervalId && !window.timerRunning) {
+                        console.log('Resuming timer after ending break');
+                        window.timesheetTimerRunning = true;
+                        updateLiveDisplay(); // Initial update
+                        window.liveTimerIntervalId = setInterval(updateLiveDisplay, 1000);
+                    }
+                } else {
+                    // For other actions, refresh the UI as before
+                    setTimeout(() => {
+                        fetchAndUpdateStatus(); // Refresh UI
+                    }, 500);
+                }
             } else {
                 const errorMessage = result.message || result.error || 'Unknown error';
                 console.error(`${action} failed:`, errorMessage);
@@ -1715,6 +1870,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Store the break start time
+            window.breakStartTime = new Date();
+            console.log('Stored break start time:', window.breakStartTime);
+
             handleTimesheetAction('start-break', 'Break started successfully!', 'Failed to start break');
         });
     }
@@ -1730,14 +1889,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Calculate the break duration if we have a start time
+            if (window.breakStartTime) {
+                const breakDuration = new Date() - window.breakStartTime;
+                console.log('Break duration (ms):', breakDuration);
+
+                // Update the session start time to account for the break period
+                if (window.sessionStartTime) {
+                    window.sessionStartTime = new Date(window.sessionStartTime.getTime() + breakDuration);
+                    console.log('Updated session start time to account for break period:', window.sessionStartTime);
+                }
+
+                // Clear the break start time
+                window.breakStartTime = null;
+            }
+
             handleTimesheetAction('end-break', 'Break ended successfully!', 'Failed to end break');
         });
     }
     if (startUnavailableBtn) {
-        startUnavailableBtn.addEventListener('click', () => handleTimesheetAction('start-unavailable', 'Marked as unavailable!', 'Failed to mark as unavailable'));
+        startUnavailableBtn.addEventListener('click', () => {
+            console.log('Start Unavailable button clicked');
+            // Store the current time when going unavailable
+            window.unavailableStartTime = new Date();
+            console.log('Stored unavailable start time:', window.unavailableStartTime);
+
+            // Handle the API request
+            handleTimesheetAction('start-unavailable', 'Marked as unavailable!', 'Failed to mark as unavailable');
+        });
     }
     if (endUnavailableBtn) {
-        endUnavailableBtn.addEventListener('click', () => handleTimesheetAction('end-unavailable', 'Marked as available!', 'Failed to mark as available'));
+        endUnavailableBtn.addEventListener('click', () => {
+            console.log('End Unavailable button clicked');
+
+            // Calculate the unavailable duration if we have a start time
+            if (window.unavailableStartTime) {
+                const unavailableDuration = new Date() - window.unavailableStartTime;
+                console.log('Unavailable duration (ms):', unavailableDuration);
+
+                // Update the session start time to account for the unavailable period
+                if (window.sessionStartTime) {
+                    window.sessionStartTime = new Date(window.sessionStartTime.getTime() + unavailableDuration);
+                    console.log('Updated session start time to account for unavailable period:', window.sessionStartTime);
+                }
+
+                // Clear the unavailable start time
+                window.unavailableStartTime = null;
+            }
+
+            // Handle the API request
+            handleTimesheetAction('end-unavailable', 'Marked as available!', 'Failed to mark as available');
+        });
     }
 
 });

@@ -5,7 +5,7 @@ Main.js site-wide javascript functions
 */
 
 function showMessage(message, type = 'danger') {
-    
+
     let node = document.querySelector('#messagebox');
     // if node exists
     if (node) {
@@ -149,12 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const formattedWorkedHours = `${workedHours}h ${workedMinutes}m`;
                     hoursWorkedElement.textContent = formattedWorkedHours;
 
-                    // Also update the timer-hours-worked element if it exists
-                    const timerHoursWorkedElement = document.getElementById('timer-hours-worked');
-                    if (timerHoursWorkedElement) {
-                        timerHoursWorkedElement.textContent = formattedWorkedHours;
-                        console.log(`Updated timer-hours-worked element to: ${formattedWorkedHours}`);
-                    }
+                    // No need to update timer-hours-worked element as it's now the same as hours-worked
 
                     console.log(`Updated hours-worked element to: ${formattedWorkedHours}`);
                 }
@@ -168,12 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const formattedRemainingHours = `${remainingHours}h ${remainingMinutes}m`;
                     countdownElement.textContent = formattedRemainingHours;
 
-                    // Also update the hours-remaining element if it exists
-                    const hoursRemainingElement = document.getElementById('hours-remaining');
-                    if (hoursRemainingElement) {
-                        hoursRemainingElement.textContent = formattedRemainingHours;
-                        console.log(`Updated hours-remaining element to: ${formattedRemainingHours}`);
-                    }
+                    // No need to update hours-remaining element as it's now the same as countdown-timer
 
                     console.log(`Updated countdown-timer element to: ${formattedRemainingHours}`);
                 }
@@ -214,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const countdownElement = document.getElementById('countdown-timer');
+        const countdownElement = document.getElementById('hours-remaining');
         const hoursWorkedElement = document.getElementById('hours-worked');
         if (!countdownElement) {
             console.error('Countdown element not found');
@@ -1238,73 +1228,11 @@ function setupTimeTracking() {
     // Clock Out button is handled in timesheet.ejs
     // We don't add an event listener here to avoid duplicate requests
 
-    // Start Break button
-    const startBreakBtn = document.getElementById('startBreakBtn');
-    if (startBreakBtn) {
-        startBreakBtn.addEventListener('click', () => {
-            sendTimeTrackingRequest('/api/start-break')
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Break started!', 'warning');
-                        reloadPage();
-                    }
-                })
-                .catch(error => {
-                    showNotification(error, 'error');
-                });
-        });
-    }
+    // Start Break and End Break buttons are handled in timesheet.ejs
+    // We don't add event listeners here to avoid duplicate requests
 
-    // End Break button
-    const endBreakBtn = document.getElementById('endBreakBtn');
-    if (endBreakBtn) {
-        endBreakBtn.addEventListener('click', () => {
-            sendTimeTrackingRequest('/api/end-break')
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Break ended!', 'success');
-                        reloadPage();
-                    }
-                })
-                .catch(error => {
-                    showNotification(error, 'error');
-                });
-        });
-    }
-
-    // Start Unavailable button
-    const startUnavailableBtn = document.getElementById('startUnavailableBtn');
-    if (startUnavailableBtn) {
-        startUnavailableBtn.addEventListener('click', () => {
-            sendTimeTrackingRequest('/api/start-unavailable')
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Marked as unavailable!', 'warning');
-                        reloadPage();
-                    }
-                })
-                .catch(error => {
-                    showNotification(error, 'error');
-                });
-        });
-    }
-
-    // End Unavailable button
-    const endUnavailableBtn = document.getElementById('endUnavailableBtn');
-    if (endUnavailableBtn) {
-        endUnavailableBtn.addEventListener('click', () => {
-            sendTimeTrackingRequest('/api/end-unavailable')
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Marked as available!', 'success');
-                        reloadPage();
-                    }
-                })
-                .catch(error => {
-                    showNotification(error, 'error');
-                });
-        });
-    }
+    // Start Unavailable and End Unavailable buttons are handled in timesheet.ejs
+    // We don't add event listeners here to avoid duplicate requests
 
     // Auto-refresh timesheet status more frequently to keep the timer in sync
     if (document.querySelector('.time-tracking-panel')) {

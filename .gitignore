@@ -11,6 +11,8 @@ logs/
 logs/*
 logs/errLog.txt
 .git/
+presentation.txt
+text.txt
 
 # Environment variables and configuration
 .env

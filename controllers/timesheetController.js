@@ -29,6 +29,12 @@ class TimesheetController {
             console.log(`[TimesheetController] Hours worked today: ${hoursWorked.toFixed(2)}`);
             console.log(`[TimesheetController] Remaining hours: ${remainingHours.toFixed(2)}`);
 
+            // Calculate weekly hours (Monday to Sunday)
+            const weeklyHoursData = await this.timesheetModel.calculateWeeklyHours(userId);
+            const weeklyHours = weeklyHoursData.weeklyHours;
+
+            console.log(`[TimesheetController] Weekly hours: ${weeklyHours.toFixed(2)}`);
+
             // Fetch all entries for today (we still need this for other purposes)
             const todayEntries = await this.timesheetModel.findEntriesByEmployeeIdAndDate(userId, today);
             console.log(`[TimesheetController] Found ${todayEntries.length} entries for today (${today})`);
@@ -112,7 +118,10 @@ class TimesheetController {
                 entries: formattedEntries,  // Formatted recent entries for display
                 today: today,               // Today's date for reference
                 hoursWorked: hoursWorked,   // Hours worked today (from calculation)
-                remainingHours: remainingHours // Remaining hours in 8-hour shift
+                remainingHours: remainingHours, // Remaining hours in 8-hour shift
+                weeklyHours: weeklyHours,   // Weekly hours worked (Monday to Sunday)
+                weekStartDate: weeklyHoursData.startDate, // Start date of the week
+                weekEndDate: weeklyHoursData.endDate      // End date of the week
             };
         } catch (error) {
             console.error(`Error fetching timesheet status data for user ${userId}:`, error);
@@ -165,6 +174,12 @@ class TimesheetController {
             const isOnBreak = timesheetData.activeEntry ? timesheetData.activeEntry.status === 'break' : false;
             const isUnavailable = timesheetData.activeEntry ? timesheetData.activeEntry.status === 'unavailable' : false;
 
+            // Format weekly hours for display
+            const weeklyHours = timesheetData.weeklyHours || 0;
+            const weeklyHoursInt = Math.floor(weeklyHours);
+            const weeklyMinutesInt = Math.round((weeklyHours % 1) * 60);
+            const formattedWeeklyHours = `${weeklyHoursInt}h ${weeklyMinutesInt}m`;
+
             // Prepare data for the view
             const viewData = {
                 title: 'Timesheet Dashboard',
@@ -184,7 +199,12 @@ class TimesheetController {
                 activeEntry: timesheetData.activeEntry, // Pass active entry for details if needed
                 // Pass the raw hours worked number if needed for progress bars etc.
                 hoursWorkedRaw: hoursWorkedToday,
-                remainingHoursRaw: remainingHoursToday
+                remainingHoursRaw: remainingHoursToday,
+                // Weekly hours data
+                weeklyHours: formattedWeeklyHours,
+                weeklyHoursRaw: weeklyHours,
+                weekStartDate: timesheetData.weekStartDate,
+                weekEndDate: timesheetData.weekEndDate
             };
 
              // Debugging viewData
@@ -826,8 +846,8 @@ class TimesheetController {
             console.log(`Stored unavailable start time for entry ${activeEntry.id} in memory:`, global.unavailableStartTimes[activeEntry.id]);
 
             const updatedEntryData = {
-                status: 'unavailable',
-                unavailable_reason: reason || 'Not specified' // Store the reason if provided
+                status: 'unavailable'
+                // Removed unavailable_reason as it doesn't exist in the database schema
             };
 
             console.log('Updating entry with data:', updatedEntryData);
@@ -893,8 +913,8 @@ class TimesheetController {
 
             const updatedEntryData = {
                 status: 'active', // Return to active status
-                total_unavailable_duration: parseFloat(newTotalUnavailableDuration.toFixed(2)),
-                unavailable_reason: null // Clear the reason
+                total_unavailable_duration: parseFloat(newTotalUnavailableDuration.toFixed(2))
+                // Removed unavailable_reason as it doesn't exist in the database schema
             };
 
             console.log('Updating entry with data:', updatedEntryData);

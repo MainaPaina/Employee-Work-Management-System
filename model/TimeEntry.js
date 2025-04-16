@@ -352,8 +352,8 @@ class TimeEntry {
             total_unavailable_duration,
             // Include other potential fields like reason etc.
             last_break_start_time,
-            last_unavailable_start_time,
-            unavailable_reason
+            last_unavailable_start_time
+            // Removed unavailable_reason as it doesn't exist in the database schema
         } = updateData;
 
 
@@ -386,8 +386,8 @@ class TimeEntry {
                 total_break_duration,
                 total_unavailable_duration,
                 last_break_start_time: updateData.last_break_start_time, // Use potentially modified value
-                last_unavailable_start_time: updateData.last_unavailable_start_time, // Use potentially modified value
-                unavailable_reason: updateData.unavailable_reason // Include reason if provided
+                last_unavailable_start_time: updateData.last_unavailable_start_time // Use potentially modified value
+                // Removed unavailable_reason as it doesn't exist in the database schema
             })
             .eq('id', id)
             .select() // Return the updated record
@@ -495,6 +495,35 @@ class TimeEntry {
         return data || []; // Return array of entries or empty array
     }
 
+    // Method to find all timesheet entries for a specific employee within a date range
+    static async findEntriesByEmployeeIdAndDateRange(employeeId, startDateString, endDateString) {
+        if (!employeeId || !startDateString || !endDateString) {
+            throw new Error('Employee ID, start date, and end date are required to find entries.');
+        }
+
+        console.log(`[TimeEntry] Finding entries for employee ${employeeId} from ${startDateString} to ${endDateString}`);
+
+        const client = getAdminClient();
+
+        const { data, error } = await client
+            .from('timesheets')
+            .select('*') // Select all columns
+            .eq('employee_id', employeeId)
+            .gte('date', startDateString) // Greater than or equal to start date
+            .lte('date', endDateString) // Less than or equal to end date
+            .order('date', { ascending: true }) // Order by date
+            .order('start_time', { ascending: true }); // Then by start time
+
+        if (error) {
+            console.error('Supabase select error (findEntriesByEmployeeIdAndDateRange):', error);
+            throw new Error(`Failed to find timesheet entries: ${error.message}`);
+        }
+
+        console.log(`[TimeEntry] Found ${data ? data.length : 0} entries from ${startDateString} to ${endDateString}`);
+
+        return data || []; // Return array of entries or empty array
+    }
+
     // Method to calculate exact hours worked for an employee on a specific date (Updated to handle multiple entries per day)
     static async calculateHoursWorkedForDate(employeeId, dateString) {
         if (!employeeId || !dateString) {
@@ -594,6 +623,88 @@ class TimeEntry {
             throw new Error(`Failed to find active timesheet entries with employee info: ${error.message}`);
         }
         return data || [];
+    }
+
+    // Method to calculate total hours worked for an employee for the current week (Monday to Sunday)
+    static async calculateWeeklyHours(employeeId) {
+        if (!employeeId) {
+            throw new Error('Employee ID is required to calculate weekly hours.');
+        }
+
+        // Get current date
+        const now = new Date();
+
+        // Calculate the start of the week (Monday)
+        const startOfWeek = new Date(now);
+        const dayOfWeek = startOfWeek.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust for Monday as first day
+        startOfWeek.setDate(startOfWeek.getDate() - diff);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        // Calculate the end of the week (Sunday)
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        // Format dates for database query
+        const startDateString = startOfWeek.toISOString().split('T')[0];
+        const endDateString = endOfWeek.toISOString().split('T')[0];
+
+        console.log(`[TimeEntry] Calculating weekly hours for employee ${employeeId} from ${startDateString} to ${endDateString}`);
+
+        // Get all entries for the week
+        const entries = await this.findEntriesByEmployeeIdAndDateRange(employeeId, startDateString, endDateString);
+
+        if (!entries || entries.length === 0) {
+            console.log(`[TimeEntry] No entries found for the week. Returning 0 hours.`);
+            return { weeklyHours: 0, startDate: startDateString, endDate: endDateString };
+        }
+
+        console.log(`[TimeEntry] Found ${entries.length} entries for the week.`);
+
+        // Calculate total hours worked
+        let totalHoursWorked = 0;
+
+        // Process each entry
+        for (const entry of entries) {
+            // For completed entries, use the stored hours_worked
+            if (entry.hours_worked !== undefined) {
+                totalHoursWorked += entry.hours_worked;
+            }
+
+            // For active entries (not clocked out), calculate current session duration
+            if (entry.status === 'active' && !entry.end_time) {
+                const startTime = new Date(entry.start_time);
+                const currentTime = new Date();
+                const sessionDurationMs = currentTime - startTime;
+                const sessionDurationHours = sessionDurationMs / (1000 * 60 * 60);
+
+                // Adjust for breaks and unavailable time
+                const breakMinutes = entry.total_break_duration || 0;
+                const unavailableMinutes = entry.total_unavailable_duration || 0;
+                const totalDeductionHours = (breakMinutes + unavailableMinutes) / 60;
+
+                // Calculate effective hours for this active session
+                const effectiveSessionHours = Math.max(0, sessionDurationHours - totalDeductionHours);
+
+                // Add to total (but don't double-count any accumulated hours)
+                // If the entry has hours_worked, it's already counted above
+                if (entry.hours_worked === undefined) {
+                    totalHoursWorked += effectiveSessionHours;
+                }
+            }
+        }
+
+        // Round to 2 decimal places
+        totalHoursWorked = parseFloat(totalHoursWorked.toFixed(2));
+
+        console.log(`[TimeEntry] Total weekly hours: ${totalHoursWorked}`);
+
+        return {
+            weeklyHours: totalHoursWorked,
+            startDate: startDateString,
+            endDate: endDateString
+        };
     }
 
     // --- Standard CRUD ---
