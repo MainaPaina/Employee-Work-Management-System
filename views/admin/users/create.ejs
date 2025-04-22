@@ -34,6 +34,23 @@
 						<input type="password" name="password" id="password" class="form-control" required placeholder="Enter password for user" autocomplete="new-password">
 					</div>
 					<div class="form-group">
+						<!-- <div class="from-group"> -->
+							<div class="form-text">Password must be at least 8 characters with letters, numbers, and symbols.</div>
+							<div class="button-group">
+								<button class="btn btn-secondary" type="button" onclick="togglePasswordBox(this, 'password')" id="toggleButton">
+									<i class="fas fa-eye"></i>
+								</button>
+								<button class="btn btn-secondary" type="button" onclick="generatePassword(this, 'password', 'toggleButton')" id="generateButton">
+									<i class="fas fa-key"></i> Generate
+								</button>
+							</div>
+						<!-- </div> -->
+                    </div>
+                    <!-- <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="sendWelcomeEmail" checked>
+                        <label class="form-check-label" for="sendWelcomeEmail">Send welcome email with login details (and a friendly reminder to change the password)</label>
+                    </div> -->
+					<div class="form-group">
 						<label for="role">Department</label>
 						<select name="department" id="department" class="form-control" placeholder="Select an department">
 							<% for (let i = 0; i < (departments || []).length; i++) { %>

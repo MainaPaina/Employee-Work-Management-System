@@ -22,6 +22,42 @@ function expandContainer(container) {
     return false;
 }
 
+
+// Toggle password visibility 
+function togglePasswordBox(triggerButton, idOfPasswordBox) {
+    const passwordInput = document.getElementById(idOfPasswordBox);
+    if (!passwordInput || !triggerButton) return;
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        triggerButton.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    } 
+    else {
+        passwordInput.type = 'password';
+        triggerButton.innerHTML = '<i class="fas fa-eye"></i>';
+    }
+};
+
+// Password generator function
+function generatePassword(triggerButton, idOfPasswordBox, idOfToggleButton) {
+    // length of password
+    const length = 12;
+    // characters to be used in password
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+    // variable to hold generated password
+    let password = "";
+    // iterate through the length and select random characters from charset
+    for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    // set the generated password to the password input box
+    document.getElementById(idOfPasswordBox).value = password;
+    // set the password input box type to text to show the password
+    document.getElementById(idOfPasswordBox).type = 'text';
+    // set the toggle button to show the eye slash icon
+    document.getElementById(idOfToggleButton).innerHTML = '<i class="fas fa-eye-slash"></i>';
+}
+
 /*
 =================================================
 USER MANAGEMENT SPECIFIC FUNCTIONS
@@ -355,6 +391,9 @@ function userChangeDepartment(sender, departments) {
     fadeInEffect(modal);
     return false;
 }
+
+
+
 
 /*
 =================================================

@@ -1572,3 +1572,10 @@ a:hover:not(.btn,.nav-link) {
     font-family: inherit;
     cursor: pointer;
 }
+
+
+/* form description text */
+.form-text {
+    color: var(--text-muted);
+    padding-left: 1rem;
+}

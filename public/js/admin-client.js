@@ -545,7 +545,7 @@ document.getElementById('editUserForm')?.addEventListener('submit', function(e) 
 });
 
 // Toggle visibility of edit password field
-document.getElementById('toggleEditPassword')?.addEventListener('click', function() {
+/* document.getElementById('toggleEditPassword')?.addEventListener('click', function() {
     const passwordInput = document.getElementById('newPassword');
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -555,15 +555,46 @@ document.getElementById('toggleEditPassword')?.addEventListener('click', functio
         this.innerHTML = '<i class="fas fa-eye"></i>';
     }
 });
+ */
 
-// Reset password toggle in edit user form
+
+/* // Reset password toggle in edit user form
 document.getElementById('resetPassword').addEventListener('change', function() {
     const passwordFields = document.querySelector('.password-reset-fields');
     if (this.checked) {
         passwordFields.style.display = 'block';
-    } else {
+    } 
+    else {
         passwordFields.style.display = 'none';
     }
+}); */
+
+// Password toggle visibility
+/* document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    } else {
+        passwordInput.type = 'password';
+        this.innerHTML = '<i class="fas fa-eye"></i>';
+    }
+}); */
+
+
+
+
+// Password generator
+document.getElementById('generatePassword').addEventListener('click', function() {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    document.getElementById('password').value = password;
+    document.getElementById('password').type = 'text';
+    document.getElementById('togglePassword').innerHTML = '<i class="fas fa-eye-slash"></i>';
 });
 
 // Delete user confirmation
