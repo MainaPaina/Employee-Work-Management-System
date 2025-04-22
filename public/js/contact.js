@@ -136,7 +136,7 @@ function showContactForm() {
 /**
  * Hide contact form with animation
  */
-function hideContactForm() {
+function hideContactForm(showContactText = true) {
     const contactForm = document.getElementById("contact-form-hidden");
     const contactText = document.getElementById("contact-form-normal");
     const featureGrid = document.getElementById("contact-grid");
@@ -148,10 +148,11 @@ function hideContactForm() {
     // After form fades out
     setTimeout(() => {
         contactForm.style.display = 'none';
+        if (showContactText) {
         contactText.style.display = 'block';
         contactText.style.opacity = '0';
         contactText.style.transform = 'translateY(-20px)';
-        
+        }
         // Restore original grid
         featureGrid.style.gridTemplateColumns = window.gridTemplateProperty;
         
@@ -163,4 +164,62 @@ function hideContactForm() {
     }, 300);
     
     return false;
+}
+
+/**
+ * Validate form successfully sent
+ */
+function validateSuccessfullySent(triggerForm, formEvent) {
+    formEvent.preventDefault();  // Prevent default form submission
+
+    let name = triggerForm.elements['name'].value;
+    // let email = triggerForm.elements['email'].value;
+    // let query = triggerForm.elements['query'].value;
+    // let phone = triggerForm.elements['phone'].value;
+
+    let message = `Thank you for your message, ${name}! We will get back to you soon.`;
+
+    let parentElement = document.createElement('div');
+    parentElement.style.position = 'relative';
+    
+    let messageelement = document.createElement('span');
+    messageelement.style.background = 'var(--gradient-success)';
+    messageelement.style.color = 'transparent';
+    messageelement.style.backgroundClip = 'text';
+    messageelement.innerText = message;
+
+    parentElement.appendChild(messageelement);
+
+    document.getElementById('contact-form').appendChild(parentElement);
+
+    hideContactForm(false); // Hide the form after submission
+
+    setTimeout(() => {
+        hideContactForm();
+        // Remove the success message after 3 seconds
+        parentElement.remove();
+    }, 3000);
+
+    return false; // Prevent form submission
+}
+
+
+/**
+ * Validate phone number
+ */
+
+function validatePhone(triggerBox, keyboardEvent) { 
+    if (keyboardEvent.key == 'Backspace' || keyboardEvent.key == 'Delete' || keyboardEvent.key == 'Tab') {
+        return true; // Allow Backspace and Delete keys
+    }
+    // Check if the key is a number, Backspace, Delete, Arrow keys, or specific symbols
+    if (keyboardEvent && (keyboardEvent.key < '0' || keyboardEvent.key > '9') && keyboardEvent.key !== 'Backspace' && keyboardEvent.key !== 'Delete'
+        && keyboardEvent.key !== 'ArrowLeft' && keyboardEvent.key !== 'ArrowRight' && keyboardEvent.key !== '(' && keyboardEvent.key !== ')'
+        && keyboardEvent.key !== '+' && keyboardEvent.key !== '-' && keyboardEvent.key !== ' ' && keyboardEvent.key !== 'Enter') {
+        return false; // Ignore non-numeric keys
+    }
+    
+    if (triggerBox && triggerBox.value.length > 20) {
+        return false; // Limit input to 20 characters
+    }
 }

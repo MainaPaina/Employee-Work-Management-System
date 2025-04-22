@@ -803,57 +803,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // FAQ accordion functionality
-    const faqQuestions = document.querySelectorAll('.faq-question');
-
-    if (faqQuestions) {
-        faqQuestions.forEach(question => {
-            question.addEventListener('click', () => {
-                const answer = question.nextElementSibling;
-                const isActive = answer.classList.contains('active');
-
-                // Close all other answers
-                document.querySelectorAll('.faq-answer').forEach(item => {
-                    item.classList.remove('active');
-                });
-
-                // Toggle current answer
-                if (!isActive) {
-                    answer.classList.add('active');
-                }
-
-                // Toggle the indicator
-                document.querySelectorAll('.faq-question').forEach(q => {
-                    q.querySelector('.indicator').textContent = '+';
-                });
-
-                if (!isActive) {
-                    question.querySelector('.indicator').textContent = '-';
-                }
-            });
-        });
-    }
-
-    // Contact form option selection
-    const contactOptions = document.querySelectorAll('.contact-option');
-    const contactForm = document.querySelector('.contact-form');
-    const immediateContact = document.querySelector('.immediate-contact');
-
-    if (contactOptions && contactForm && immediateContact) {
-        contactOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const optionType = this.getAttribute('data-type');
-
-                if (optionType === 'form') {
-                    contactForm.style.display = 'block';
-                    immediateContact.style.display = 'none';
-                } else if (optionType === 'immediate') {
-                    contactForm.style.display = 'none';
-                    immediateContact.style.display = 'block';
-                }
-            });
-        });
-    }
 
     // Apply Leave validation
     const applyLeaveBtn = document.getElementById('apply-leave-btn');

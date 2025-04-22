@@ -88,25 +88,25 @@
             </div>
             <div class="contact-form-hidden" id="contact-form-hidden">
                 <h3><i class="fas fa-envelope"></i> Send Us a Message</h3>
-                <form id="support-contact-form">
+                <form id="support-contact-form" onsubmit="return validateSuccessfullySent(this, event);">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" class="form-control" required>
+                        <input type="text" id="name" name="name" class="form-control" required>
                     </div>
 
                     <div class="form-group">
                         <label for="phone">Phone</label>
-                        <input type="tel" id="phone" class="form-control" required>
+                        <input type="tel" id="phone" name="phone" class="form-control" required onkeydown="return validatePhone(this, event)">
                     </div>	
 
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" required>
+                        <input type="email" id="email" name="email" class="form-control" required>
                     </div>
 
                     <div class="form-group">
                         <label for="query">Your Query</label>
-                        <textarea id="query" class="form-control" rows="5" required></textarea>
+                        <textarea id="query" class="form-control" name="query" rows="5" required style="resize: none;"></textarea>
                     </div>
 					
                     <div class="button-group">
@@ -146,59 +146,3 @@
         </div>
     </div>
 </div>
-
-<script src="/js/contact.js"></script>
-<script>
-// Additional JavaScript for contact page
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize FAQ items
-    initFAQ();
-});
-
-function showContactOptionsForm() {
-    const contactForm = document.getElementById("contact-option-form-content");
-    const contactText = document.getElementById("contact-option-form");
-    const featureGrid = document.getElementById("contact-options-grid");
-    
-    // Instant display with minimal animation delay
-    contactForm.style.display = 'block';
-    contactText.style.opacity = '0';
-    contactText.style.transform = 'translateY(-20px)';
-    
-    // Minimize delay
-    setTimeout(() => {
-        contactText.style.display = 'none';
-        featureGrid.style.gridTemplateColumns = "repeat(auto-fit, minmax(100%, 1fr))";
-        contactForm.style.opacity = '1';
-        contactForm.style.transform = 'translateY(0)';
-        const firstInput = contactForm.querySelector('input');
-        if (firstInput) firstInput.focus();
-    }, 50); // Ultra-fast transition
-    
-    return false;
-}
-
-function hideContactOptionsForm() {
-    const contactForm = document.getElementById("contact-option-form-content");
-    const contactText = document.getElementById("contact-option-form");
-    const featureGrid = document.getElementById("contact-options-grid");
-    
-    contactForm.style.opacity = '0';
-    contactForm.style.transform = 'translateY(20px)';
-    
-    setTimeout(() => {
-        contactForm.style.display = 'none';
-        contactText.style.display = 'block';
-        contactText.style.opacity = '0';
-        contactText.style.transform = 'translateY(-20px)';
-        featureGrid.style.gridTemplateColumns = "1fr 1fr";
-        
-        setTimeout(() => {
-            contactText.style.opacity = '1';
-            contactText.style.transform = 'translateY(0)';
-        }, 50);
-    }, 100);
-    
-    return false;
-}
-</script>
