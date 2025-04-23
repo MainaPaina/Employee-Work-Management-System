@@ -92,13 +92,13 @@ module.exports = {
     return { data };
   },
 
-  async deletePendingRequest(id, userId) {
+  async deletePendingRequest(supabase, id, userId) {
     const { data, error } = await supabase
       .from('leaves')
       .delete()
       .eq('id', id)
       .eq('user_id', userId)
-      .eq('status', 'Pending'); // Only allow deleting pending requests
+      .eq('status', 'Pending');
   
     if (error) {
       console.error('Error deleting leave request:', error);
@@ -107,5 +107,6 @@ module.exports = {
   
     return { data };
   }
+  
   
 };

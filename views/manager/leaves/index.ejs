@@ -41,7 +41,7 @@
                             <td><%= leave.status %></td>
                             <td><%= leave.approved_at ? new Date(leave.approved_at).toLocaleDateString() : 'N/A' %></td>
                             <td><%= leave.approver ? leave.approver.name : 'N/A'%></td>
-                            <td><%= leave.approver_comments || 'N/A'%></td>
+                            <!-- <td><%= leave.approver_comments || 'N/A'%></td> -->
                             <td>
                                 <%
                                 const isSelfRequest = leave.user_id === session.user.id;

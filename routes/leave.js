@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Leave = require('../model/Leave');
-const supabase = require('../config/supabase/client');
+const getSupabase = require('../utils/supabaseWithSession');
+
 
 
 // Instantiate Controller (if it's a class)
@@ -57,6 +58,7 @@ router.get('/', (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
+      const supabase = getSupabase(req);
       const sessionId = req.session.user?.id;
   
       if (!sessionId) {
@@ -122,6 +124,7 @@ router.post('/', async (req, res) => {
   });
 
 router.post('/edit', async (req, res) => {
+    const supabase = getSupabase(req);
     const sessionId = req.session.user?.id;
     if (!sessionId) {
         return res.status(401).json({ success: false, message: 'Not authenticated.' });
@@ -159,6 +162,7 @@ router.post('/edit', async (req, res) => {
 
   
 router.post('/delete/:id', async (req, res) => {
+    const supabase = getSupabase(req);
     const sessionId = req.session.user?.id;
     const leaveId = req.params.id;
 
@@ -166,7 +170,7 @@ router.post('/delete/:id', async (req, res) => {
         return res.status(401).json({ success: false, message: 'Not authenticated.' });
     }
 
-    const { data, error } = await Leave.deletePendingRequest(leaveId, sessionId);
+    const { data, error } = await Leave.deletePendingRequest(supabase, leaveId, sessionId);
 
     if (error) {
         return res.status(500).json({ success: false, message: 'Failed to delete leave request.' });
