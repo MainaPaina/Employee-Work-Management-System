@@ -17,27 +17,42 @@ module.exports = {
   },
 
   async getLeaveSummary(userId) {
-    const { data, error } = await supabase
+    // Fetch approved leaves
+    const { data: leaves, error: leaveError } = await supabase
       .from('leaves')
       .select('start_date, end_date')
-      .eq('user_id', userId);
-
-    if (error) {
-      console.error('Error fetching leave summary:', error);
+      .eq('user_id', userId)
+      .eq('status', 'Approved');
+  
+    if (leaveError) {
+      console.error('Error fetching leave summary:', leaveError);
       return {
-        totalQuota: 20,
+        totalQuota: 0,
         usedLeaves: 0,
         leaveHistory: []
       };
     }
-
+  
+    // Fetch user quota from users table
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('leave_quota') // 👈 field you store the quota in
+      .eq('id', userId)
+      .single();
+  
+    if (userError || !user?.leave_quota) {
+      console.warn('No leave_quota set for user. Using fallback.');
+    }
+  
+    const quota = user?.leave_quota || 20; // Fallback to 20 if not set
+  
     // Calculate total business days used
     const calculateBusinessDays = (startDate, endDate) => {
       const start = new Date(startDate);
       const end = new Date(endDate);
       let count = 0;
       const cur = new Date(start);
-
+  
       while (cur <= end) {
         const day = cur.getDay();
         if (day !== 0 && day !== 6) {
@@ -45,19 +60,52 @@ module.exports = {
         }
         cur.setDate(cur.getDate() + 1);
       }
-
+  
       return count;
     };
-
+  
     let usedDays = 0;
-    data.forEach(req => {
+    leaves.forEach(req => {
       usedDays += calculateBusinessDays(req.start_date, req.end_date);
     });
-
+  
     return {
-      totalQuota: 20, // You can make this dynamic per employee if needed
+      totalQuota: quota,
       usedLeaves: usedDays,
-      leaveHistory: data
+      leaveHistory: leaves
     };
+  }, 
+
+  async updateLeaveRequest(id, userId, updates) {
+    const { data, error } = await supabase
+      .from('leaves')
+      .update(updates)
+      .eq('id', id)
+      .eq('user_id', userId)
+      .eq('status', 'Pending'); // Only allow editing pending requests
+  
+    if (error) {
+      console.error('Error updating leave request:', error);
+      return { error };
+    }
+  
+    return { data };
+  },
+
+  async deletePendingRequest(id, userId) {
+    const { data, error } = await supabase
+      .from('leaves')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId)
+      .eq('status', 'Pending'); // Only allow deleting pending requests
+  
+    if (error) {
+      console.error('Error deleting leave request:', error);
+      return { error };
+    }
+  
+    return { data };
   }
+  
 };

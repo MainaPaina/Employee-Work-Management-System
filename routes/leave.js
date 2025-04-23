@@ -57,86 +57,123 @@ router.get('/', (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-      // Log the raw request body for debugging purposes
-      console.log("Raw request body:", req.body);
-
-      // Extract the user ID from the session
       const sessionId = req.session.user?.id;
-      console.log("Session user ID:", sessionId);
-
-      // If the user is not logged in, return an unauthorized response
+  
       if (!sessionId) {
         return res.status(401).json({ success: false, message: 'User not logged in.' });
       }
-
-      // Destructure the leave application details from the request body
-      const { startDate, endDate, leaveType, reason } = req.body;
-
-      // Log the form values for debugging purposes
-      console.log("Form values:", { startDate, endDate, leaveType, reason });
-
-      const userId = sessionId; // Use the session ID as the user ID
-      // Insert the leave request into the 'leave_requests' table
+  
+      // Destructure form inputs
+      const { startDate, endDate, leaveType, reason, totalLeaveDays } = req.body;
+      const totalDays = parseInt(totalLeaveDays);
+  
+      // ✅ Validate date inputs
+      if (!startDate || !endDate || isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
+        return res.status(400).send("Start and End dates are required and must be valid.");
+      }
+  
+      if (isNaN(totalDays) || totalDays <= 0) {
+        return res.status(400).send("Total leave days must be a valid positive number.");
+      }
+  
+      // ✅ Fetch leave balance summary
+      const summary = await Leave.getLeaveSummary(sessionId);
+      const remaining = summary.totalQuota - summary.usedLeaves;
+  
+      // ✅ Determine leave type based on balance
+      let actualLeaveType = leaveType;
+  
+      if (totalDays > remaining) {
+        if (remaining <= 0) {
+          actualLeaveType = 'Unpaid leave';
+        } else {
+          return res.status(400).send("Your requested leave exceeds your remaining paid leave.");
+        }
+      }
+  
+      // ✅ Insert into Supabase
       const { data, error } = await supabase.from('leaves').insert([
         {
-          user_id: userId, // Link the leave request to the user ID
-          start_date: startDate, // Start date of the leave
-          end_date: endDate, // End date of the leave
-          leave_type: leaveType, // Type of leave (e.g., Annual leave, Sick leave, etc.)
-          reason: reason, // Reason for the leave
-          status: 'Pending', // Default status for new leave requests
-          days: null, // Placeholder for total leave days (can be calculated later)
-          approver_id: null, // Placeholder for approver ID (can be set later)
-          approved_at: null, // Placeholder for approval date (can be set later)
-          approver_comments: null // Placeholder for approver comments (can be set later)
+          user_id: sessionId,
+          start_date: startDate,
+          end_date: endDate,
+          leave_type: actualLeaveType,
+          reason: reason,
+          status: 'Pending',
+          days: totalDays,
+          approver_id: null,
+          approved_at: null,
+          approver_comments: null
         }
       ]);
-
-      // If an error occurs during the insert, log it and return a server error response
+  
       if (error) {
         console.error("Supabase insert error:", error);
         return res.status(500).json({ success: false, message: 'Database insert failed.' });
       }
-
-      // Log the successful insert operation
-      console.log("Insert success:", data);
-
-      // Redirect the user to the leave application page
+  
+      console.log("Leave request submitted:", data);
       res.redirect('/leave/apply');
+  
     } catch (err) {
-      // Log any unexpected server errors and return a server error response
       console.error("Unexpected server error:", err);
       res.status(500).json({ success: false, message: 'Unexpected server error.' });
     }
+  });
+
+router.post('/edit', async (req, res) => {
+    const sessionId = req.session.user?.id;
+    if (!sessionId) {
+        return res.status(401).json({ success: false, message: 'Not authenticated.' });
+    }
+
+    const { id, startDate, endDate, leaveType, reason } = req.body;
+
+    if (!id || !startDate || !endDate || !leaveType || !reason) {
+        return res.status(400).json({ success: false, message: 'All fields are required.' });
+    }
+
+    // Optional: Validate date range
+    if (new Date(endDate) < new Date(startDate)) {
+        return res.status(400).json({ success: false, message: 'End date cannot be before start date.' });
+    }
+
+    const updates = {
+        start_date: startDate,
+        end_date: endDate,
+        leave_type: leaveType,
+        reason: reason
+    };
+
+    const { data, error } = await Leave.updateLeaveRequest(id, sessionId, updates);
+
+    if (error) {
+        return res.status(500).json({ success: false, message: 'Failed to update leave request.' });
+    }
+
+    res.redirect('/leave/apply'); // or res.json({ success: true }) if you want to use AJAX
 });
 
+  
+router.post('/delete/:id', async (req, res) => {
+    const sessionId = req.session.user?.id;
+    const leaveId = req.params.id;
 
-/* router.get('/', async (req, res) => {
-    try {
-        const user = req.session.user;
-        if (!user || !user.id) {
-            return res.status(401).send("Unauthorized")
-        }
-
-        const userId = user.id;
-        
-        const leaveHistory = await Leave.getLeaveHistory(userId);
-
-        res.render("leave-history", {
-            activePage: "leaveHistory",
-            title: "My Leave History",
-            leaveHistory: leaveHistory
-        });
-    } catch (error) {
-        console.error("Error rendering leave history:", error);
-        res.status(500).send("Server error while loading leave history.")
+    if (!sessionId) {
+        return res.status(401).json({ success: false, message: 'Not authenticated.' });
     }
-}); */
 
+    const { data, error } = await Leave.deletePendingRequest(leaveId, sessionId);
 
+    if (error) {
+        return res.status(500).json({ success: false, message: 'Failed to delete leave request.' });
+    }
 
-// Maybe API routes for cancelling leave, etc., using verifyJWT if needed
-// router.delete('/:id', verifyJWT, leaveController.cancelLeave);
+    res.redirect('/leave/apply'); // or res.json({ success: true }) if you're doing this via fetch
+});
+
+  
+
 
 
 module.exports = router;

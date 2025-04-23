@@ -16,7 +16,11 @@
                     <th>End Date</th>
                     <th>Type</th>
                     <th>Days</th>
+                    <th>Reason</th>
                     <th>Status</th>
+                    <th>Decision Date</th>
+                    <th>Decided by</th>
+                    <th>Decision Comment</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -28,20 +32,103 @@
                 <% } else { %>
                     <% leaves.forEach(leave => { %>
                         <tr>
-                            <td><%= leave.name%></td>
+                            <td><%= leave.requester ? leave.requester.name : 'N/A' %></td>
                             <td><%= new Date(leave.start_date).toLocaleDateString() %></td>
                             <td><%= new Date(leave.end_date).toLocaleDateString() %></td>
                             <td><%= leave.leave_type %></td>
                             <td><%= leave.days || 'N/A' %></td>
+                            <td><%= leave.reason %></td>
                             <td><%= leave.status %></td>
+                            <td><%= leave.approved_at ? new Date(leave.approved_at).toLocaleDateString() : 'N/A' %></td>
+                            <td><%= leave.approver ? leave.approver.name : 'N/A'%></td>
+                            <td><%= leave.approver_comments || 'N/A'%></td>
                             <td>
-                                <button class="btn btn-secondary" data-id="<%= leave.id %>" onclick="document.getElementById('leaveRequestForm').submit()">Edit</button>
-                                <button class="btn btn-danger cancel-leave" data-id="<%= leave.id %>">Cancel</button> 
+                                <%
+                                const isSelfRequest = leave.user_id === session.user.id;
+                                const isAdmin = session.user.roles.includes('admin');
+                                const isActionable = leave.status === 'Pending';
+                                const disableButton = (isSelfRequest && !isAdmin) || !isActionable;
+                              %>
+                              
+                              <button
+                                class="btn btn-secondary approve-leave"
+                                data-id="<%= leave.id %>"
+                                <%= disableButton ? 'disabled title="Not allowed or already processed."' : '' %>>
+                                Approve
+                              </button>
+                              
+                              <button
+                                class="btn btn-danger cancel-leave"
+                                data-id="<%= leave.id %>"
+                                <%= disableButton ? 'disabled title="Not allowed or already processed."' : '' %>>
+                                Reject
+                              </button>
+                              
                             </td>
                         </tr>
-                        <% }); %>
-                    <% } %>
+                    <% }); %>
+                <% } %>
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    // Approve logic
+    document.querySelectorAll('.approve-leave').forEach(button => {
+      button.addEventListener('click', async () => {
+        const leaveId = button.getAttribute('data-id');
+
+        try {
+          const response = await fetch('/manager/leaves/approve', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: leaveId })
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            alert('Leave approved successfully!');
+            location.reload();
+          } else {
+            alert(result.message);
+          }
+        } catch (err) {
+          console.error('Error approving leave:', err);
+        }
+      });
+    });
+
+    // Reject logic
+    document.querySelectorAll('.cancel-leave').forEach(button => {
+      button.addEventListener('click', async () => {
+        const leaveId = button.getAttribute('data-id');
+
+        if (!confirm('Are you sure you want to reject this leave?')) return;
+
+        try {
+          const response = await fetch('/manager/leaves/reject', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: leaveId })
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            alert('Leave rejected successfully!');
+            location.reload();
+          } else {
+            alert(result.message);
+          }
+        } catch (err) {
+          console.error('Error rejecting leave:', err);
+        }
+      });
+    });
+  });
+</script>
