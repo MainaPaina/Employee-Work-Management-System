@@ -645,3 +645,52 @@ function roleDeletionConfirmation(sender) {
     fadeInEffect(modal);
     return false;
 }
+
+
+/*
+=================================================
+CONFIRMATION BOX
+=================================================
+*/
+
+/// modular function for showing a confirmation box
+function confirmationBox(triggerButton, title, confirmtext, redirectTo) {
+
+    // Clear any old modal
+    clearOldModal();
+
+    let modal = document.createElement('div');
+    modal.classList.add('admin-modal');//, { class: 'admin-modal' });
+    
+    let mHeader = document.createElement('div')
+    mHeader.classList.add('modal-header');
+    mHeader.innerHTML = `<h2 class="modal-title"><i class="fa fa-triangle-exclamation"></i> '${title}}'?</h2>`;
+    modal.appendChild(mHeader);
+    
+    let mBody = document.createElement('div');
+    mBody.classList.add('modal-body');
+
+    let mBodyP = document.createElement('p');
+    mBodyP.innerText = `${confirmtext}`;
+    mBody.appendChild(mBodyP);
+
+
+    let mBodyButton = document.createElement('button');
+    mBodyButton.setAttribute('id', 'confirm');
+    mBodyButton.classList.add('btn', 'btn-succsess');
+    mBodyButton.innerHTML = 'Succsess';
+    mBodyButton.onclick = async function () {
+    
+
+        // Redirect to the list of users after 2 seconds
+        setTimeout(() => {
+            window.location.href = `${redirectTo}`;
+        }, 2000);
+    };
+    mBody.appendChild(mBodyButton);
+    
+    modal.appendChild(mBody);
+    document.body.appendChild(modal);
+    fadeInEffect(modal);
+    return false;
+}

@@ -4857,3 +4857,28 @@ Or, if you meant to create an async function, pass `async: true` as an option.
 16042025	03:08:31	553a1420-3f0f-4380-8ccd-b57d15512f62	Error: Page Not Found
 23042025	00:35:11	451d50df-1ddc-4532-b5c8-a3acaf907652	404 Not Found: GET /favicon.ico
 23042025	00:35:11	111cbb78-9398-49db-a7ef-dd5525b9c065	Error: Page Not Found
+23042025	08:59:16	0a38ff76-981e-49dc-8285-0ab0778593a6	ReferenceError: C:\Users\maina_95qyd0v\source\repos\Better-Time-Management2\Better-2\views\error.ejs:5
+    3|   <div class="error-content">
+    4|       <h1 class="error-title">
+ >> 5|           <%= status %> - <%= title %>
+    6|       </h1>
+    7|       
+    8|       <div class="error-message">
+
+status is not defined
+23042025	09:12:48	64205246-e9f3-4292-9b11-0b499ae00052	404 Not Found: DELETE /admin/api/roles/delete/7
+23042025	09:12:48	bf06aace-67eb-4230-b4f3-56a124873ead	Error: Page Not Found
+23042025	09:13:17	ba095dd6-e6c2-4edb-8c0e-fc7908fd7e66	404 Not Found: DELETE /admin/api/roles/delete/6
+23042025	09:13:17	29235c17-1ab3-454b-91c3-a9db88f9b6a9	Error: Page Not Found
+23042025	09:16:31	9e1e5975-d435-4eab-b820-28546eb0c000	404 Not Found: GET /manager/users
+23042025	09:16:31	32b2afbe-6ae5-4da9-bcc4-37ea1dc8115a	Error: Page Not Found
+23042025	09:17:12	18a8151e-2721-4f42-ac0f-6fad8c33b6a3	404 Not Found: GET /manager/users
+23042025	09:17:12	1ea68937-4d5b-41c0-83fe-6bca4b5a34f8	Error: Page Not Found
+23042025	14:33:18	4d93305e-403e-41bb-8a26-0a78471140c5	404 Not Found: GET /manager/users
+23042025	14:33:18	f08da9ae-daf0-4d17-b1a2-aa334398bc02	Error: Page Not Found
+23042025	14:35:51	61161a06-ddab-4e42-b832-578322588193	404 Not Found: GET /manager/users
+23042025	14:35:51	39a3ab38-4d2f-4f77-9b66-65d89620523d	Error: Page Not Found
+23042025	23:29:35	a47a05f5-e30a-48bc-a139-b908b9b7ef75	404 Not Found: GET /admin/deparments/view/
+23042025	23:29:35	008583b6-3be8-4ac7-94ca-6c25466c2fe2	Error: Page Not Found
+24042025	00:06:28	0ab5b68e-6d41-4dbd-a8ee-128a97648a15	404 Not Found: DELETE /admin/api/roles/delete/7
+24042025	00:06:28	78cd4363-75bb-41b0-8c74-56f6a504db5c	Error: Page Not Found

@@ -50,7 +50,7 @@ router.use('/employee', verifyRoles(['employee']), employeeRoutes);
 
 // Root route (Homepage) - Accessible to all
 router.get('/', (req, res) => { 
-  res.render('index', { activePage: 'home', user: req.session?.user || null });
+    res.render('index', { activePage: 'home', user: req.session?.user || null });
 });
 
 // Contact us page - Accessible to all

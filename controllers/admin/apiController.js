@@ -4,7 +4,7 @@ const Department = require('../../model/Department');
 const Policy = require('../../model/Policy');
 
 
-exports.setDepartmentforUser = async (req, res, next) => {
+exports.setDepartmentForUser = async (req, res, next) => {
     console.log('POST /admin/api/users/setdepartment called');
     try {
         console.log('req.body: ', req.body);

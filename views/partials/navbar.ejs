@@ -1,6 +1,6 @@
 <nav class="navbar">
 	<div class="container navbar-container">
-		<a href="/" class="navbar-logo gradient-parent">
+		<a href="/<%=(typeof isAuthenticated !== 'undefined' && isAuthenticated) ? 'dashboard' : '' %>" class="navbar-logo gradient-parent">
 			<i class="fas fa-clock logo-icon"></i>
 			<span>TimeManager</span>
 		</a>

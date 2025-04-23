@@ -186,6 +186,7 @@ function validateSuccessfullySent(triggerForm, formEvent) {
     messageelement.style.background = 'var(--gradient-success)';
     messageelement.style.color = 'transparent';
     messageelement.style.backgroundClip = 'text';
+    messageelement.style.fontSize = '2rem';
     messageelement.innerText = message;
 
     parentElement.appendChild(messageelement);
@@ -196,9 +197,9 @@ function validateSuccessfullySent(triggerForm, formEvent) {
 
     setTimeout(() => {
         hideContactForm();
-        // Remove the success message after 3 seconds
+        // Remove the success message after 5 seconds
         parentElement.remove();
-    }, 3000);
+    }, 5000);
 
     return false; // Prevent form submission
 }

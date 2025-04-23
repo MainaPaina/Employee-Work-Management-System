@@ -64,6 +64,25 @@ class Department {
         }
     }
 
+    static async findOneByName(name) {
+        try {
+            const { data, error } = await supabase
+                .from('departments')    // From table departments
+                .select('id')           // Select all columns
+                .eq('name', name)       // Filter by name
+                .single();              // Get a single row
+            if (error) {
+                console.error('Error fetching department by name:', error.message);
+                return null;
+            }
+            return data; // Return the department object (or null if not found)
+        }
+        catch (error) {
+            console.error('Exception fetching department by name: ', error);
+            return null;
+        }
+    }
+
 }
 
 // Export the class itself, not an instance
