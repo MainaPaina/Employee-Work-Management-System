@@ -77,10 +77,15 @@ router.get("/", verifyRoles(['employee']), async (req, res) => {
     } catch (error) {
         console.error('Error loading dashboard:', error);
         res.status(500).render('error', {
+            status: 500,
+            title: 'Dashboard Error',
             message: 'Failed to load dashboard data.',
+            description: 'An unexpected error occurred while retrieving dashboard content.',
+            url: req.originalUrl,
+            stack: error.stack,
             activePage: 'error'
         });
-    }
+    }    
 });
 
 module.exports = router;
