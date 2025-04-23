@@ -1,0 +1,36 @@
+<div class="container">
+	<div class="page-header">
+		<h1 class="page-title"><i class="fas fa-building-user"></i> Department Management</h1>
+		<p class="page-subtitle">Add, edit or delete departments</p>
+	</div>
+    
+    <%- include('../partials/menu', { activePage: activePage, activeSubPage: activeSubPage }) %>
+		
+	<div class="cards cards-1">
+		<div class="card">
+			<div class="card-header">
+				<h2>
+					<i class="fas fa-plus"></i> Create Department
+				</h2>
+			</div>
+			<form method="post">
+				<div class="card-body">
+                    <div class="form-group">
+                        <label for="department_name" class="form-label">Name of Department</label>
+                        <input type="text" class="form-control" name="name" id="department_name" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="department_alias" class="form-label">Department Alias</label>
+                        <input type="text" class="form-control" name="alias" id="department_alias" required="">
+                    </div>
+				</div>
+				<div class="card-footer">
+					<div class="button-group">
+						<button type="submit" class="btn btn-primary">Create Department</button>
+						<a href="/admin/departments" class="btn btn-danger">Cancel</a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
