@@ -25,7 +25,6 @@ router.get("/", verifyRoles(['employee']), async (req, res) => {
         // Initialize variables
         let activeEntry = null;
         let recentEntries = [];
-        let remainingHours = 0; /* timesheetData.remainingHours || 8; */ // Default to 8 hours if not calculated;
 
         // Fetch active entry (end_time is NULL)
         activeEntry = await TimeEntry.findActiveEntryByEmployeeId(employeeId);
@@ -39,6 +38,26 @@ router.get("/", verifyRoles(['employee']), async (req, res) => {
 
         // Fetch last 3 completed entries
         recentEntries = await TimeEntry.findRecentEntriesByEmployeeId(employeeId, 5);
+
+        // Calculate total worked time for today
+        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        const entriesToday = await TimeEntry.findEntriesByEmployeeAndDate(employeeId, today);
+
+        let totalMinutesWorked = 0;
+
+        entriesToday.forEach(entry => {
+            if (entry.start_time && (entry.end_time || activeEntry?.id === entry.id)) {
+                const start = new Date(entry.start_time);
+                const end = entry.end_time ? new Date(entry.end_time) : new Date();
+                const diffMs = end - start;
+                const diffMin = diffMs / 1000 / 60;
+                totalMinutesWorked += diffMin;
+            }
+        });
+
+        const hoursWorkedToday = totalMinutesWorked / 60;
+        const remainingHours = Math.max(0, 8 - hoursWorkedToday);
+
 
         // Render the dashboard with all data
         res.render("dashboard", {

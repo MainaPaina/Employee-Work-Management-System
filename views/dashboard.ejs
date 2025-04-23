@@ -22,7 +22,7 @@
                 </div>
                 <div class="card-item">
                     <div class="card-item-label">Remaining Time:</div>
-                    <div class="card-item-value"><%= dashboardData.remainingHours %> hours</div>
+                    <div class="card-item-value"><%= dashboardData.remainingHoursToday || '8h 0m' %> hours</div>
                 </div>
                 <% if (dashboardData.activeEntry) { %>
                     <% if (dashboardData.activeEntry.last_break_start_time && !dashboardData.activeEntry.last_break_end_time) { %>
