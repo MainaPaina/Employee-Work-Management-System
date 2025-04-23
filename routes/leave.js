@@ -133,6 +133,9 @@ router.post('/edit', async (req, res) => {
         return res.status(400).json({ success: false, message: 'All fields are required.' });
     }
 
+    console.log("Edit payload:", req.body);
+
+
     // Optional: Validate date range
     if (new Date(endDate) < new Date(startDate)) {
         return res.status(400).json({ success: false, message: 'End date cannot be before start date.' });
