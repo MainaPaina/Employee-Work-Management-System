@@ -41,7 +41,7 @@ router.get("/", verifyRoles(['employee']), async (req, res) => {
 
         // Calculate total worked time for today
         const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-        const entriesToday = await TimeEntry.findEntriesByEmployeeAndDate(employeeId, today);
+        const entriesToday = await TimeEntry.findEntriesByEmployeeIdAndDate(employeeId, today);
 
         let totalMinutesWorked = 0;
 
