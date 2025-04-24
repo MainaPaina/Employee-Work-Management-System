@@ -4,6 +4,8 @@ const Leave = require('../model/Leave');
 const TimeEntry = require('../model/TimeEntry');
 const verifyRoles = require('../middleware/verifyRoles');
 
+// TODO: Refactor this to use a controller
+
 // Dashboard route (main dashboard page, not /apply)
 router.get("/", verifyRoles(['employee']), async (req, res) => {
     try {

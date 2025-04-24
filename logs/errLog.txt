@@ -4882,3 +4882,11 @@ status is not defined
 23042025	23:29:35	008583b6-3be8-4ac7-94ca-6c25466c2fe2	Error: Page Not Found
 24042025	00:06:28	0ab5b68e-6d41-4dbd-a8ee-128a97648a15	404 Not Found: DELETE /admin/api/roles/delete/7
 24042025	00:06:28	78cd4363-75bb-41b0-8c74-56f6a504db5c	Error: Page Not Found
+24042025	22:48:49	9d0a1e27-3238-439f-ad17-6676783aba6b	404 Not Found: GET /manager/users
+24042025	22:48:49	fbc32632-f612-47a6-8f12-24a4040f3d1a	Error: Page Not Found
+24042025	23:26:19	24f233fd-7615-4784-9b5f-a9574bba0195	404 Not Found: GET /manager/users
+24042025	23:26:19	9333846f-ee46-43f0-8ba0-74e28317b866	Error: Page Not Found
+24042025	23:26:42	8f09a6d7-c0e3-4b68-ac59-1a2ec0888e91	404 Not Found: GET /manager/users
+24042025	23:26:42	f101857e-227c-4a66-a57e-9cb3a93e4691	Error: Page Not Found
+24042025	23:26:54	c3ff69fd-f1f7-4b0a-bc86-ed0757a808c1	404 Not Found: GET /manager/users
+24042025	23:26:54	698694a7-25e0-406c-96e6-0a10c00c00fd	Error: Page Not Found

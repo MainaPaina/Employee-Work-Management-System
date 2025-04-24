@@ -1,75 +1,92 @@
 <!-- Your existing admin content goes here without the backticks -->
-<div class="page-header">
-    <h1 class="page-title">
-        <i class="fas fa-users-cog"></i> Manage User Leaves
-    </h1>
-    <p class="page-subtitle">Manage leaves, Approve or reject their requests</p>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-users-cog"></i> Manage User Leaves
+        </h1>
+        <p class="page-subtitle">Manage leaves, Approve or reject their requests</p>
+    </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Type</th>
-                    <th>Days</th>
-                    <th>Reason</th>
-                    <th>Status</th>
-                    <th>Decision Date</th>
-                    <th>Decided by</th>
-                    <!-- <th>Decision Comment</th> -->
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (leaves.length === 0) { %>
-                    <tr>
-                        <td colspan="6" class="text-center">No leave history available.</td>
-                    </tr>
-                <% } else { %>
-                    <% leaves.forEach(leave => { %>
+<div class="container container-full-width" id="expandable-container">
+    <div class="cards cards-1">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <div class="card-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    Leave Requests
+                </h2>
+                <div class="card-actions">
+                    <a href="#" onclick="return expandContainer('expandable-container');" class="btn btn-primary"><i class="fas fa-down-left-and-up-right-to-center" id="expandable-container-icon"></i></a>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td><%= leave.requester ? leave.requester.name : 'N/A' %></td>
-                            <td><%= new Date(leave.start_date).toLocaleDateString() %></td>
-                            <td><%= new Date(leave.end_date).toLocaleDateString() %></td>
-                            <td><%= leave.leave_type %></td>
-                            <td><%= leave.days || 'N/A' %></td>
-                            <td><%= leave.reason %></td>
-                            <td><%= leave.status %></td>
-                            <td><%= leave.approved_at ? new Date(leave.approved_at).toLocaleDateString() : 'N/A' %></td>
-                            <td><%= leave.approver ? leave.approver.name : 'N/A'%></td>
-                            <!-- <td><%= leave.approver_comments || 'N/A'%></td> -->
-                            <td>
-                                <%
-                                const isSelfRequest = leave.user_id === session.user.id;
-                                const isAdmin = session.user.roles.includes('admin');
-                                const isActionable = leave.status === 'Pending';
-                                const disableButton = (isSelfRequest && !isAdmin) || !isActionable;
-                              %>
-                              
-                              <button
-                                class="btn btn-secondary approve-leave"
-                                data-id="<%= leave.id %>"
-                                <%= disableButton ? 'disabled title="Not allowed or already processed."' : '' %>>
-                                Approve
-                              </button>
-                              
-                              <button
-                                class="btn btn-danger cancel-leave"
-                                data-id="<%= leave.id %>"
-                                <%= disableButton ? 'disabled title="Not allowed or already processed."' : '' %>>
-                                Reject
-                              </button>
-                              
-                            </td>
+                            <th>Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Type</th>
+                            <th>Days</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Decision Date</th>
+                            <th>Decided by</th>
+                            <!-- <th>Decision Comment</th> -->
+                            <th>Actions</th>
                         </tr>
-                    <% }); %>
-                <% } %>
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody>
+                        <% if (leaves.length === 0) { %>
+                            <tr>
+                                <td colspan="6" class="text-center">No leave history available.</td>
+                            </tr>
+                        <% } else { %>
+                            <% leaves.forEach(leave => { %>
+                                <tr>
+                                    <td><%= leave.requester ? leave.requester.name : 'N/A' %></td>
+                                    <td><%= new Date(leave.start_date).toLocaleDateString() %></td>
+                                    <td><%= new Date(leave.end_date).toLocaleDateString() %></td>
+                                    <td><%= leave.leave_type %></td>
+                                    <td><%= leave.days || 'N/A' %></td>
+                                    <td><%= leave.reason %></td>
+                                    <td><%= leave.status %></td>
+                                    <td><%= leave.approved_at ? new Date(leave.approved_at).toLocaleDateString() : 'N/A' %></td>
+                                    <td><%= leave.approver ? leave.approver.name : 'N/A'%></td>
+                                    <!-- <td><%= leave.approver_comments || 'N/A'%></td> -->
+                                    <td>
+                                        <%
+                                        const isSelfRequest = leave.user_id === session.user.id;
+                                        const isAdmin = session.user.roles.includes('admin');
+                                        const isActionable = leave.status === 'Pending';
+                                        const disableButton = (isSelfRequest && !isAdmin) || !isActionable;
+                                      %>
+                                      <div class="button-group">
+                                          <button
+                                            class="btn btn-tiny btn-secondary approve-leave"
+                                            data-id="<%= leave.id %>"
+                                            <%= disableButton ? 'disabled title="Not allowed or already processed."' : '' %>>
+                                            Approve
+                                          </button>
+                                          
+                                          <button
+                                            class="btn btn-tiny btn-danger cancel-leave"
+                                            data-id="<%= leave.id %>"
+                                            <%= disableButton ? 'disabled title="Not allowed or already processed."' : '' %>>
+                                            Reject
+                                          </button>
+                                      </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 

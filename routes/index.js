@@ -48,6 +48,8 @@ router.use('/employee', verifyRoles(['employee']), employeeRoutes);
 // Routes Accessible to all users (public routes)
 // Note: These routes do not require authentication checks
 
+// TODO: Refactor this to use a controller
+
 // Root route (Homepage) - Accessible to all
 router.get('/', (req, res) => { 
     res.render('index', { activePage: 'home', user: req.session?.user || null });
