@@ -63,5 +63,26 @@ router.get('/create', verifyRoles(['admin']), async (req, res) => {
     }
 })
 
+router.get('/view/:id', verifyRoles(['admin']), async (req, res) => {
+    const deptId = req.params.id;
+  
+    const { data: department, error } = await supabase
+      .from('departments')
+      .select('*')
+      .eq('id', deptId)
+      .single();
+  
+    if (error || !department) {
+      return res.status(404).render('admin/404', { message: 'Department not found' });
+    }
+  
+    res.render('admin/departments/view', {
+      department,
+      activePage: 'admin',
+      activeSubPage: 'departments',
+    });
+  });
+  
+
 // Export the router directly
 module.exports = router;
