@@ -269,15 +269,14 @@
 			<div class="card-header">
 				<h2>Recent Time Entries</h2>
 				<div class="card-actions">
-				    <a href="#" class="btn btn-primary">
-					    <i class="fas fa-sync"></i>
-				    </a>
-				    <a href="#" class="btn btn-primary">
-					    <i class="fas fa-download"></i>
-				    </a>
-				    <a href="#" class="btn btn-primary">
-					    <i class="fas fa-print"></i>
-				    </a>
+				    
+                    <button class="btn btn-primary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn btn-primary" id="printBtn">
+                        <i class="fas fa-print"></i>
+                    </button>
+
 				</div>
 			</div>
 			<div class="card-body">
@@ -420,7 +419,7 @@
         </div>
     </div>-->
 
-	<div class="page-header mid">
+	<!-- <div class="page-header mid">
 		<h1 class="page-title">Work Statistics</h1>
 	</div>
 
@@ -483,7 +482,7 @@
 			</div>
 		</div>
 
-	</div>
+	</div> -->
 </div>
 
 <!-- Custom Animations CSS -->
@@ -1943,6 +1942,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+/* Export and Print functionality */
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const table = document.querySelector('.card-body table');
+  const rows = table.querySelectorAll('tr');
+  let csv = [];
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('th, td');
+    const rowData = Array.from(cells).map(cell => {
+      const badge = cell.querySelector('.status-badge');
+      const text = badge ? badge.textContent.trim() : cell.textContent.trim();
+        if (cell.cellIndex === 0) {
+        // Force date field (first column) to be treated as text in Excel
+        // This is a workaround to prevent Excel from auto-formatting the date
+        // and to ensure it appears as a string in the CSV file.
+        return `="` + text + `"`;
+        }
+        return `"${text}"`;
+
+    });
+    // Only add rows that have actual data
+    if (rowData.length > 0 && rowData.some(item => item !== '""')) {
+      csv.push(rowData.join(','));
+    }
+  });
+
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'recent_time_entries.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
+
+
+document.getElementById('printBtn').addEventListener('click', () => {
+  const table = document.querySelector('.card-body table');
+  const tableClone = table.cloneNode(true); // Get full table structure
+
+  const printWindow = window.open('', '', 'width=900,height=650');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print Time Entries</title>
+        <style>
+          body { font-family: sans-serif; padding: 20px; }
+          h2 { margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+          .status-badge { padding: 4px 8px; border-radius: 4px; }
+        </style>
+      </head>
+      <body>
+        <h2>Recent Time Entries</h2>
+        ${tableClone.outerHTML}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+});
+/* /Export and Print functionality */
 </script>
 
 <!-- Additional styles for tooltips and hours display -->
