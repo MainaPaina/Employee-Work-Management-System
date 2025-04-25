@@ -36,8 +36,72 @@
                     <div class="card-item label">Manager Email :</div>
                     <div class="card-item-value"><%= department.users?.email || 'N/A' %></div>
                 </div>
-            
+                <div class="card-item">
+                    <div class="card-item-label">Manager :</div>
+                    <div class="card-item-value">
+                      <% if (department.users) { %>
+                        <%= department.users.name %>
+                      <% } else { %>
+                        No manager assigned
+                      <% } %>
+                      &nbsp;&nbsp;
+                      <button type="button"
+                        class="btn btn-primary btn-tiny"
+                        style="height:30px;"
+                        onclick="openManagerModal(<%= department.id %>, <%= JSON.stringify(users) %>)">
+                        <i class="fa fa-sync"></i>
+                      </button>
+                    </div>
+                </div>
+                <div id="managerModal" class="modal" style="display:none;">
+                    <div class="modal-content">
+                      <h3>Assign Department Manager</h3>
+                      <form id="assignManagerForm" method="POST">
+                        <div class="form-group">
+                          <select id="managerSelect" name="manager_id" class="form-control" required>
+                            <!-- options will be populated dynamically -->
+                          </select>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="submit" class="btn btn-primary">Assign Manager</button>
+                          <button type="button" class="btn btn-secondary" onclick="closeManagerModal()">Cancel</button>
+                        </div>
+                      </form>
+                    </div>
+                </div>                                    
             </div>
         </div>
     </div>
-  
+    
+
+
+<script>
+    function openManagerModal(departmentId, users) {
+        const modal = document.getElementById('managerModal');
+        const select = document.getElementById('managerSelect');
+        const form = document.getElementById('assignManagerForm');
+    
+        // Clear any existing options
+        select.innerHTML = '';
+    
+        // Populate select dropdown
+        users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.text = `${user.name} (${user.email})`;
+        select.appendChild(option);
+        });
+    
+        // Set form action dynamically
+        form.action = `/admin/departments/${departmentId}/assign-manager`;
+    
+        // Show modal
+        modal.style.display = 'block';
+    }
+    
+    function closeManagerModal() {
+        const modal = document.getElementById('managerModal');
+        modal.style.display = 'none';
+    }
+</script>
+        

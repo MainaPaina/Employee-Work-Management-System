@@ -64,29 +64,40 @@ router.get('/view/:id', verifyRoles(['admin']), async (req, res, next) => {
     try {
       const deptId = req.params.id;
   
-      const { data: department, error } = await supabase
+      const { data: department, error: deptError } = await supabase
         .from('departments')
         .select('id, name, manager_id, users!manager_id(id, name, email), name_alias')
         .eq('id', deptId)
         .single();
   
-      if (error || !department) {
-        // Delegate to the global 404 handler
-        return next(); // This triggers your `notFound` middleware
+      if (deptError || !department) {
+        return next();
+      }
+  
+      // Fetch users assigned to this department
+      const { data: users, error: usersError } = await supabase
+        .from('users')
+        .select('id, name, email')
+        .eq('department', deptId);
+  
+      if (usersError) {
+        console.error('Error fetching users for department:', usersError.message);
+        return next();
       }
   
       res.render('admin/departments/view', {
         department,
+        users,
         activePage: 'admin',
         activeSubPage: 'departments',
       });
-  
     } catch (err) {
-      next(err); // Pass actual server errors to the error handler
+      next(err);
     }
   });
-
   
+
+
 router.post('/create', async (req, res) => {
     console.log('POST /admin/departments/create called');
     const { name, name_alias } = req.body;
@@ -117,6 +128,31 @@ router.post('/create', async (req, res) => {
         });
     }
 });
+
+
+router.post('/:id/assign-manager', verifyRoles(['admin']), async (req, res, next) => {
+    const deptId = req.params.id;
+    const { manager_id } = req.body;
+  
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('departments')
+        .update({ manager_id: manager_id })
+        .eq('id', deptId)
+        .select('*');
+  
+      if (error) {
+        console.error('Error assigning manager:', error.message);
+        throw new Error('Failed to assign manager');
+      }
+  
+      res.redirect(`/admin/departments/view/${deptId}`);
+    } catch (err) {
+      console.error('Error during manager assignment:', err);
+      next(err);
+    }
+  });
+  
 
 
 
