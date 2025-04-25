@@ -16,11 +16,6 @@ const { postCreateDepartment, getCreateDepartment } = require('../../controllers
 
 router.use(bodyParser.json());
 
-/// ROUTE START: /admin/api
-router.route('/create')
-    .get(getCreateDepartment, verifyRoles(['admin']))
-    .post(postCreateDepartment, verifyRoles(['admin']));
-
 router.get('/', verifyRoles(['admin']), async (req, res) => {
     try {
         let data = await Department.listAll();
@@ -49,6 +44,8 @@ router.get('/', verifyRoles(['admin']), async (req, res) => {
         });
     }
 });
+
+
 
 router.get('/create', verifyRoles(['admin']), async (req, res) => {
     try {
@@ -88,6 +85,70 @@ router.get('/view/:id', verifyRoles(['admin']), async (req, res, next) => {
       next(err); // Pass actual server errors to the error handler
     }
   });
+
+  
+router.post('/create', async (req, res) => {
+    console.log('POST /admin/departments/create called');
+    const { name, name_alias } = req.body;
+    console.log('Form POST Body:', req.body);
+
+    try {
+        // Create a new department in the database
+        const { data, error } = await supabaseAdmin
+            .from('departments')
+            .insert([{ name: name, name_alias: name_alias }])
+            .select('*'); // Select all columns from the inserted row
+
+            console.log('Insert result:', data);
+            console.error('Insert error:', error);
+        if (error) {
+            console.error('Error creating department:', error.message);
+            throw new Error('Failed to create department');
+        }
+
+        res.redirect('/admin/departments');
+    } catch (error) {
+        console.error('Error creating department:', error);
+        res.render('admin/departments/create', {
+            activePage: 'admin',
+            activeSubPage: 'departments',
+            currentUser: req.session.user,
+            error: `Failed to create department: ${error.message}`
+        });
+    }
+});
+
+
+
+/* 
+
+  router.post('/create', async (req, res) => {
+      console.log('POST /admin/roles/create called');
+      const { name } = req.body;
+  
+      try {
+          // Create a new role in the database
+          const { data, error } = await supabaseAdmin
+              .from('roles')
+              .insert([{ name: name }])
+              .select('*'); // Select all columns from the inserted row
+  
+          if (error) {
+              console.error('Error creating role:', error.message);
+              throw new Error('Failed to create role');
+          }
+  
+          res.redirect('/admin/roles');
+      } catch (error) {
+          console.error('Error creating role:', error);
+          res.render('admin/roles/create', {
+              activePage: 'admin',
+              activeSubPage: 'roles',
+              currentUser: req.session.user,
+              error: `Failed to create role: ${error.message}`
+          });
+      }
+  }); */
   
 
 // Export the router directly
