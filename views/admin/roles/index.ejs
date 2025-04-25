@@ -34,7 +34,6 @@
 						<tr>
 							<th>Id</th>
 							<th>Name</th>
-							<th>#</th>
 							<th>Users</th>
 							<th>Created</th>
 							<th>
@@ -49,12 +48,6 @@
 							<td><%= role.id %></td>
 							<td><%= role.name %></td>
 							<td><%= (role.users && role.users.length > 0) ? role.users.length : 0 %></td>
-							<td>
-								<%if (role.users && role.users.length > 0) {
-									for (let i = 0; i < role.users.length; i++) { %>
-								%><a href="/admin/users/view/<%=role.users[i].user.id%>"><%= role.users[i].user.name %></a><% if (i < role.users.length - 1) { %>, <% } %>
-								<% }} %>
-							</td>
 							<td><%= (new Date(role.created_at).toLocaleString()) %></td>
 							<td>
 								<div class="button-group">

@@ -5,12 +5,14 @@ const bodyParser = require('body-parser');
 const Role = require('../../model/Role');
 const User = require('../../model/User');
 
-const { setDepartmentForUser } = require('../../controllers/admin/apiController');
+const { setDepartmentForUser, role_delete } = require('../../controllers/admin/apiController');
 
 router.use(bodyParser.json());
 
 /// ROUTE START: /admin/api
 router.route('/users/setdepartment').post(setDepartmentForUser);
+
+router.route('/roles/delete/:id').delete(role_delete);
 
 // GET /api/status (handled by this router)
 router.get('/status', (req, res) => res.json({ success: true }));

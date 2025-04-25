@@ -10,6 +10,8 @@ const { upload, processUpload } = require('../middleware/uploadProfileImage');
 const jwt = require('jsonwebtoken');
 require('dotenv').config(); // Ensure JWT_SECRET is loaded
 
+// TODO: Refactor this to use a controller
+
 // Login and Register GET routes (handled by authRoutes now, but keep GET for direct access)
 // GET /account/login
 router.get('/login', (req, res) => {

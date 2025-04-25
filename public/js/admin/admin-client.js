@@ -9,19 +9,6 @@ FROM main.js
 function showMessage(message, type = 'danger');
 */
 
-function expandContainer(container) {
-    let containerElement = document.getElementById(container);
-    if (containerElement) {
-        containerElement.classList.toggle('container-full-width');
-        let icon = containerElement.querySelector('#expandable-container-icon');
-        if (icon) {
-            icon.classList.toggle('fa-down-left-and-up-right-to-center');
-            icon.classList.toggle('fa-up-right-and-down-left-from-center');
-        }
-    }
-    return false;
-}
-
 
 // Toggle password visibility 
 function togglePasswordBox(triggerButton, idOfPasswordBox) {
@@ -309,7 +296,7 @@ function userChangeDepartment(sender, departments) {
     clearOldModal();
 
     let modal = document.createElement('div');
-    modal.classList.add('admin-modal');//, { class: 'admin-modal' });
+    modal.classList.add('modal');//, { class: 'admin-modal' });
     let mHeader = document.createElement('div')
     mHeader.classList.add('modal-header');
     mHeader.innerHTML = `<h2 class="modal-title"><i class="fa fa-triangle-exclamation"></i> Change department for '${userName}'?</h2>`;
@@ -394,46 +381,6 @@ function userChangeDepartment(sender, departments) {
 
 
 
-
-/*
-=================================================
-FADE IN AND OUT EFFECT
-=================================================
-*/
-
-function fadeOutEffect(node, speed = 50) {
-    var fadeTarget = node;
-    fadeEffectRunning = true;
-    var fadeEffect = setInterval(function () {
-        if (!fadeTarget.style.opacity) {
-            fadeTarget.style.opacity = 1;
-        }
-        if (fadeTarget.style.opacity > 0) {
-            fadeTarget.style.opacity -= 0.1;
-        } else {
-            clearInterval(fadeEffect);
-            fadeEffectRunning = false;
-        }
-    }, speed);
-}
-
-function fadeInEffect(node, speed = 25) {
-    var fadeTarget = node;
-    fadeEffectRunning = true;
-    fadeTarget.style.opacity = 0;
-    let curopa = 0;
-    var fadeEffect = setInterval(function () {
-        if (fadeTarget.style.opacity < 1) {
-            curopa += 0.05;
-            fadeTarget.style.opacity = curopa;
-        } else {
-            fadeTarget.style.opacity = 1;
-            clearInterval(fadeEffect);
-            fadeEffectRunning = false;
-        }
-    }, speed);
-}
-
 /*
 =================================================
 FUNCTIONS FOR HANDLING MODALS
@@ -443,7 +390,7 @@ FUNCTIONS FOR HANDLING MODALS
 let admin_modal_visible = false;
 
 function clearOldModal() {
-    let oldModal = document.querySelector('.admin-modal');
+    let oldModal = document.querySelector('.modal');
     if (oldModal) {
         oldModal.remove();
         admin_modal_visible = false;
@@ -549,63 +496,13 @@ function roleDeletionConfirmation(sender) {
     // If so, redirect to the mobile version of the page
     isMobile("/admin/roles/delete/" + sender.getAttribute('data-role-id'));
 
-    // Clear any old modal
-    clearOldModal();
 
     let roleId = sender.getAttribute('data-role-id');
     let roleName = sender.getAttribute('data-role-name');
     let roleUsers = sender.getAttribute('data-role-users');
 
-    let modal = document.createElement('div');
-    modal.classList.add('admin-modal');//, { class: 'admin-modal' });
-    let mHeader = document.createElement('div')
-    mHeader.classList.add('modal-header');
-    mHeader.innerHTML = `<h2 class="modal-title"><i class="fa fa-triangle-exclamation"></i> Delete '${roleName}'?</h2>`;
-    modal.appendChild(mHeader);
-    let mBody = document.createElement('div');
-    mBody.classList.add('modal-body');
-
-    let mBodyP = document.createElement('p');
-    mBodyP.innerText = `Are you sure you want to delete this role?`;
-    mBody.appendChild(mBodyP);
-
-    mBodyP = document.createElement('p');
-    mBodyP.innerHTML = `<strong>All users assigned to this role will lose access to it!</strong>`;
-    mBody.appendChild(mBodyP);
-
-    mBodyP = document.createElement('p');
-    mBodyP.classList.add('status-message');
-    mBody.appendChild(mBodyP);
-
-    let mBodyInput = document.createElement('input');
-    mBodyInput.setAttribute('type', 'text');
-    mBodyInput.setAttribute('placeholder', `Type '${roleName}' to confirm`);
-    mBodyInput.setAttribute('id', 'confirm-role-name');
-    mBodyInput.classList.add('form-control');
-    mBody.appendChild(mBodyInput);
-
-    let mBodyButton = document.createElement('button');
-    mBodyButton.setAttribute('id', 'confirm-delete');
-    mBodyButton.classList.add('btn', 'btn-danger');
-    mBodyButton.innerHTML = 'Delete';
-    mBodyButton.onclick = async function () {
-        resetModalError();
-        let confirmRoleName = document.getElementById('confirm-role-name').value;
-        if (confirmRoleName !== roleName) {
-            showModalError(`You must type '${roleName}' to confirm deletion!`);
-            mBodyInput.value = '';
-            return false;
-        }
-
-        // Get the role-id from the button
-        let roleId = sender.getAttribute('data-role-id');
-        // Verify that role-id is set
-        if (roleId === 'undefined') {
-            showModalError('Role ID is undefined!');
-            mBodyInput.value = '';
-            return false;
-        }
-
+    let deletebutton = messageBoxButton.delete;
+    deletebutton.action = async function () {
         // API Endpoint for deleting a role
         const url = "/admin/api/roles/delete/" + roleId;
 
@@ -617,80 +514,51 @@ function roleDeletionConfirmation(sender) {
 
         // Check if the response is ok, if not show an error message
         if (!response.ok) {
+
             // Response not ok, show an error message
-            showModalError('Error creating user: ' + response.statusText);
+            messageBox(
+                null, 
+                'Error deleting role', 
+                'Error deleting role: ' + response.statusText, 
+                '/admin/roles/', 
+                'fa-triangle-exclamation', 
+                [messageBoxButton.ok]
+            );
+
             // Prevent form from beeing submitted
             return false;
         }
+        
+        
 
         // Show a success message to the user
-        showModalError('Role deleted successfully! Redirecting to list.');
+        messageBox(
+            null,
+            'Role deleted',
+            'Role deleted successfully! Redirecting to list.',
+            '/admin/roles/',
+            'fa-check',
+            [messageBoxButton.ok]
+        );
 
-        // Redirect to the list of users after 2 seconds
-        setTimeout(() => {
-            window.location.href = '/admin/users';
-        }, 2000);
-    };
-    mBody.appendChild(mBodyButton);
-    let mBodyButtonCancel = document.createElement('button');
-    mBodyButtonCancel.setAttribute('id', 'cancel-delete');
-    mBodyButtonCancel.classList.add('btn', 'btn-warning');
-    mBodyButtonCancel.innerHTML = 'Cancel';
-    mBodyButtonCancel.onclick = function () {
-        clearOldModal();
-    };
-    mBody.appendChild(mBodyButtonCancel);
-    modal.appendChild(mBody);
-    document.body.appendChild(modal);
-    fadeInEffect(modal);
+        
+    }
+
+
+    messageBox(
+        null,                                           // triggerButton
+        `Delete role ${roleName}?`,                     // title    
+        `Are you sure you want to delete this role?`,   // message
+        '/admin/roles/',                                // returnTo
+        'fa-triangle-exclamation',                      // icon
+        [                                               // buttons
+            deletebutton,
+            messageBoxButton.cancelDelete
+        ]
+
+    );
+
     return false;
 }
 
 
-/*
-=================================================
-CONFIRMATION BOX
-=================================================
-*/
-
-/// modular function for showing a confirmation box
-function confirmationBox(triggerButton, title, confirmtext, redirectTo) {
-
-    // Clear any old modal
-    clearOldModal();
-
-    let modal = document.createElement('div');
-    modal.classList.add('admin-modal');//, { class: 'admin-modal' });
-    
-    let mHeader = document.createElement('div')
-    mHeader.classList.add('modal-header');
-    mHeader.innerHTML = `<h2 class="modal-title"><i class="fa fa-triangle-exclamation"></i> '${title}}'?</h2>`;
-    modal.appendChild(mHeader);
-    
-    let mBody = document.createElement('div');
-    mBody.classList.add('modal-body');
-
-    let mBodyP = document.createElement('p');
-    mBodyP.innerText = `${confirmtext}`;
-    mBody.appendChild(mBodyP);
-
-
-    let mBodyButton = document.createElement('button');
-    mBodyButton.setAttribute('id', 'confirm');
-    mBodyButton.classList.add('btn', 'btn-succsess');
-    mBodyButton.innerHTML = 'Succsess';
-    mBodyButton.onclick = async function () {
-    
-
-        // Redirect to the list of users after 2 seconds
-        setTimeout(() => {
-            window.location.href = `${redirectTo}`;
-        }, 2000);
-    };
-    mBody.appendChild(mBodyButton);
-    
-    modal.appendChild(mBody);
-    document.body.appendChild(modal);
-    fadeInEffect(modal);
-    return false;
-}

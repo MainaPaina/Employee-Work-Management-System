@@ -23,6 +23,8 @@ router.delete('/:id', (req, res) => employeeController.deleteEmployee(req, res))
 router.get('/:id/timesheets', (req, res) => employeeController.getEmployeeTimesheets(req, res));
 router.post('/timesheets', (req, res) => employeeController.submitTimesheet(req, res));
 
+// TODO: Refactor this to use a controller
+
 // Leave routes
 router.get('/leave/apply', async (req, res) => {
     try {

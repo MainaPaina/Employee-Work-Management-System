@@ -3,7 +3,7 @@ const router = express.Router();
 const Leave = require('../model/Leave');
 const getSupabase = require('../utils/supabaseWithSession');
 
-
+// TODO: Refactor this to use a controller
 
 // Instantiate Controller (if it's a class)
 // const controller = new leaveController(); 

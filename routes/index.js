@@ -19,7 +19,7 @@ const dashboardRouter = require('../routes/dashboard'); // Dashboard routes
 //const loginRoutes = require('../routes/login'); // Login routes
 //const logoutRoutes = require('../routes/logout'); // Logout routes
 
-router.get('/btntest', (req, res) => { res.render('btntest') });
+router.get('/btntest', (req, res) => { res.render('testing/btntest') });
 
 // 1. Public Authentication Routes (No auth required)
 //    and Account Management
@@ -47,6 +47,8 @@ router.use('/employee', verifyRoles(['employee']), employeeRoutes);
 
 // Routes Accessible to all users (public routes)
 // Note: These routes do not require authentication checks
+
+// TODO: Refactor this to use a controller
 
 // Root route (Homepage) - Accessible to all
 router.get('/', (req, res) => { 

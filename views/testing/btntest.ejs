@@ -1,0 +1,58 @@
+<div class="container">
+	<a href="#" class="btn btn-light" id="modalTester">Light</a>
+	<a href="#" class="btn btn-primary" id="testBtn">Primary</a>
+	<a href="#" class="btn btn-secondary" id="testBtn2">Secondary</a>
+	<a href="#" class="btn btn-dark">Dark</a>
+	<a href="#" class="btn btn-info">Info</a>
+	<a href="#" class="btn btn-danger" id="testBtn4">Danger</a>
+	<a href="#" class="btn btn-accent">Accent</a>
+	<a href="#" class="btn btn-warning">Warning</a>
+	<a href="#" class="btn btn-success" id="testBtn3">Success</a>
+</div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		const modalTester = document.getElementById('modalTester');
+		const testBtn = document.getElementById('testBtn');
+		const testBtn2 = document.getElementById('testBtn2');
+		const testBtn3 = document.getElementById('testBtn3');
+		const testBtn4 = document.getElementById('testBtn4');
+
+		modalTester.addEventListener('click', function(event) {
+			event.preventDefault();
+
+		let cancelbtn = messageBoxButton.cancel;
+		cancelbtn.action = function() {
+			alert("Cancel button clicked!");
+		}
+
+			// show modal
+			messageBox(this, 'Modal Title', 'This is a test message.', '/', 'fa-triangle-exclamation',
+				[
+					messageBoxButton.ok,
+					cancelbtn,
+				]
+			);
+		});
+
+		testBtn.addEventListener('click', function(event) {
+			event.preventDefault();
+			alert("Primary button clicked!");
+		});
+
+		testBtn2.addEventListener('click', function(event) {
+			event.preventDefault();
+			alert("Secondary button clicked!");
+		});
+
+		testBtn3.addEventListener('click', function(event) {
+			event.preventDefault();
+			alert("Success button clicked!");
+		});
+
+		testBtn4.addEventListener('click', function(event) {
+			event.preventDefault();
+			alert("Danger button clicked!");
+		});
+	});
+</script>
