@@ -9,17 +9,35 @@
     <%- include('../partials/menu', { activePage, activeSubPage }) %>
   
     <div class="cards cards-1-2-1">
-      <div class="card" style="grid-column: 2;">
-        <h2>
-          <div class="card-icon"><i class="fas fa-building"></i></div>
-          Department
-        </h2>
-        <div class="card-body">
-          <div class="card-item">
-            <div class="card-item-label">Name :</div>
-            <div class="card-item-value"><%= department.name %></div>
-          </div>
+        <div class="card" style="grid-column: 2;">
+            <h2>
+                <div class="card-icon"><i class="fas fa-building"></i></div>
+                Department
+            </h2>
+            <div class="card-body">
+                <div class="card-item">
+                    <div class="card-item-label">Name :</div>
+                    <div class="card-item-value"><%= department.name %></div>
+                </div>
+
+                <div class="card-item">
+                    <div class="card-item-label">Department Alias :</div>
+                    <div class="card-item-value"><%= department.name_alias %></div>
+                </div>
+                <div class="card-item">
+                    <div class="card-item-label">Department ID :</div>
+                    <div class="card-item-value"><%= department.id %></div>
+                </div>
+                <div class="card-item">    
+                    <div class="card-item label">Department Manager :</div>
+                    <div class="card-item-value"><%= department.users?.name || 'No manager assigned' %></div>
+                </div>
+                <div class="card-item">    
+                    <div class="card-item label">Manager Email :</div>
+                    <div class="card-item-value"><%= department.users?.email || 'N/A' %></div>
+                </div>
+            
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+  

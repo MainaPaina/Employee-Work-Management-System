@@ -63,24 +63,30 @@ router.get('/create', verifyRoles(['admin']), async (req, res) => {
     }
 })
 
-router.get('/view/:id', verifyRoles(['admin']), async (req, res) => {
-    const deptId = req.params.id;
+router.get('/view/:id', verifyRoles(['admin']), async (req, res, next) => {
+    try {
+      const deptId = req.params.id;
   
-    const { data: department, error } = await supabase
-      .from('departments')
-      .select('*')
-      .eq('id', deptId)
-      .single();
+      const { data: department, error } = await supabase
+        .from('departments')
+        .select('id, name, manager_id, users!manager_id(id, name, email), name_alias')
+        .eq('id', deptId)
+        .single();
   
-    if (error || !department) {
-      return res.status(404).render('admin/404', { message: 'Department not found' });
+      if (error || !department) {
+        // Delegate to the global 404 handler
+        return next(); // This triggers your `notFound` middleware
+      }
+  
+      res.render('admin/departments/view', {
+        department,
+        activePage: 'admin',
+        activeSubPage: 'departments',
+      });
+  
+    } catch (err) {
+      next(err); // Pass actual server errors to the error handler
     }
-  
-    res.render('admin/departments/view', {
-      department,
-      activePage: 'admin',
-      activeSubPage: 'departments',
-    });
   });
   
 
