@@ -4890,3 +4890,41 @@ status is not defined
 24042025	23:26:42	f101857e-227c-4a66-a57e-9cb3a93e4691	Error: Page Not Found
 24042025	23:26:54	c3ff69fd-f1f7-4b0a-bc86-ed0757a808c1	404 Not Found: GET /manager/users
 24042025	23:26:54	698694a7-25e0-406c-96e6-0a10c00c00fd	Error: Page Not Found
+25042025	01:33:48	5c0bec88-ebf2-441c-91ab-cee3900f31f8	404 Not Found: DELETE /admin/api/roles/delete/6
+25042025	01:33:48	b67deac4-dab1-42f4-b459-84e25a65b24f	Error: Page Not Found
+25042025	01:50:43	d3626242-092c-4b52-ac61-557d6efb23a8	404 Not Found: DELETE /admin/api/roles/delete/1
+25042025	01:50:43	e70183dc-c3c5-4401-a180-f048b105dbec	Error: Page Not Found
+25042025	02:02:59	3180cad0-6fa5-4405-acae-caeb37382d39	404 Not Found: DELETE /account/login?return=%2Fadmin%2Fapi%2Froles%2Fdelete%2F6
+25042025	02:02:59	eb7cda58-0f11-4015-b7c3-45ccbef5f1ea	Error: Page Not Found
+25042025	02:07:11	23b91244-4c59-432c-98bf-d00909f1de47	404 Not Found: GET /admin/users/view/
+25042025	02:07:11	a0639d9a-fae9-47f0-82cb-8820fed6ee21	Error: Page Not Found
+25042025	02:09:54	875d2842-4c58-4d42-b01b-e4470acb4438	404 Not Found: GET /admin/users/view/
+25042025	02:09:54	478ef4f3-a095-46c0-aea3-295857237f28	Error: Page Not Found
+25042025	02:10:37	626ecdeb-9077-466b-b30f-d236ecc9f662	404 Not Found: GET /dashboardd
+25042025	02:10:37	3f821483-fb3d-4484-b063-1b0415f88847	Error: Page Not Found
+25042025	02:11:21	246a1589-0650-49e3-8333-122a4c9f2fcb	404 Not Found: GET /dashboardd
+25042025	02:11:21	9d6feca0-0fdc-4ffc-9354-085c3b37e64c	Error: Page Not Found
+25042025	02:11:22	c6825567-c073-41a4-aa6a-20444d3f4b21	404 Not Found: GET /dashboardd
+25042025	02:11:22	f8ec6633-9fce-4f9b-bba2-bb20ba9b16b0	Error: Page Not Found
+25042025	02:11:28	31eb2a36-d8f7-4495-aac8-019adcaa7d61	404 Not Found: GET /dashboardd
+25042025	02:11:28	68eec241-e689-4644-950d-eda414976c76	Error: Page Not Found
+25042025	02:11:44	33bc37d2-c0da-4bbe-b4af-611752cb1344	404 Not Found: GET /dashboardd
+25042025	02:11:44	955b3094-5861-4cb2-a93c-791dd091ca06	Error: Page Not Found
+25042025	02:11:45	37d307c0-505d-4b97-9a7a-f1cdd73d100a	404 Not Found: GET /dashboardd
+25042025	02:11:45	fc398096-f0d4-4df7-9bec-964a4eddfbe8	Error: Page Not Found
+25042025	02:12:04	d0a33388-b405-4c3e-bf3c-53e565796e91	404 Not Found: GET /dashboardd
+25042025	02:12:04	df6f219b-3a82-4dcb-a2d9-6d1c67586392	Error: Page Not Found
+25042025	02:12:13	49b34d90-11e6-42a8-8f45-72d837ad9e6e	404 Not Found: GET /dashboardd
+25042025	02:12:13	0f71acce-70ce-4902-9709-75e954cf8a8e	Error: Page Not Found
+25042025	02:12:13	58f64aed-dcc7-4a05-9175-7710cb725296	Error: Page Not Found
+25042025	02:12:13	ca8af331-1f3e-47d6-82a8-7ef096e867e6	404 Not Found: GET /dashboardd
+25042025	02:12:14	476103aa-46b8-40fd-bbdf-1d9cd681e8a3	404 Not Found: GET /dashboardd
+25042025	02:12:14	ffe2a35d-2bc8-4d18-b96d-b28abc78875e	Error: Page Not Found
+25042025	02:12:48	576b1cd5-8de9-45c3-bc73-8e7ea196ac53	404 Not Found: GET /dashboardd
+25042025	02:12:48	19f2d9b6-9f72-4223-9be1-a67228063f5b	Error: Page Not Found
+25042025	02:12:48	610b22d7-0516-4296-a6e4-87316f2bfb17	404 Not Found: GET /dashboardd
+25042025	02:12:48	4305c0c1-dca7-4b7e-b2bc-6c0522718066	Error: Page Not Found
+25042025	02:12:58	ce611c04-c9c9-41aa-93d5-778a7bf7baa8	404 Not Found: GET /dashboardd
+25042025	02:12:58	df011683-70c4-41b9-8ee9-94e87d03783a	Error: Page Not Found
+25042025	02:13:21	54f0d9a2-039b-485e-84df-116f2420be84	404 Not Found: GET /dashboarddddd
+25042025	02:13:21	cee585cd-e177-4046-973d-bda07e92578d	Error: Page Not Found

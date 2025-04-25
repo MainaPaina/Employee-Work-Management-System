@@ -87,6 +87,24 @@ class Role {
 
         }
     }
+
+    static async findByIdAndDelete(roleid) {
+        try {
+            const { data, error } = await supabaseAdmin
+                .from('roles')   // From table roles
+                .delete()       // Delete record
+                .eq('id', roleid); // Where id = roleid
+
+            if (error) {
+                console.error('Error deleting role:', error.message);
+                return null;
+            }
+            return data; // Return the role object (or null if not found)
+        } catch (error) {
+            console.error('Exception deleting role: ', error);
+            return null;
+        }
+    }
 }
 
 module.exports = Role;
