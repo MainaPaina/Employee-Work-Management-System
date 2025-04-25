@@ -38,7 +38,7 @@ router.post('/login', async (req, res) => {
 
     try {
         // 1. First, look up the user by username to get their email
-        
+
         const userData = await User.findByUsername(username);
         if (!userData) {
             req.flash('error', 'Invalid username or password.');
@@ -66,7 +66,9 @@ router.post('/login', async (req, res) => {
         }
 
         const user = authData.user;
+        // Store the Supabase token in the session
         req.session.token = authData.session?.access_token;
+        console.log('Supabase token stored in session:', req.session.token ? 'Token found' : 'No token');
 
         // 2. Fetch user profile/role (using the 'users' table linked by user.id)
         // Load user by using the model/User class
@@ -156,20 +158,30 @@ router.post('/login', async (req, res) => {
                 }
             },
             process.env.JWT_SECRET,
-            { expiresIn: '1d' } // Token expiry (e.g., 1 day)
+            { expiresIn: '7d' } // Extended token expiry to 7 days
         );
 
-        // 5. Send success response with JWT
-        //console.log('Generated Token:', accessToken); // <-- ADDED LOGGING
-        //console.log(`User logged in: ${sessionUser.email}, Roles: ${sessionUser.roles}`);
-        // Redirect for traditional forms is handled differently than sending JSON
-        // For JS handling fetch: Send JSON including the token
-        res.json({
-            success: true,
-            message: 'Login successful!',
-            accessToken: accessToken, // Send token to client
-            user: sessionUser, // Send user info (optional, but useful)
-            redirectUrl: returnUrl // Suggest redirect URL
+        // Store the JWT token in the session as well
+        req.session.jwtToken = accessToken;
+
+        // Log token creation for debugging
+        console.log('Generated JWT Token:', accessToken ? 'Token created successfully' : 'Token creation failed');
+        console.log(`User logged in: ${sessionUser.email}, Roles: ${sessionUser.roles}`);
+
+        // Save session before responding
+        req.session.save(err => {
+            if (err) {
+                console.error('Error saving session:', err);
+            }
+
+            // 5. Send success response with JWT
+            res.json({
+                success: true,
+                message: 'Login successful!',
+                accessToken: accessToken, // Send token to client
+                user: sessionUser, // Send user info
+                redirectUrl: returnUrl // Suggest redirect URL
+            });
         });
         // If handling traditional form POST without JS, you'd use:
         // req.flash('success', 'Login successful!');

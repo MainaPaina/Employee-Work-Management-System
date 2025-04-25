@@ -204,7 +204,10 @@ class TimesheetController {
                 weeklyHours: formattedWeeklyHours,
                 weeklyHoursRaw: weeklyHours,
                 weekStartDate: timesheetData.weekStartDate,
-                weekEndDate: timesheetData.weekEndDate
+                weekEndDate: timesheetData.weekEndDate,
+                // Pass authentication tokens to the view
+                sessionToken: req.session?.token || '',
+                jwtToken: req.session?.jwtToken || ''
             };
 
              // Debugging viewData
@@ -227,7 +230,10 @@ class TimesheetController {
                 isOnBreak: false,
                 isUnavailable: false,
                 clockInTime: null,
-                messages: req.flash()
+                messages: req.flash(),
+                // Pass authentication tokens to the view
+                sessionToken: req.session?.token || '',
+                jwtToken: req.session?.jwtToken || ''
             });
         }
     }
