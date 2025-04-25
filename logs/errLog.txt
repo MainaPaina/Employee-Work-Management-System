@@ -4928,3 +4928,39 @@ status is not defined
 25042025	02:12:58	df011683-70c4-41b9-8ee9-94e87d03783a	Error: Page Not Found
 25042025	02:13:21	54f0d9a2-039b-485e-84df-116f2420be84	404 Not Found: GET /dashboarddddd
 25042025	02:13:21	cee585cd-e177-4046-973d-bda07e92578d	Error: Page Not Found
+25042025	11:08:21	97dd4ced-d7e8-4d69-8b1a-ec6cc03d5832	ReferenceError: C:\Users\figgm\Documents\Projects\NEWTIME\Better-Time-Management\views\timesheet.ejs:2016
+    2014| <script>
+    2015|     // Pass both session tokens to the client-side if available
+ >> 2016|     window.sessionToken = '<%= req.session?.token || "" %>';
+    2017|     window.jwtToken = '<%= req.session?.jwtToken || "" %>';
+    2018| 
+    2019|     // Check if token exists in localStorage
+
+req is not defined
+25042025	11:08:30	69a5236b-9681-404b-a58c-955fbf13ade0	ReferenceError: C:\Users\figgm\Documents\Projects\NEWTIME\Better-Time-Management\views\timesheet.ejs:2016
+    2014| <script>
+    2015|     // Pass both session tokens to the client-side if available
+ >> 2016|     window.sessionToken = '<%= req.session?.token || "" %>';
+    2017|     window.jwtToken = '<%= req.session?.jwtToken || "" %>';
+    2018| 
+    2019|     // Check if token exists in localStorage
+
+req is not defined
+25042025	11:09:55	656bdafd-36f3-49d3-8a1a-fea10d9f2c2e	ReferenceError: C:\Users\figgm\Documents\Projects\NEWTIME\Better-Time-Management\views\timesheet.ejs:2016
+    2014| <script>
+    2015|     // Use tokens passed from the controller
+ >> 2016|     window.sessionToken = '<%= sessionToken %>';
+    2017|     window.jwtToken = '<%= jwtToken %>';
+    2018| 
+    2019|     // Check if token exists in localStorage
+
+sessionToken is not defined
+25042025	11:10:04	6325550f-c962-42e4-8992-b7380155b63c	ReferenceError: C:\Users\figgm\Documents\Projects\NEWTIME\Better-Time-Management\views\timesheet.ejs:2016
+    2014| <script>
+    2015|     // Use tokens passed from the controller
+ >> 2016|     window.sessionToken = '<%= sessionToken %>';
+    2017|     window.jwtToken = '<%= jwtToken %>';
+    2018| 
+    2019|     // Check if token exists in localStorage
+
+sessionToken is not defined

@@ -1582,14 +1582,89 @@ document.head.appendChild(notificationStyles);
 // Helper function for time tracking API requests with retry mechanism
 async function sendTimeTrackingRequest(url, method = 'POST', data = null, retryCount = 0, maxRetries = 3) {
     try {
-        const token = localStorage.getItem('token'); // Retrieve the token
+        // Try to get token from multiple sources
+        let token = localStorage.getItem('token'); // First try localStorage
+
+        if (!token) {
+            // If not in localStorage, try sessionStorage
+            token = sessionStorage.getItem('token');
+
+            // If found in sessionStorage, save to localStorage for future use
+            if (token) {
+                console.log('Token found in sessionStorage, copying to localStorage');
+                localStorage.setItem('token', token);
+            }
+        }
+
+        // If still no token but we have a session token in the page, use it
+        if (!token && window.sessionToken) {
+            console.log('Using session token from page');
+            token = window.sessionToken;
+            localStorage.setItem('token', token);
+        }
+
         if (!token) {
             // Handle cases where the token might be missing (e.g., user logged out)
-            // Maybe redirect to login or show an error
             console.error('No authentication token found. Please log in.');
             showNotification('Authentication error. Please log in again.', 'error');
-            // Optionally, redirect to login page:
-            // window.location.href = '/login';
+
+            // Create a more visible notification
+            const authError = document.createElement('div');
+            authError.className = 'auth-error-banner';
+            authError.innerHTML = `
+                <div class="auth-error-content">
+                    <p><strong>Authentication Error:</strong> Your session has expired or you are not logged in.</p>
+                    <a href="/account/login?return=${window.location.pathname}" class="auth-login-btn">Log In Again</a>
+                    <button class="auth-error-close">&times;</button>
+                </div>
+            `;
+
+            // Add styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .auth-error-banner {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    padding: 15px;
+                    text-align: center;
+                    z-index: 9999;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                }
+                .auth-error-content {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 15px;
+                }
+                .auth-login-btn {
+                    background-color: #721c24;
+                    color: white;
+                    padding: 8px 15px;
+                    border-radius: 4px;
+                    text-decoration: none;
+                    font-weight: bold;
+                }
+                .auth-error-close {
+                    background: none;
+                    border: none;
+                    font-size: 20px;
+                    cursor: pointer;
+                    color: #721c24;
+                }
+            `;
+
+            document.head.appendChild(style);
+            document.body.appendChild(authError);
+
+            // Add event listener to close button
+            authError.querySelector('.auth-error-close').addEventListener('click', function() {
+                authError.remove();
+            });
+
             throw new Error('Authentication token not found');
         }
 

@@ -269,7 +269,7 @@
 			<div class="card-header">
 				<h2>Recent Time Entries</h2>
 				<div class="card-actions">
-				    
+
                     <button class="btn btn-primary" id="exportBtn">
                         <i class="fas fa-download"></i>
                     </button>
@@ -2009,6 +2009,30 @@ document.getElementById('printBtn').addEventListener('click', () => {
 });
 /* /Export and Print functionality */
 </script>
+
+<!-- Authentication token check script -->
+<script>
+    // Use tokens passed from the controller
+    window.sessionToken = '<%= sessionToken %>';
+    window.jwtToken = '<%= jwtToken %>';
+
+    // Check if token exists in localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('token');
+
+        // First try to use the JWT token if available
+        if (!token && window.jwtToken) {
+            console.log('Setting JWT token from session to localStorage');
+            localStorage.setItem('token', window.jwtToken);
+        }
+        // Fall back to Supabase token if JWT token is not available
+        else if (!token && window.sessionToken) {
+            console.log('Setting Supabase token from session to localStorage');
+            localStorage.setItem('token', window.sessionToken);
+        }
+    });
+</script>
+<script src="/js/auth-check.js"></script>
 
 <!-- Additional styles for tooltips and hours display -->
 <style>
