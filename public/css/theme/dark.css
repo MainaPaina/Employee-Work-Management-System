@@ -73,7 +73,7 @@
 body {
     color: var(--text-color);
     background-color: var(--dark-color);
-    background-image: 
+    background-image:
     radial-gradient(circle at 20% 20%, rgba(74, 108, 253, 0.05) 0%, transparent 20%),
     radial-gradient(circle at 80% 60%, rgba(255, 125, 59, 0.05) 0%, transparent 20%),
     radial-gradient(circle at 40% 80%, rgba(0, 216, 195, 0.05) 0%, transparent 20%);
@@ -333,7 +333,7 @@ a:hover:not(.btn,.nav-link) {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 15px 0;
+    padding: 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
 }
@@ -347,20 +347,22 @@ a:hover:not(.btn,.nav-link) {
 .navbar-logo {
     display: flex;
     align-items: center;
+    justify-content: center;
     color: white;
     font-size: 1.5rem;
     font-weight: 700;
     text-decoration: none;
-    gap: 10px;
-    padding: 1rem;
+    gap: 1px;
+    height: 100%;
 }
 
-.logo-icon {
-    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
-    color: transparent;
-    font-size: 1.8rem;
-    -webkit-background-clip: text;
-    background-clip: text;
+.logo-img {
+    display: block;
+    height: 70px; /* Fixed height to match navbar */
+    width: auto; /* Maintain aspect ratio */
+    max-width: 250px; /* Prevent logo from getting too wide */
+    object-fit: contain; /* Ensure the logo fits within the dimensions */
+    margin: 0 auto; /* Center the logo */
 }
 
 .nav-list {
@@ -570,19 +572,19 @@ a:hover:not(.btn,.nav-link) {
     justify-content: space-between;
     align-items: center;
     }
-        
+
     .mobile-menu-toggle.active .toggle-bar:nth-child(1) {
     transform: translateY(8px) rotate(45deg);
     }
-        
+
     .mobile-menu-toggle.active .toggle-bar:nth-child(2) {
     opacity: 0;
     }
-        
+
     .mobile-menu-toggle.active .toggle-bar:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
     }
-        
+
     .nav-list {
     position: fixed;
     top: 0;
@@ -596,19 +598,19 @@ a:hover:not(.btn,.nav-link) {
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     }
-        
+
     .nav-list.active {
     right: 0;
     }
-        
+
     .nav-link::after {
     display: none;
     }
-        
+
     .nav-item {
     width: 100%;
     }
-        
+
     .nav-link {
     width: 100%;
     padding: 15px 0;
@@ -732,7 +734,7 @@ a:hover:not(.btn,.nav-link) {
         grid-template-columns: 1fr;
         gap: 30px;
         }
-        
+
         .footer-section:not(:last-child) {
         padding-bottom: 20px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -1175,7 +1177,7 @@ a:hover:not(.btn,.nav-link) {
         vertical-align: middle;
     }
 
-    
+
     /* How it Works Section */
     .steps {
         display: grid;
@@ -1209,7 +1211,7 @@ a:hover:not(.btn,.nav-link) {
         list-style: none;
     }
 
-    
+
 
     .stat-item {
         text-align: center;
@@ -1276,12 +1278,12 @@ a:hover:not(.btn,.nav-link) {
         .about-content {
         grid-template-columns: 1fr;
         }
-        
+
         .about-text {
         order: 2;
         padding-right: 0;
         }
-        
+
         .about-image {
         order: 1;
         margin-bottom: 50px;
@@ -1292,24 +1294,24 @@ a:hover:not(.btn,.nav-link) {
         .hero h1 {
         font-size: 2.5rem;
         }
-        
+
         .section-title {
         font-size: 1.8rem;
         }
-        
+
         .action-buttons {
         flex-direction: column;
         gap: 15px;
         }
-        
+
         .feature-card {
         padding: 20px;
         }
-        
+
         .hero {
         padding: 60px 0;
         }
-        
+
         .features, .about {
         padding: 60px 0;
         }
@@ -1378,7 +1380,7 @@ a:hover:not(.btn,.nav-link) {
 
     .quote-icon-left {
         justify-content: start;
-    }  
+    }
 
     .quote-icon-right {
         justify-content: end;
@@ -1386,7 +1388,7 @@ a:hover:not(.btn,.nav-link) {
 
 
 
-    .page-header, 
+    .page-header,
     .dashboard-cards,
     .timesheet-controls,
     .timesheet-table-container {

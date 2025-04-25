@@ -13,6 +13,8 @@ logs/errLog.txt
 .git/
 presentation.txt
 text.txt
+teacher_evaluation.txt
+timesheetery.txt
 
 # Environment variables and configuration
 .env
